@@ -1,0 +1,105 @@
+.page { padding: 40px 64px; min-height: calc(100vh - var(--header-h)); }
+.container { max-width: 800px; margin: 0 auto; }
+
+.profileCard {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 24px 28px;
+  box-shadow: var(--shadow);
+  margin-bottom: 36px;
+}
+
+.avatar {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+  font-size: 22px;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.name { font-size: 18px; font-weight: 700; }
+.email { font-size: 14px; color: var(--text-muted); }
+
+.roleBadge {
+  margin-left: auto;
+  padding: 6px 14px;
+  background: var(--surface2);
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.sectionTitle { font-size: 20px; font-weight: 700; margin-bottom: 16px; }
+
+.loading { display: flex; justify-content: center; padding: 40px; }
+.spinner {
+  width: 32px; height: 32px;
+  border: 3px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.empty {
+  text-align: center;
+  padding: 60px 0;
+  color: var(--text-muted);
+}
+.empty span { font-size: 48px; display: block; margin-bottom: 12px; }
+
+.orders { display: flex; flex-direction: column; gap: 12px; }
+
+.orderCard {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 18px 22px;
+  box-shadow: var(--shadow);
+}
+
+.orderHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.orderId { font-size: 14px; font-weight: 600; color: var(--text-muted); }
+.orderStatus { font-size: 13px; font-weight: 600; }
+
+.orderItems {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.orderItem {
+  background: var(--bg);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.orderFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.orderDate { font-size: 13px; color: var(--text-muted); }
+.orderTotal { font-size: 16px; font-weight: 700; color: var(--primary); }
+
+@media (max-width: 768px) {
+  .page { padding: 24px 20px; }
+}
