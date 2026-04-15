@@ -196,7 +196,7 @@ app.get('/api/admin/users', adminMiddleware, (req, res) => {
 
 // Fallback to React app for all non-API routes (production)
 if (process.env.NODE_ENV === 'production') {
-  app.get('*', (req, res) => {
+  app.get('/{*path}', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'frontend', 'dist', 'index.html'));
   });
 }
