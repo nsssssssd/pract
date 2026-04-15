@@ -18,7 +18,9 @@ export default function Admin() {
   const [products, setProducts] = useState([]);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [productForm, setProductForm] = useState({ name: '', description: '', price: '', unit: 'шт', emoji: '🌷', color: '#F4A7B9' });
+  const [productForm, setProductForm] = useState({ name: '', description: '', price: '', unit: 'шт', emoji: '🌷', color: '#F4A7B9', image: null });
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   const [editingProduct, setEditingProduct] = useState(null);
   const [showProductForm, setShowProductForm] = useState(false);
 
@@ -52,21 +54,51 @@ export default function Admin() {
 
   async function saveProduct(e) {
     e.preventDefault();
+    let imageUrl = productForm.image;
+
+    // Upload image if a new file was selected
+    if (imageFile) {
+      const fd = new FormData();
+      fd.append('image', imageFile);
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: fd,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Ошибка загрузки фото');
+      imageUrl = data.url;
+    }
+
+    const payload = { ...productForm, image: imageUrl };
+
     if (editingProduct) {
-      const updated = await api.put(`/products/${editingProduct.id}`, productForm);
+      const updated = await api.put(`/products/${editingProduct.id}`, payload);
       setProducts(prev => prev.map(p => p.id === editingProduct.id ? updated : p));
     } else {
-      const created = await api.post('/products', productForm);
+      const created = await api.post('/products', payload);
       setProducts(prev => [...prev, created]);
     }
     setShowProductForm(false);
     setEditingProduct(null);
-    setProductForm({ name: '', description: '', price: '', unit: 'шт', emoji: '🌷', color: '#F4A7B9' });
+    setProductForm({ name: '', description: '', price: '', unit: 'шт', emoji: '🌷', color: '#F4A7B9', image: null });
+    setImageFile(null);
+    setImagePreview(null);
+  }
+
+  function handleImageChange(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
   }
 
   function startEdit(p) {
     setEditingProduct(p);
-    setProductForm({ name: p.name, description: p.description, price: p.price, unit: p.unit, emoji: p.emoji, color: p.color });
+    setProductForm({ name: p.name, description: p.description, price: p.price, unit: p.unit, emoji: p.emoji, color: p.color, image: p.image || null });
+    setImageFile(null);
+    setImagePreview(p.image || null);
     setShowProductForm(true);
   }
 
@@ -181,7 +213,7 @@ export default function Admin() {
           <div>
             <div className={styles.tabHeader}>
               <h1 className={styles.pageTitle}>Товары <span className={styles.count}>{products.length}</span></h1>
-              <button className={styles.addBtn} onClick={() => { setEditingProduct(null); setProductForm({ name: '', description: '', price: '', unit: 'шт', emoji: '🌷', color: '#F4A7B9' }); setShowProductForm(true); }}>
+              <button className={styles.addBtn} onClick={() => { setEditingProduct(null); setProductForm({ name: '', description: '', price: '', unit: 'шт', emoji: '🌷', color: '#F4A7B9', image: null }); setImageFile(null); setImagePreview(null); setShowProductForm(true); }}>
                 + Добавить
               </button>
             </div>
@@ -208,6 +240,20 @@ export default function Admin() {
                     <input type="color" value={productForm.color}
                       onChange={e => setProductForm(f => ({ ...f, color: e.target.value }))} />
                   </div>
+                </div>
+                <div className={styles.imageUpload}>
+                  <label className={styles.imageLabel}>
+                    {imagePreview
+                      ? <img src={imagePreview} alt="preview" className={styles.imagePreview} />
+                      : <div className={styles.imagePlaceholder}><span>📷</span><span>Выбрать фото</span></div>
+                    }
+                    <input type="file" accept="image/*" onChange={handleImageChange} className={styles.fileInput} />
+                  </label>
+                  {imagePreview && (
+                    <button type="button" className={styles.removeImageBtn} onClick={() => { setImageFile(null); setImagePreview(null); setProductForm(f => ({ ...f, image: null })); }}>
+                      Удалить фото
+                    </button>
+                  )}
                 </div>
                 <div className={styles.formActions}>
                   <button type="submit" className={styles.saveBtn}>{editingProduct ? 'Сохранить' : 'Создать'}</button>

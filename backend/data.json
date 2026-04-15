@@ -30,7 +30,7 @@
       "unit": "шт",
       "emoji": "🤍",
       "color": "#F5F0EB",
-      "image": "/img/белые_тюльпаны.png",
+      "image": "/img/product_1776288553192.png",
       "available": true
     },
     {
@@ -67,26 +67,7 @@
       "available": true
     }
   ],
-  "orders": [
-    {
-      "id": 1775238734025,
-      "userId": null,
-      "name": "Тест",
-      "phone": "89001234567",
-      "address": "ул. Примерная, 1",
-      "items": [
-        {
-          "id": 4,
-          "name": "Жёлтые тюльпаны",
-          "price": 130,
-          "qty": 4
-        }
-      ],
-      "total": 520,
-      "status": "new",
-      "createdAt": "2026-04-03T17:52:14.025Z"
-    }
-  ],
+  "orders": [],
   "users": [
     {
       "id": 1,
@@ -95,14 +76,6 @@
       "password": "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
       "role": "admin",
       "createdAt": "2026-01-01T00:00:00.000Z"
-    },
-    {
-      "id": 1775240179499,
-      "name": "kostyan228_",
-      "email": "isupov_kostya@bk.ru",
-      "password": "$2b$10$SdsI6vwlrf94ziEZOHY9zO3tYXJNytgCWv12dIsrJ4XCexflrrCOS",
-      "role": "user",
-      "createdAt": "2026-04-03T18:16:19.499Z"
     }
   ]
 }

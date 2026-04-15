@@ -320,3 +320,68 @@
   .tableHead span:nth-child(4),
   .tableRow div:nth-child(4) { display: none; }
 }
+
+/* Image upload */
+.imageUpload {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.imageLabel {
+  cursor: pointer;
+  display: block;
+}
+
+.fileInput {
+  display: none;
+}
+
+.imagePlaceholder {
+  width: 120px;
+  height: 120px;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 12px;
+  transition: border-color 0.15s, background 0.15s;
+  background: var(--bg);
+}
+
+.imagePlaceholder span:first-child { font-size: 28px; }
+
+.imageLabel:hover .imagePlaceholder {
+  border-color: var(--primary-light);
+  background: var(--surface2);
+}
+
+.imagePreview {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--border);
+  display: block;
+}
+
+.removeImageBtn {
+  font-size: 12px;
+  color: #EF4444;
+  background: none;
+  border: 1px solid #EF4444;
+  border-radius: 6px;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.removeImageBtn:hover {
+  background: #EF4444;
+  color: white;
+}

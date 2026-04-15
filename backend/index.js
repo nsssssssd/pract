@@ -4,14 +4,35 @@ const fs = require('fs');
 const path = require('path');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const multer = require('multer');
 
 const app = express();
 const PORT = 3001;
 const JWT_SECRET = 'tulips_secret_2026';
 const DATA_FILE = path.join(__dirname, 'data.json');
+const UPLOAD_DIR = path.join(__dirname, '..', 'frontend', 'public', 'img');
+
+// Ensure upload dir exists
+if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, UPLOAD_DIR),
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    cb(null, `product_${Date.now()}${ext}`);
+  }
+});
+const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
 
 app.use(cors());
 app.use(express.json());
+
+// Serve frontend static files in production
+if (process.env.NODE_ENV === 'production') {
+  const frontendDist = path.join(__dirname, '..', 'frontend', 'dist');
+  app.use(express.static(frontendDist));
+  app.use('/img', express.static(path.join(__dirname, '..', 'frontend', 'public', 'img')));
+}
 
 function readData() {
   return JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
@@ -73,16 +94,31 @@ app.get('/api/auth/me', authMiddleware, (req, res) => {
   res.json(req.user);
 });
 
+// ── UPLOAD ────────────────────────────────────────────
+app.post('/api/upload', (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'Нет токена' });
+  let user;
+  try { user = jwt.verify(token, JWT_SECRET); } catch { return res.status(401).json({ error: 'Токен недействителен' }); }
+  if (user.role !== 'admin') return res.status(403).json({ error: 'Нет доступа' });
+
+  upload.single('image')(req, res, (err) => {
+    if (err) return res.status(400).json({ error: err.message });
+    if (!req.file) return res.status(400).json({ error: 'Файл не загружен' });
+    res.json({ url: `/img/${req.file.filename}` });
+  });
+});
+
 // ── PRODUCTS ──────────────────────────────────────────
 app.get('/api/products', (req, res) => {
   res.json(readData().products);
 });
 
 app.post('/api/products', adminMiddleware, (req, res) => {
-  const { name, description, price, unit, emoji, color } = req.body;
+  const { name, description, price, unit, emoji, color, image } = req.body;
   if (!name || !price) return res.status(400).json({ error: 'Название и цена обязательны' });
   const data = readData();
-  const product = { id: Date.now(), name, description: description || '', price: Number(price), unit: unit || 'шт', emoji: emoji || '🌷', color: color || '#F4A7B9', available: true };
+  const product = { id: Date.now(), name, description: description || '', price: Number(price), unit: unit || 'шт', emoji: emoji || '🌷', color: color || '#F4A7B9', image: image || null, available: true };
   data.products.push(product);
   writeData(data);
   res.status(201).json(product);
@@ -157,5 +193,12 @@ app.get('/api/admin/users', adminMiddleware, (req, res) => {
   const data = readData();
   res.json(data.users.map(u => ({ id: u.id, name: u.name, email: u.email, role: u.role, createdAt: u.createdAt })));
 });
+
+// Fallback to React app for all non-API routes (production)
+if (process.env.NODE_ENV === 'production') {
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'frontend', 'dist', 'index.html'));
+  });
+}
 
 app.listen(PORT, () => console.log(`Backend running on http://localhost:${PORT}`));
