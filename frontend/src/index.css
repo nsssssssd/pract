@@ -20,7 +20,16 @@
   --header-h: 64px;
 }
 
-html, body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 16px; line-height: 1.5; min-height: 100vh; }
+html { font-size: 19.2px; }
+
+@media (max-width: 768px) {
+  html { font-size: 15.36px; }
+}
+
+@media (max-width: 480px) {
+  html { font-size: 14px; }
+}
+html, body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; line-height: 1.5; min-height: 100vh; }
 button { cursor: pointer; border: none; font-family: inherit; }
 input, textarea, select { font-family: inherit; }
 a { text-decoration: none; color: inherit; }

@@ -53,10 +53,6 @@ export default function Login() {
         <div className={styles.hint}>
           Нет аккаунта? <Link to="/register" className={styles.link}>Зарегистрироваться</Link>
         </div>
-
-        <div className={styles.adminHint}>
-          <span>Демо-админ:</span> admin@tulips.ru / password
-        </div>
       </div>
     </div>
   );

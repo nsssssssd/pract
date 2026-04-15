@@ -90,7 +90,10 @@ export default function Home() {
             {filtered.map(p => (
               <div className={styles.card} key={p.id}>
                 <div className={styles.cardImg} style={{ background: p.color + '28' }}>
-                  <span className={styles.cardEmoji}>{p.emoji}</span>
+                  {p.image
+                    ? <img src={p.image} alt={p.name} className={styles.cardPhoto} />
+                    : <span className={styles.cardEmoji}>{p.emoji}</span>
+                  }
                   {p.unit === 'букет' && <span className={styles.cardTag}>Букет</span>}
                 </div>
                 <div className={styles.cardBody}>
@@ -121,7 +124,7 @@ export default function Home() {
           <span className={styles.ctaEmoji}>🌷</span>
           <h2>Нужен большой заказ?</h2>
           <p>Оптовые поставки, оформление мероприятий, корпоративные букеты</p>
-          <a href="tel:+79001234567" className={styles.ctaBtn}>Позвонить нам</a>
+          <a href="tel:+79081074145" className={styles.ctaBtn}>Позвонить нам</a>
         </div>
       </section>
     </div>

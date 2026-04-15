@@ -21,7 +21,7 @@ export default function Header({ onCartOpen }) {
 
       <nav className={styles.nav}>
         <Link to="/" className={styles.navLink}>Каталог</Link>
-        <Link to="/about" className={styles.navLink}>О нас</Link>
+        <Link to="/care" className={styles.navLink}>Уход за цветами</Link>
         {user?.role === 'admin' && <Link to="/admin" className={styles.navLink + ' ' + styles.adminLink}>Админ</Link>}
       </nav>
 

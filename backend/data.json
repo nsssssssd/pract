@@ -8,6 +8,7 @@
       "unit": "шт",
       "emoji": "🌷",
       "color": "#E8506A",
+      "image": "/img/красные_тюльпаны.png",
       "available": true
     },
     {
@@ -18,6 +19,7 @@
       "unit": "шт",
       "emoji": "🌸",
       "color": "#F4A7B9",
+      "image": "/img/розовые_тюльпаны.png",
       "available": true
     },
     {
@@ -28,6 +30,7 @@
       "unit": "шт",
       "emoji": "🤍",
       "color": "#F5F0EB",
+      "image": "/img/белые_тюльпаны.png",
       "available": true
     },
     {
@@ -38,6 +41,7 @@
       "unit": "шт",
       "emoji": "💛",
       "color": "#F9D56E",
+      "image": "/img/желтые_тюльпаны.png",
       "available": true
     },
     {
@@ -48,6 +52,7 @@
       "unit": "букет",
       "emoji": "💐",
       "color": "#C8E6C9",
+      "image": "/img/букет.png",
       "available": true
     },
     {
@@ -58,6 +63,7 @@
       "unit": "букет",
       "emoji": "🌺",
       "color": "#F8BBD0",
+      "image": "/img/букет.png",
       "available": true
     }
   ],
