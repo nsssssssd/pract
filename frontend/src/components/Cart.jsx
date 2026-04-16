@@ -1,15 +1,27 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCart } from '../CartContext';
 import { useAuth } from '../AuthContext';
 import { api } from '../api';
+import { Link, useNavigate } from 'react-router-dom';
 import styles from './Cart.module.css';
 
 export default function Cart({ open, onClose }) {
   const { cart, changeQty, clear, total } = useCart();
   const { user } = useAuth();
-  const [form, setForm] = useState({ name: user?.name || '', phone: '', address: '' });
-  const [step, setStep] = useState('cart'); // cart | form | success
+  const navigate = useNavigate();
+  const [form, setForm] = useState({ name: '', phone: '', address: '' });
+  const [step, setStep] = useState('cart');
   const [loading, setLoading] = useState(false);
+  const [lastOrderId, setLastOrderId] = useState(null);
+
+  // Reset form with fresh user data every time cart opens
+  useEffect(() => {
+    if (open) {
+      setForm({ name: user?.name || '', phone: '', address: '' });
+      setStep('cart');
+      setLastOrderId(null);
+    }
+  }, [open, user]);
 
   if (!open) return null;
 
@@ -17,12 +29,13 @@ export default function Cart({ open, onClose }) {
     e.preventDefault();
     setLoading(true);
     try {
-      await api.post('/orders', {
+      const res = await api.post('/orders', {
         ...form,
         userId: user?.id || null,
         items: cart.map(i => ({ id: i.id, name: i.name, price: i.price, qty: i.qty }))
       });
       clear();
+      setLastOrderId(res.orderId);
       setStep('success');
     } catch (err) {
       alert(err.message);
@@ -32,7 +45,6 @@ export default function Cart({ open, onClose }) {
 
   function handleClose() {
     onClose();
-    setTimeout(() => setStep('cart'), 300);
   }
 
   return (
@@ -53,6 +65,20 @@ export default function Cart({ open, onClose }) {
               <span className={styles.successEmoji}>🌷</span>
               <div className={styles.successTitle}>Спасибо за заказ!</div>
               <div className={styles.successText}>Мы свяжемся с вами для подтверждения доставки</div>
+              {lastOrderId && (
+                <div className={styles.successOrderId}>
+                  Заказ #{String(lastOrderId).slice(-6)}
+                </div>
+              )}
+              {user ? (
+                <Link to="/profile" className={styles.successLink} onClick={handleClose}>
+                  Посмотреть мои заказы →
+                </Link>
+              ) : (
+                <Link to="/login" className={styles.successLink} onClick={handleClose}>
+                  Войдите, чтобы отслеживать заказы →
+                </Link>
+              )}
               <button className={styles.successBtn} onClick={handleClose}>Продолжить покупки</button>
             </div>
           )}
@@ -86,7 +112,17 @@ export default function Cart({ open, onClose }) {
                     <span>Итого</span>
                     <span className={styles.totalPrice}>{total} ₽</span>
                   </div>
-                  <button className={styles.primaryBtn} onClick={() => setStep('form')}>
+                  <button
+                    className={styles.primaryBtn}
+                    onClick={() => {
+                      if (user) {
+                        setStep('form');
+                      } else {
+                        onClose();
+                        navigate('/register');
+                      }
+                    }}
+                  >
                     Оформить заказ →
                   </button>
                 </>

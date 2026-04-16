@@ -8,7 +8,7 @@
       "unit": "шт",
       "emoji": "🌷",
       "color": "#E8506A",
-      "image": "/img/красные_тюльпаны.png",
+      "image": "/img/product_1776299226462.png",
       "available": true
     },
     {
@@ -19,7 +19,7 @@
       "unit": "шт",
       "emoji": "🌸",
       "color": "#F4A7B9",
-      "image": "/img/розовые_тюльпаны.png",
+      "image": "/img/product_1776298076319.png",
       "available": true
     },
     {
@@ -30,7 +30,7 @@
       "unit": "шт",
       "emoji": "🤍",
       "color": "#F5F0EB",
-      "image": "/img/product_1776288553192.png",
+      "image": "/img/product_1776299183462.jpg",
       "available": true
     },
     {
@@ -41,7 +41,7 @@
       "unit": "шт",
       "emoji": "💛",
       "color": "#F9D56E",
-      "image": "/img/желтые_тюльпаны.png",
+      "image": "/img/product_1776299170094.png",
       "available": true
     },
     {
@@ -63,11 +63,132 @@
       "unit": "букет",
       "emoji": "🌺",
       "color": "#F8BBD0",
-      "image": "/img/букет.png",
+      "image": "/img/product_1776299200294.png",
       "available": true
     }
   ],
-  "orders": [],
+  "orders": [
+    {
+      "id": 1776298834962,
+      "userId": 1776298786851,
+      "name": "12fewf",
+      "phone": "89994445533",
+      "address": "djkp[fdfjhdjf 23",
+      "items": [
+        {
+          "id": 1,
+          "name": "Красные тюльпаны",
+          "price": 150,
+          "qty": 4
+        },
+        {
+          "id": 6,
+          "name": "Букет «Нежность»",
+          "price": 2990,
+          "qty": 2
+        },
+        {
+          "id": 5,
+          "name": "Букет «Весна»",
+          "price": 1490,
+          "qty": 2
+        },
+        {
+          "id": 3,
+          "name": "Белые тюльпаны",
+          "price": 160,
+          "qty": 1
+        },
+        {
+          "id": 4,
+          "name": "Жёлтые тюльпаны",
+          "price": 130,
+          "qty": 1
+        },
+        {
+          "id": 2,
+          "name": "Розовые тюльпаны",
+          "price": 140,
+          "qty": 1
+        }
+      ],
+      "total": 9990,
+      "status": "confirmed",
+      "createdAt": "2026-04-16T00:20:34.962Z"
+    },
+    {
+      "id": 1776299326438,
+      "userId": 1776299291366,
+      "name": "костяк",
+      "phone": "89998889900",
+      "address": "цуывамцу",
+      "items": [
+        {
+          "id": 1,
+          "name": "Красные тюльпаны",
+          "price": 150,
+          "qty": 1
+        }
+      ],
+      "total": 150,
+      "status": "new",
+      "createdAt": "2026-04-16T00:28:46.438Z"
+    },
+    {
+      "id": 1776299349630,
+      "userId": 1776299291366,
+      "name": "костяк",
+      "phone": "89998889900",
+      "address": "456456",
+      "items": [
+        {
+          "id": 5,
+          "name": "Букет «Весна»",
+          "price": 1490,
+          "qty": 1
+        },
+        {
+          "id": 6,
+          "name": "Букет «Нежность»",
+          "price": 2990,
+          "qty": 1
+        },
+        {
+          "id": 4,
+          "name": "Жёлтые тюльпаны",
+          "price": 130,
+          "qty": 1
+        },
+        {
+          "id": 3,
+          "name": "Белые тюльпаны",
+          "price": 160,
+          "qty": 1
+        }
+      ],
+      "total": 4770,
+      "status": "new",
+      "createdAt": "2026-04-16T00:29:09.630Z"
+    },
+    {
+      "id": 1776300156487,
+      "userId": 1776300135996,
+      "name": "Конг",
+      "phone": "89092332332",
+      "address": "34",
+      "items": [
+        {
+          "id": 4,
+          "name": "Жёлтые тюльпаны",
+          "price": 130,
+          "qty": 1
+        }
+      ],
+      "total": 130,
+      "status": "new",
+      "createdAt": "2026-04-16T00:42:36.487Z"
+    }
+  ],
   "users": [
     {
       "id": 1,
@@ -76,6 +197,30 @@
       "password": "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
       "role": "admin",
       "createdAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 1776298786851,
+      "name": "kostya",
+      "email": "kostya@sd.ru",
+      "password": "$2b$10$MQo2DNYiYZxm9eS4SYIw5uLm6HH/6XqKY2J5BcmUjzohJ9t9StKlm",
+      "role": "user",
+      "createdAt": "2026-04-16T00:19:46.851Z"
+    },
+    {
+      "id": 1776299291366,
+      "name": "kostyan228",
+      "email": "kostyan228@mail.ru",
+      "password": "$2b$10$g.5DSJAD6lGU4nRIwhcepeMSLm76ZnzXFeAYivPXQjkmjJeFuIHdG",
+      "role": "user",
+      "createdAt": "2026-04-16T00:28:11.366Z"
+    },
+    {
+      "id": 1776300135996,
+      "name": "Конг",
+      "email": "zzz.zz.z.zz1232176@gmail.com",
+      "password": "$2b$10$R7MYPcuwA7LF.DN7lnhvseGdaHy3rSAXmEhZiXhYP0bEKQOJXlxN6",
+      "role": "user",
+      "createdAt": "2026-04-16T00:42:15.996Z"
     }
   ]
 }

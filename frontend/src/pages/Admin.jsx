@@ -5,6 +5,7 @@ import { api } from '../api';
 import styles from './Admin.module.css';
 
 const TABS = ['Статистика', 'Заказы', 'Товары', 'Пользователи'];
+const TAB_ICONS = { 'Статистика': '📊', 'Заказы': '📦', 'Товары': '🌷', 'Пользователи': '👥' };
 const STATUS_OPTIONS = ['new', 'confirmed', 'delivered', 'cancelled'];
 const STATUS_LABELS = { new: 'Новый', confirmed: 'Подтверждён', delivered: 'Доставлен', cancelled: 'Отменён' };
 const STATUS_COLORS = { new: '#F59E0B', confirmed: '#3B82F6', delivered: '#10B981', cancelled: '#EF4444' };
@@ -55,8 +56,6 @@ export default function Admin() {
   async function saveProduct(e) {
     e.preventDefault();
     let imageUrl = productForm.image;
-
-    // Upload image if a new file was selected
     if (imageFile) {
       const fd = new FormData();
       fd.append('image', imageFile);
@@ -70,9 +69,7 @@ export default function Admin() {
       if (!res.ok) throw new Error(data.error || 'Ошибка загрузки фото');
       imageUrl = data.url;
     }
-
     const payload = { ...productForm, image: imageUrl };
-
     if (editingProduct) {
       const updated = await api.put(`/products/${editingProduct.id}`, payload);
       setProducts(prev => prev.map(p => p.id === editingProduct.id ? updated : p));
@@ -106,15 +103,22 @@ export default function Admin() {
 
   return (
     <div className={styles.page}>
+      {/* Mobile tabs */}
+      <div className={styles.mobileTabs}>
+        {TABS.map(t => (
+          <button key={t} className={`${styles.mobileTab} ${tab === t ? styles.active : ''}`} onClick={() => setTab(t)}>
+            {TAB_ICONS[t]} {t}
+          </button>
+        ))}
+      </div>
+
+      <div className={styles.pageInner}>
+      {/* Desktop sidebar */}
       <aside className={styles.sidebar}>
         <div className={styles.sidebarLogo}>🌷 Админ</div>
         {TABS.map(t => (
           <button key={t} className={`${styles.sidebarItem} ${tab === t ? styles.active : ''}`} onClick={() => setTab(t)}>
-            {t === 'Статистика' && '📊 '}
-            {t === 'Заказы' && '📦 '}
-            {t === 'Товары' && '🌷 '}
-            {t === 'Пользователи' && '👥 '}
-            {t}
+            {TAB_ICONS[t]} {t}
           </button>
         ))}
       </aside>
@@ -127,34 +131,23 @@ export default function Admin() {
           <div>
             <h1 className={styles.pageTitle}>Статистика</h1>
             <div className={styles.statsGrid}>
-              <div className={styles.statCard}>
-                <span className={styles.statIcon}>📦</span>
-                <div className={styles.statValue}>{stats.totalOrders}</div>
-                <div className={styles.statLabel}>Всего заказов</div>
-              </div>
-              <div className={styles.statCard} style={{ '--accent-color': '#F59E0B' }}>
-                <span className={styles.statIcon}>🔔</span>
-                <div className={styles.statValue} style={{ color: '#F59E0B' }}>{stats.newOrders}</div>
-                <div className={styles.statLabel}>Новых заказов</div>
-              </div>
-              <div className={styles.statCard} style={{ '--accent-color': '#10B981' }}>
-                <span className={styles.statIcon}>💰</span>
-                <div className={styles.statValue} style={{ color: '#10B981' }}>{stats.totalRevenue.toLocaleString()} ₽</div>
-                <div className={styles.statLabel}>Выручка</div>
-              </div>
-              <div className={styles.statCard}>
-                <span className={styles.statIcon}>👥</span>
-                <div className={styles.statValue}>{stats.totalUsers}</div>
-                <div className={styles.statLabel}>Клиентов</div>
-              </div>
-              <div className={styles.statCard}>
-                <span className={styles.statIcon}>🌷</span>
-                <div className={styles.statValue}>{stats.totalProducts}</div>
-                <div className={styles.statLabel}>Товаров</div>
-              </div>
+              {[
+                { icon: '📦', label: 'Всего заказов', value: stats.totalOrders, color: null },
+                { icon: '🔔', label: 'Новых заказов', value: stats.newOrders, color: '#F59E0B' },
+                { icon: '💰', label: 'Выручка', value: stats.totalRevenue.toLocaleString() + ' ₽', color: '#10B981' },
+                { icon: '👥', label: 'Клиентов', value: stats.totalUsers, color: null },
+                { icon: '🌷', label: 'Товаров', value: stats.totalProducts, color: null },
+              ].map(s => (
+                <div className={styles.statCard} key={s.label}>
+                  <span className={styles.statIcon}>{s.icon}</span>
+                  <div className={styles.statValue} style={s.color ? { color: s.color } : {}}>{s.value}</div>
+                  <div className={styles.statLabel}>{s.label}</div>
+                </div>
+              ))}
             </div>
 
             <h2 className={styles.sectionTitle}>Последние заказы</h2>
+            {/* Desktop */}
             <div className={styles.table}>
               <div className={styles.tableHead}>
                 <span>ID</span><span>Клиент</span><span>Сумма</span><span>Статус</span><span>Дата</span>
@@ -164,10 +157,24 @@ export default function Admin() {
                   <span className={styles.orderId}>#{String(o.id).slice(-6)}</span>
                   <span>{o.name}</span>
                   <span className={styles.orderTotal}>{o.total} ₽</span>
-                  <span className={styles.statusBadge} style={{ color: STATUS_COLORS[o.status] }}>
-                    ● {STATUS_LABELS[o.status]}
-                  </span>
+                  <span className={styles.statusBadge} style={{ color: STATUS_COLORS[o.status] }}>● {STATUS_LABELS[o.status]}</span>
                   <span className={styles.dateText}>{new Date(o.createdAt).toLocaleDateString('ru-RU')}</span>
+                </div>
+              ))}
+            </div>
+            {/* Mobile */}
+            <div className={styles.orderCards}>
+              {orders.slice(0, 5).map(o => (
+                <div className={styles.orderCard} key={o.id}>
+                  <div className={styles.orderCardHeader}>
+                    <span className={styles.orderCardId}>#{String(o.id).slice(-6)}</span>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: STATUS_COLORS[o.status] }}>● {STATUS_LABELS[o.status]}</span>
+                  </div>
+                  <div className={styles.orderCardName}>{o.name}</div>
+                  <div className={styles.orderCardFooter}>
+                    <span className={styles.dateText}>{new Date(o.createdAt).toLocaleDateString('ru-RU')}</span>
+                    <span className={styles.orderCardTotal}>{o.total} ₽</span>
+                  </div>
                 </div>
               ))}
             </div>
@@ -178,6 +185,7 @@ export default function Admin() {
         {tab === 'Заказы' && (
           <div>
             <h1 className={styles.pageTitle}>Заказы <span className={styles.count}>{orders.length}</span></h1>
+            {/* Desktop table */}
             <div className={styles.table}>
               <div className={styles.tableHead}>
                 <span>ID</span><span>Клиент</span><span>Телефон</span><span>Товары</span><span>Сумма</span><span>Статус</span>
@@ -194,14 +202,38 @@ export default function Admin() {
                     {o.items.map(i => <span key={i.id}>{i.name} ×{i.qty}</span>)}
                   </div>
                   <span className={styles.orderTotal}>{o.total} ₽</span>
-                  <select
-                    className={styles.statusSelect}
-                    value={o.status}
+                  <select className={styles.statusSelect} value={o.status}
                     onChange={e => updateOrderStatus(o.id, e.target.value)}
-                    style={{ color: STATUS_COLORS[o.status] }}
-                  >
+                    style={{ color: STATUS_COLORS[o.status] }}>
                     {STATUS_OPTIONS.map(s => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
                   </select>
+                </div>
+              ))}
+            </div>
+            {/* Mobile cards */}
+            <div className={styles.orderCards}>
+              {orders.map(o => (
+                <div className={styles.orderCard} key={o.id}>
+                  <div className={styles.orderCardHeader}>
+                    <span className={styles.orderCardId}>#{String(o.id).slice(-6)}</span>
+                    <span className={styles.dateText}>{new Date(o.createdAt).toLocaleDateString('ru-RU')}</span>
+                  </div>
+                  <div className={styles.orderCardBody}>
+                    <div className={styles.orderCardName}>{o.name}</div>
+                    <div className={styles.orderCardPhone}>{o.phone}</div>
+                    <div className={styles.orderCardAddress}>{o.address}</div>
+                  </div>
+                  <div className={styles.orderCardItems}>
+                    {o.items.map(i => <span key={i.id} className={styles.orderCardItem}>{i.name} ×{i.qty}</span>)}
+                  </div>
+                  <div className={styles.orderCardFooter}>
+                    <select className={styles.statusSelect} value={o.status}
+                      onChange={e => updateOrderStatus(o.id, e.target.value)}
+                      style={{ color: STATUS_COLORS[o.status] }}>
+                      {STATUS_OPTIONS.map(s => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
+                    </select>
+                    <span className={styles.orderCardTotal}>{o.total} ₽</span>
+                  </div>
                 </div>
               ))}
             </div>
@@ -213,9 +245,12 @@ export default function Admin() {
           <div>
             <div className={styles.tabHeader}>
               <h1 className={styles.pageTitle}>Товары <span className={styles.count}>{products.length}</span></h1>
-              <button className={styles.addBtn} onClick={() => { setEditingProduct(null); setProductForm({ name: '', description: '', price: '', unit: 'шт', emoji: '🌷', color: '#F4A7B9', image: null }); setImageFile(null); setImagePreview(null); setShowProductForm(true); }}>
-                + Добавить
-              </button>
+              <button className={styles.addBtn} onClick={() => {
+                setEditingProduct(null);
+                setProductForm({ name: '', description: '', price: '', unit: 'шт', emoji: '🌷', color: '#F4A7B9', image: null });
+                setImageFile(null); setImagePreview(null);
+                setShowProductForm(true);
+              }}>+ Добавить</button>
             </div>
 
             {showProductForm && (
@@ -250,7 +285,8 @@ export default function Admin() {
                     <input type="file" accept="image/*" onChange={handleImageChange} className={styles.fileInput} />
                   </label>
                   {imagePreview && (
-                    <button type="button" className={styles.removeImageBtn} onClick={() => { setImageFile(null); setImagePreview(null); setProductForm(f => ({ ...f, image: null })); }}>
+                    <button type="button" className={styles.removeImageBtn}
+                      onClick={() => { setImageFile(null); setImagePreview(null); setProductForm(f => ({ ...f, image: null })); }}>
                       Удалить фото
                     </button>
                   )}
@@ -284,12 +320,13 @@ export default function Admin() {
         {tab === 'Пользователи' && (
           <div>
             <h1 className={styles.pageTitle}>Пользователи <span className={styles.count}>{users.length}</span></h1>
+            {/* Desktop */}
             <div className={styles.table}>
-              <div className={styles.tableHead}>
-                <span>Имя</span><span>Email</span><span>Роль</span><span>Дата регистрации</span>
+              <div className={styles.usersTableHead}>
+                <span>Имя</span><span>Email</span><span>Роль</span><span>Дата</span>
               </div>
               {users.map(u => (
-                <div className={styles.tableRow} key={u.id}>
+                <div className={styles.usersTableRow} key={u.id}>
                   <div className={styles.userRow}>
                     <div className={styles.userAvatar}>{u.name[0].toUpperCase()}</div>
                     <span>{u.name}</span>
@@ -302,9 +339,26 @@ export default function Admin() {
                 </div>
               ))}
             </div>
+            {/* Mobile */}
+            <div className={styles.userCards}>
+              {users.map(u => (
+                <div className={styles.userCard} key={u.id}>
+                  <div className={styles.userAvatar}>{u.name[0].toUpperCase()}</div>
+                  <div className={styles.userCardInfo}>
+                    <div className={styles.userCardName}>{u.name}</div>
+                    <div className={styles.userCardEmail}>{u.email}</div>
+                    <div className={styles.userCardDate}>{new Date(u.createdAt).toLocaleDateString('ru-RU')}</div>
+                  </div>
+                  <span className={`${styles.roleBadge} ${u.role === 'admin' ? styles.adminBadge : ''}`}>
+                    {u.role === 'admin' ? '👑' : '🌷'}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </main>
+      </div>
     </div>
   );
 }

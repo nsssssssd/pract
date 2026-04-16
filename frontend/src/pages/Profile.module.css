@@ -1,6 +1,7 @@
 .page { padding: 40px 64px; min-height: calc(100vh - var(--header-h)); }
 .container { max-width: 800px; margin: 0 auto; }
 
+/* Profile card */
 .profileCard {
   display: flex;
   align-items: center;
@@ -9,7 +10,8 @@
   border-radius: var(--radius);
   padding: 24px 28px;
   box-shadow: var(--shadow);
-  margin-bottom: 36px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
 }
 
 .avatar {
@@ -23,20 +25,131 @@
   flex-shrink: 0;
 }
 
+.profileInfo { flex: 1; min-width: 0; }
 .name { font-size: 18px; font-weight: 700; }
 .email { font-size: 14px; color: var(--text-muted); }
 
+.profileRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
 .roleBadge {
-  margin-left: auto;
-  padding: 6px 14px;
+  padding: 5px 12px;
   background: var(--surface2);
   border-radius: 50px;
   font-size: 13px;
   font-weight: 600;
   color: var(--primary);
+  white-space: nowrap;
 }
 
-.sectionTitle { font-size: 20px; font-weight: 700; margin-bottom: 16px; }
+.profileBtns {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.editBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+.editBtn:hover { border-color: var(--primary-light); color: var(--primary); }
+.editBtnActive { border-color: var(--primary); color: var(--primary); background: var(--surface2); }
+
+/* Edit panel */
+.panelCard {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 24px 28px;
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+  border: 1.5px solid var(--border);
+}
+
+.panelTitle {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 18px;
+  color: var(--text);
+}
+
+.editForm { display: flex; flex-direction: column; gap: 14px; }
+
+.formField { display: flex; flex-direction: column; gap: 6px; }
+.formLabel { font-size: 13px; font-weight: 600; color: var(--text); }
+
+.formInput {
+  padding: 11px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  background: var(--bg);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.formInput:focus { border-color: var(--primary-light); }
+
+.formError {
+  background: #FEE2E2;
+  color: #DC2626;
+  border-radius: var(--radius-sm);
+  padding: 9px 13px;
+  font-size: 13px;
+}
+
+.formSuccess {
+  background: #D1FAE5;
+  color: #059669;
+  border-radius: var(--radius-sm);
+  padding: 9px 13px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.formActions { display: flex; gap: 10px; margin-top: 4px; }
+
+.saveBtn {
+  padding: 11px 24px;
+  background: var(--primary);
+  color: white;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+.saveBtn:hover { background: var(--primary-dark); }
+.saveBtn:disabled { background: var(--primary-light); cursor: not-allowed; }
+
+.cancelBtn {
+  padding: 11px 20px;
+  background: var(--bg);
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  border: 1.5px solid var(--border);
+  transition: border-color 0.15s, color 0.15s;
+}
+.cancelBtn:hover { border-color: var(--primary-light); color: var(--text); }
+
+/* Orders */
+.sectionTitle { font-size: 20px; font-weight: 700; margin: 24px 0 16px; }
 
 .loading { display: flex; justify-content: center; padding: 40px; }
 .spinner {
@@ -101,5 +214,18 @@
 .orderTotal { font-size: 16px; font-weight: 700; color: var(--primary); }
 
 @media (max-width: 768px) {
-  .page { padding: 24px 20px; }
+  .page { padding: 20px 16px; }
+  .profileCard { padding: 16px; gap: 14px; }
+  .profileRight { align-items: flex-start; }
+  .profileBtns { justify-content: flex-start; }
+  .panelCard { padding: 18px 16px; }
+  .orderCard { padding: 14px 16px; }
+}
+
+@media (max-width: 480px) {
+  .page { padding: 16px 12px; }
+  .name { font-size: 16px; }
+  .sectionTitle { font-size: 18px; }
+  .formActions { flex-direction: column; }
+  .saveBtn, .cancelBtn { width: 100%; text-align: center; }
 }

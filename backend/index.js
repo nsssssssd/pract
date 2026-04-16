@@ -10,7 +10,7 @@ const app = express();
 const PORT = 3001;
 const JWT_SECRET = 'tulips_secret_2026';
 const DATA_FILE = path.join(__dirname, 'data.json');
-const UPLOAD_DIR = path.join(__dirname, '..', 'frontend', 'public', 'img');
+const UPLOAD_DIR = path.join(__dirname, 'uploads');
 
 // Ensure upload dir exists
 if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
@@ -31,8 +31,12 @@ app.use(express.json());
 if (process.env.NODE_ENV === 'production') {
   const frontendDist = path.join(__dirname, '..', 'frontend', 'dist');
   app.use(express.static(frontendDist));
-  app.use('/img', express.static(path.join(__dirname, '..', 'frontend', 'public', 'img')));
 }
+
+// Always serve uploads (works in both dev and production)
+app.use('/img', express.static(path.join(__dirname, 'uploads')));
+// Backward compat: also serve old public/img location
+app.use('/img', express.static(path.join(__dirname, '..', 'frontend', 'public', 'img')));
 
 function readData() {
   return JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
@@ -92,6 +96,43 @@ app.post('/api/auth/login', async (req, res) => {
 
 app.get('/api/auth/me', authMiddleware, (req, res) => {
   res.json(req.user);
+});
+
+app.put('/api/auth/profile', authMiddleware, async (req, res) => {
+  const { name, email, currentPassword, newPassword } = req.body;
+  const data = readData();
+  const userIdx = data.users.findIndex(u => u.id === req.user.id);
+  if (userIdx === -1) return res.status(404).json({ error: 'Пользователь не найден' });
+
+  const user = data.users[userIdx];
+
+  // Check email uniqueness if changed
+  if (email && email !== user.email) {
+    if (data.users.find(u => u.email === email && u.id !== user.id))
+      return res.status(409).json({ error: 'Email уже используется' });
+  }
+
+  // Password change
+  if (newPassword) {
+    if (!currentPassword) return res.status(400).json({ error: 'Введите текущий пароль' });
+    const valid = await bcrypt.compare(currentPassword, user.password);
+    if (!valid) return res.status(400).json({ error: 'Неверный текущий пароль' });
+    if (newPassword.length < 8) return res.status(400).json({ error: 'Новый пароль минимум 8 символов' });
+    user.password = await bcrypt.hash(newPassword, 10);
+  }
+
+  if (name) user.name = name;
+  if (email) user.email = email;
+
+  data.users[userIdx] = user;
+  writeData(data);
+
+  const token = jwt.sign(
+    { id: user.id, name: user.name, email: user.email, role: user.role },
+    JWT_SECRET,
+    { expiresIn: '7d' }
+  );
+  res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
 });
 
 // ── UPLOAD ────────────────────────────────────────────
@@ -163,7 +204,8 @@ app.get('/api/orders', adminMiddleware, (req, res) => {
 
 app.get('/api/orders/my', authMiddleware, (req, res) => {
   const data = readData();
-  res.json(data.orders.filter(o => o.userId === req.user.id).reverse());
+  // eslint-disable-next-line eqeqeq
+  res.json(data.orders.filter(o => o.userId == req.user.id).reverse());
 });
 
 app.put('/api/orders/:id/status', adminMiddleware, (req, res) => {
