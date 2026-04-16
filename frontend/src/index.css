@@ -38,3 +38,61 @@ a { text-decoration: none; color: inherit; }
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--primary-light); }
+
+/* Smooth transitions for interactive elements */
+a, button, input, select, textarea {
+  transition: color 0.2s ease, background-color 0.2s ease,
+              border-color 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+/* Focus ring for accessibility */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+/* Text selection */
+::selection {
+  background: var(--primary-light);
+  color: var(--text);
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.fade-in  { animation: fadeIn 0.3s ease both; }
+.fade-in-scale { animation: fadeInScale 0.25s ease both; }
+
+/* Utility classes */
+.text-muted   { color: var(--text-muted); }
+.text-primary { color: var(--primary); }
+.text-accent  { color: var(--accent); }
+
+.surface  { background: var(--surface);  border-radius: var(--radius); }
+.surface2 { background: var(--surface2); border-radius: var(--radius); }
+
+.shadow    { box-shadow: var(--shadow); }
+.shadow-md { box-shadow: var(--shadow-md); }
+
+.truncate {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Disabled state */
+[disabled], .disabled {
+  opacity: 0.5;
+  pointer-events: none;
+  cursor: not-allowed;
+}
