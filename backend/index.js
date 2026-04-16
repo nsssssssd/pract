@@ -101,14 +101,16 @@ app.get('/api/auth/me', authMiddleware, (req, res) => {
 app.put('/api/auth/profile', authMiddleware, async (req, res) => {
   const { name, email, currentPassword, newPassword } = req.body;
   const data = readData();
-  const userIdx = data.users.findIndex(u => u.id === req.user.id);
+  // eslint-disable-next-line eqeqeq
+  const userIdx = data.users.findIndex(u => u.id == req.user.id);
   if (userIdx === -1) return res.status(404).json({ error: 'Пользователь не найден' });
 
   const user = data.users[userIdx];
 
   // Check email uniqueness if changed
   if (email && email !== user.email) {
-    if (data.users.find(u => u.email === email && u.id !== user.id))
+    // eslint-disable-next-line eqeqeq
+    if (data.users.find(u => u.email === email && u.id != user.id))
       return res.status(409).json({ error: 'Email уже используется' });
   }
 

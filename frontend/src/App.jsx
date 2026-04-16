@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './AuthContext';
 import { CartProvider } from './CartContext';
 import Header from './components/Header';
 import Cart from './components/Cart';
+import Breadcrumbs from './components/Breadcrumbs';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -25,6 +26,7 @@ function AppInner() {
   return (
     <>
       <Header onCartOpen={() => setCartOpen(true)} />
+      <Breadcrumbs />
       <Cart open={cartOpen} onClose={() => setCartOpen(false)} />
       <Routes>
         <Route path="/" element={<Home />} />

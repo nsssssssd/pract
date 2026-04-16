@@ -141,10 +141,11 @@ export default function Profile() {
   const [activePanel, setActivePanel] = useState(null); // null | 'edit' | 'password'
 
   useEffect(() => {
+    if (user?.role === 'admin') { setLoading(false); return; }
     api.get('/orders/my')
       .then(setOrders)
       .finally(() => setLoading(false));
-  }, []);
+  }, [user]);
 
   function handleProfileSaved(data) {
     updateUser(data.token, data.user);
@@ -209,38 +210,42 @@ export default function Profile() {
           </div>
         )}
 
-        {/* Orders */}
-        <h2 className={styles.sectionTitle}>Мои заказы</h2>
+        {/* Orders — only for regular users */}
+        {user.role !== 'admin' && (
+          <>
+            <h2 className={styles.sectionTitle}>Мои заказы</h2>
 
-        {loading ? (
-          <div className={styles.loading}><div className={styles.spinner} /></div>
-        ) : orders.length === 0 ? (
-          <div className={styles.empty}>
-            <span>📦</span>
-            <p>Заказов пока нет</p>
-          </div>
-        ) : (
-          <div className={styles.orders}>
-            {orders.map(o => (
-              <div className={styles.orderCard} key={o.id}>
-                <div className={styles.orderHeader}>
-                  <span className={styles.orderId}>Заказ #{String(o.id).slice(-6)}</span>
-                  <span className={styles.orderStatus} style={{ color: STATUS_COLORS[o.status] }}>
-                    ● {STATUS_LABELS[o.status] || o.status}
-                  </span>
-                </div>
-                <div className={styles.orderItems}>
-                  {o.items.map(i => (
-                    <span key={i.id} className={styles.orderItem}>{i.name} × {i.qty}</span>
-                  ))}
-                </div>
-                <div className={styles.orderFooter}>
-                  <span className={styles.orderDate}>{new Date(o.createdAt).toLocaleDateString('ru-RU')}</span>
-                  <span className={styles.orderTotal}>{o.total} ₽</span>
-                </div>
+            {loading ? (
+              <div className={styles.loading}><div className={styles.spinner} /></div>
+            ) : orders.length === 0 ? (
+              <div className={styles.empty}>
+                <span>📦</span>
+                <p>Заказов пока нет</p>
               </div>
-            ))}
-          </div>
+            ) : (
+              <div className={styles.orders}>
+                {orders.map(o => (
+                  <div className={styles.orderCard} key={o.id}>
+                    <div className={styles.orderHeader}>
+                      <span className={styles.orderId}>Заказ #{String(o.id).slice(-6)}</span>
+                      <span className={styles.orderStatus} style={{ color: STATUS_COLORS[o.status] }}>
+                        ● {STATUS_LABELS[o.status] || o.status}
+                      </span>
+                    </div>
+                    <div className={styles.orderItems}>
+                      {o.items.map(i => (
+                        <span key={i.id} className={styles.orderItem}>{i.name} × {i.qty}</span>
+                      ))}
+                    </div>
+                    <div className={styles.orderFooter}>
+                      <span className={styles.orderDate}>{new Date(o.createdAt).toLocaleDateString('ru-RU')}</span>
+                      <span className={styles.orderTotal}>{o.total} ₽</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
