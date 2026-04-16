@@ -271,6 +271,33 @@
   width: 100%;
 }
 
+.paymentBadge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.deleteOrderBtn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text-muted);
+  font-size: 14px;
+  border: 1.5px solid var(--border);
+  transition: all 0.15s;
+  cursor: pointer;
+}
+
+.deleteOrderBtn:hover {
+  background: #fee;
+  border-color: #fcc;
+  color: #c33;
+}
+
 /* Products */
 .tabHeader {
   display: flex;

@@ -150,10 +150,19 @@
   border-radius: var(--radius);
   overflow: hidden;
   box-shadow: var(--shadow);
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
 }
 
-.card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+.card:hover { 
+  transform: translateY(-6px); 
+  box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+}
+
+.card:active {
+  transform: translateY(-2px);
+}
 
 .cardImg {
   height: 240px;
@@ -162,6 +171,11 @@
   justify-content: center;
   position: relative;
   overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+.card:hover .cardImg {
+  transform: scale(1.05);
 }
 
 .cardPhoto {
@@ -171,7 +185,14 @@
   display: block;
 }
 
-.cardEmoji { font-size: 64px; }
+.cardEmoji { 
+  font-size: 64px;
+  transition: transform 0.3s ease;
+}
+
+.card:hover .cardEmoji {
+  transform: scale(1.1) rotate(5deg);
+}
 
 .cardTag {
   position: absolute;
@@ -183,10 +204,21 @@
   font-weight: 600;
   padding: 3px 8px;
   border-radius: 50px;
+  z-index: 1;
 }
 
 .cardBody { padding: 20px; }
-.cardName { font-size: 17px; font-weight: 600; margin-bottom: 8px; }
+.cardName { 
+  font-size: 17px; 
+  font-weight: 600; 
+  margin-bottom: 8px;
+  transition: color 0.2s ease;
+}
+
+.card:hover .cardName {
+  color: var(--primary);
+}
+
 .cardDesc { font-size: 14px; color: var(--text-muted); margin-bottom: 18px; line-height: 1.4; min-height: 40px; }
 
 .cardFooter { display: flex; align-items: center; justify-content: space-between; }
@@ -200,13 +232,34 @@
   color: white;
   font-size: 26px;
   display: flex; align-items: center; justify-content: center;
-  transition: background 0.15s, transform 0.1s;
+  transition: all 0.2s ease;
   line-height: 1;
+  box-shadow: 0 2px 8px rgba(232, 80, 106, 0.3);
+  z-index: 2;
+  position: relative;
 }
 
-.addBtn:hover { background: var(--primary-dark); }
-.addBtn:active { transform: scale(0.9); }
-.addedBtn { background: var(--accent) !important; font-size: 16px; }
+.addBtn:hover { 
+  background: var(--primary-dark); 
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(232, 80, 106, 0.4);
+}
+
+.addBtn:active { 
+  transform: scale(0.95); 
+}
+
+.addedBtn { 
+  background: var(--accent) !important; 
+  font-size: 16px;
+  animation: successPulse 0.4s ease;
+}
+
+@keyframes successPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
 
 /* Loading */
 .loading { display: flex; justify-content: center; padding: 60px 0; }

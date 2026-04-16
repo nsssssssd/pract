@@ -60,7 +60,7 @@ export default function Home() {
         {[
           { icon: '🌱', title: 'Свежесть', text: 'Срезаем каждое утро' },
           { icon: '📦', title: 'Упаковка', text: 'Бережная и красивая' },
-          { icon: '💳', title: 'Оплата', text: 'При получении' },
+          { icon: '💳', title: 'Оплата', text: 'Наличными или по карте' },
           { icon: '🎁', title: 'Открытка', text: 'Бесплатно к заказу' },
         ].map(f => (
           <div className={styles.featureCard} key={f.title}>

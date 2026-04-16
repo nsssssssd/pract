@@ -188,7 +188,7 @@ export default function Admin() {
             {/* Desktop table */}
             <div className={styles.table}>
               <div className={styles.tableHead}>
-                <span>ID</span><span>Клиент</span><span>Телефон</span><span>Товары</span><span>Сумма</span><span>Статус</span>
+                <span>ID</span><span>Клиент</span><span>Телефон</span><span>Товары</span><span>Оплата</span><span>Сумма</span><span>Статус</span><span></span>
               </div>
               {orders.map(o => (
                 <div className={styles.tableRow} key={o.id}>
@@ -201,6 +201,9 @@ export default function Admin() {
                   <div className={styles.itemsList}>
                     {o.items.map(i => <span key={i.id}>{i.name} ×{i.qty}</span>)}
                   </div>
+                  <span className={styles.paymentBadge}>
+                    {o.paymentMethod === 'cash' ? '💵 Наличные' : '💳 По карте'}
+                  </span>
                   <span className={styles.orderTotal}>{o.total} ₽</span>
                   <select className={styles.statusSelect} value={o.status}
                     onChange={e => updateOrderStatus(o.id, e.target.value)}
@@ -222,6 +225,9 @@ export default function Admin() {
                     <div className={styles.orderCardName}>{o.name}</div>
                     <div className={styles.orderCardPhone}>{o.phone}</div>
                     <div className={styles.orderCardAddress}>{o.address}</div>
+                    <div className={styles.paymentBadge} style={{ marginTop: 6 }}>
+                      {o.paymentMethod === 'cash' ? '💵 Наличные' : '💳 По карте'}
+                    </div>
                   </div>
                   <div className={styles.orderCardItems}>
                     {o.items.map(i => <span key={i.id} className={styles.orderCardItem}>{i.name} ×{i.qty}</span>)}

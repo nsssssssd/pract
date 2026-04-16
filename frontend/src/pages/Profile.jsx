@@ -139,6 +139,7 @@ export default function Profile() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activePanel, setActivePanel] = useState(null); // null | 'edit' | 'password'
+  const [expandedOrder, setExpandedOrder] = useState(null); // ID развернутого заказа
 
   useEffect(() => {
     if (user?.role === 'admin') { setLoading(false); return; }
@@ -225,7 +226,11 @@ export default function Profile() {
             ) : (
               <div className={styles.orders}>
                 {orders.map(o => (
-                  <div className={styles.orderCard} key={o.id}>
+                  <div 
+                    className={`${styles.orderCard} ${expandedOrder === o.id ? styles.expanded : ''}`} 
+                    key={o.id}
+                    onClick={() => setExpandedOrder(expandedOrder === o.id ? null : o.id)}
+                  >
                     <div className={styles.orderHeader}>
                       <span className={styles.orderId}>Заказ #{String(o.id).slice(-6)}</span>
                       <span className={styles.orderStatus} style={{ color: STATUS_COLORS[o.status] }}>
@@ -237,9 +242,53 @@ export default function Profile() {
                         <span key={i.id} className={styles.orderItem}>{i.name} × {i.qty}</span>
                       ))}
                     </div>
+                    
+                    {expandedOrder === o.id && (
+                      <div className={styles.orderDetails}>
+                        <div className={styles.orderDetailRow}>
+                          <span className={styles.orderDetailLabel}>Получатель:</span>
+                          <span className={styles.orderDetailValue}>{o.name}</span>
+                        </div>
+                        <div className={styles.orderDetailRow}>
+                          <span className={styles.orderDetailLabel}>Телефон:</span>
+                          <span className={styles.orderDetailValue}>{o.phone}</span>
+                        </div>
+                        <div className={styles.orderDetailRow}>
+                          <span className={styles.orderDetailLabel}>Адрес:</span>
+                          <span className={styles.orderDetailValue}>{o.address}</span>
+                        </div>
+                        <div className={styles.orderDetailRow}>
+                          <span className={styles.orderDetailLabel}>Способ оплаты:</span>
+                          <span className={styles.orderDetailValue}>
+                            {o.paymentMethod === 'cash' ? '💵 Наличные' : o.paymentMethod === 'card' ? '💳 По карте' : '—'}
+                          </span>
+                        </div>
+                        <div className={styles.orderDetailRow}>
+                          <span className={styles.orderDetailLabel}>Дата заказа:</span>
+                          <span className={styles.orderDetailValue}>
+                            {new Date(o.createdAt).toLocaleString('ru-RU', { 
+                              day: 'numeric', 
+                              month: 'long', 
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                    
+                    <div className={styles.orderMeta}>
+                      <span className={styles.orderPayment}>
+                        {o.paymentMethod === 'cash' ? '💵 Наличные' : o.paymentMethod === 'card' ? '💳 По карте' : ''}
+                      </span>
+                    </div>
                     <div className={styles.orderFooter}>
                       <span className={styles.orderDate}>{new Date(o.createdAt).toLocaleDateString('ru-RU')}</span>
                       <span className={styles.orderTotal}>{o.total} ₽</span>
+                    </div>
+                    <div className={styles.expandHint}>
+                      {expandedOrder === o.id ? '▲ Свернуть' : '▼ Подробнее'}
                     </div>
                   </div>
                 ))}

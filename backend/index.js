@@ -185,14 +185,41 @@ app.delete('/api/products/:id', adminMiddleware, (req, res) => {
 
 // ── ORDERS ────────────────────────────────────────────
 app.post('/api/orders', (req, res) => {
-  const { name, phone, address, items, userId } = req.body;
+  const token = req.headers.authorization?.split(' ')[1];
+  let user = null;
+  if (token) {
+    try {
+      user = jwt.verify(token, JWT_SECRET);
+      if (user.role === 'admin') {
+        return res.status(403).json({ error: 'Администраторы не могут делать покупки' });
+      }
+    } catch {
+      // Token invalid, continue as guest
+    }
+  }
+
+  const { name, phone, address, items, userId, paymentMethod } = req.body;
   if (!name || !phone || !address || !items?.length)
     return res.status(400).json({ error: 'Заполните все поля' });
+  if (!paymentMethod || !['cash', 'card'].includes(paymentMethod))
+    return res.status(400).json({ error: 'Выберите способ оплаты' });
+
+  // Валидация телефона
+  const phoneRegex = /^(\+7|8)?[\s-]?\(?[0-9]{3}\)?[\s-]?[0-9]{3}[\s-]?[0-9]{2}[\s-]?[0-9]{2}$/;
+  if (!phoneRegex.test(phone.trim())) {
+    return res.status(400).json({ error: 'Некорректный номер телефона' });
+  }
+
+  // Валидация адреса
+  if (address.trim().length < 10) {
+    return res.status(400).json({ error: 'Адрес должен содержать минимум 10 символов' });
+  }
 
   const data = readData();
   const order = {
     id: Date.now(), userId: userId || null, name, phone, address, items,
     total: items.reduce((s, i) => s + i.price * i.qty, 0),
+    paymentMethod,
     status: 'new', createdAt: new Date().toISOString()
   };
   data.orders.push(order);
@@ -219,6 +246,8 @@ app.put('/api/orders/:id/status', adminMiddleware, (req, res) => {
   writeData(data);
   res.json(order);
 });
+
+
 
 // ── ADMIN STATS ───────────────────────────────────────
 app.get('/api/admin/stats', adminMiddleware, (req, res) => {
