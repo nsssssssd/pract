@@ -12,7 +12,7 @@ const JWT_SECRET = 'tulips_secret_2026';
 const DATA_FILE = path.join(__dirname, 'data.json');
 const UPLOAD_DIR = path.join(__dirname, 'uploads');
 
-// Ensure upload dir exists
+
 if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
 const storage = multer.diskStorage({
@@ -27,15 +27,12 @@ const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
 app.use(cors());
 app.use(express.json());
 
-// Serve frontend static files in production
 if (process.env.NODE_ENV === 'production') {
   const frontendDist = path.join(__dirname, '..', 'frontend', 'dist');
   app.use(express.static(frontendDist));
 }
 
-// Always serve uploads (works in both dev and production)
 app.use('/img', express.static(path.join(__dirname, 'uploads')));
-// Backward compat: also serve old public/img location
 app.use('/img', express.static(path.join(__dirname, '..', 'frontend', 'public', 'img')));
 
 function readData() {
