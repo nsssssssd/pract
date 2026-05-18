@@ -10,17 +10,40 @@ import { Plus, Check, Heart, ArrowUpRight } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useCallback } from 'react';
+import { toast } from 'sonner';
+import { hapticLight } from '@/lib/haptics';
+import QuickViewModal from './QuickViewModal';
 
 export default function ProductCard({ product, index }) {
   const addItem = useCartStore((s) => s.addItem);
+  const openCart = useCartStore((s) => s.openCart);
   const toggleItem = useWishlistStore((s) => s.toggleItem);
   const isInWishlist = useWishlistStore(useCallback((s) => s.isInWishlist(product.id), [product.id]));
   const [added, setAdded] = useState(false);
+  const [quickOpen, setQuickOpen] = useState(false);
 
   function handleAdd() {
     addItem(product);
+    hapticLight();
     setAdded(true);
     setTimeout(() => setAdded(false), 800);
+    toast.custom((t) => (
+      <div className="flex items-center gap-3 rounded-xl bg-card border shadow-lg px-4 py-3">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg text-lg" style={{ background: product.color + '22' }}>
+          {product.emoji}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-medium">{product.name}</div>
+          <div className="text-xs text-muted-foreground">Добавлено в корзину</div>
+        </div>
+        <button
+          onClick={() => { toast.dismiss(t); openCart(); }}
+          className="text-xs font-medium text-primary hover:underline"
+        >
+          Оформить
+        </button>
+      </div>
+    ), { duration: 2500 });
   }
 
   return (
@@ -34,18 +57,25 @@ export default function ProductCard({ product, index }) {
           className="relative aspect-[4/3] flex items-center justify-center overflow-hidden"
           style={{ background: product.color + '22' }}
         >
-          {product.image ? (
-            <Image
-              src={product.image}
-              alt={product.name}
-              fill
-              sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
-              priority={index < 4}
-            />
-          ) : (
-            <span className="text-6xl md:text-7xl select-none">{product.emoji}</span>
-          )}
+          <button
+            type="button"
+            onClick={() => setQuickOpen(true)}
+            className="w-full h-full flex items-center justify-center"
+            aria-label={`Быстрый просмотр: ${product.name}`}
+          >
+            {product.image ? (
+              <Image
+                src={product.image}
+                alt={product.name}
+                fill
+                sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                priority={index < 4}
+              />
+            ) : (
+              <span className="text-6xl md:text-7xl select-none">{product.emoji}</span>
+            )}
+          </button>
           {product.unit === 'букет' && (
             <Badge className="absolute top-3 right-3 bg-primary text-primary-foreground">
               Букет
@@ -93,6 +123,7 @@ export default function ProductCard({ product, index }) {
           </div>
         </CardContent>
       </Card>
+      <QuickViewModal product={product} open={quickOpen} onClose={() => setQuickOpen(false)} />
     </motion.div>
   );
 }
