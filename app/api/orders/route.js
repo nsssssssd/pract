@@ -23,9 +23,13 @@ export async function GET() {
 
 export async function POST(request) {
   try {
-    const { name, phone, address, items, userId } = await request.json();
+    const body = await request.json();
+    const { name, phone, address, items } = body;
     if (!name || !phone || !address || !items?.length) {
       return NextResponse.json({ error: 'Заполните все поля' }, { status: 400 });
+    }
+    if (typeof name !== 'string' || name.trim().length < 2) {
+      return NextResponse.json({ error: 'Имя должно быть не короче 2 символов' }, { status: 400 });
     }
     if (!validatePhone(phone)) {
       return NextResponse.json({ error: 'Введите корректный телефон (11 цифр, начиная с 7 или 8)' }, { status: 400 });
@@ -38,14 +42,31 @@ export async function POST(request) {
     }
 
     const data = readData();
+
+    // Validate prices against catalog
+    let total = 0;
+    for (const item of items) {
+      const product = data.products.find((p) => p.id === item.id);
+      if (!product) {
+        return NextResponse.json({ error: `Товар "${item.name}" не найден в каталоге` }, { status: 400 });
+      }
+      if (product.price !== item.price) {
+        return NextResponse.json(
+          { error: `Цена товара "${item.name}" изменилась. Обновите корзину.` },
+          { status: 400 }
+        );
+      }
+      total += product.price * (item.qty || 1);
+    }
+
     const order = {
       id: Date.now(),
-      userId: userId || null,
-      name,
+      userId: currentUser?.id || null,
+      name: name.trim(),
       phone,
-      address,
-      items,
-      total: items.reduce((s, i) => s + i.price * i.qty, 0),
+      address: address.trim(),
+      items: items.map((i) => ({ id: i.id, name: i.name, price: i.price, qty: i.qty || 1 })),
+      total,
       status: 'new',
       createdAt: new Date().toISOString(),
     };

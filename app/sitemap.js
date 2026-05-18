@@ -1,36 +1,37 @@
+import { readData } from '@/lib/db';
+
+const STATIC_DATE = new Date('2024-06-01');
+
 export default function sitemap() {
   const baseUrl = 'https://tulpanomsk55.ru';
+  let data;
+  try {
+    data = readData();
+  } catch {
+    data = { products: [] };
+  }
 
-  return [
+  const staticRoutes = [
     {
       url: baseUrl,
-      lastModified: new Date(),
+      lastModified: STATIC_DATE,
       changeFrequency: 'daily',
       priority: 1,
     },
     {
       url: `${baseUrl}/care`,
-      lastModified: new Date(),
+      lastModified: STATIC_DATE,
       changeFrequency: 'weekly',
       priority: 0.8,
     },
-    {
-      url: `${baseUrl}/login`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.3,
-    },
-    {
-      url: `${baseUrl}/register`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.3,
-    },
-    {
-      url: `${baseUrl}/profile`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.5,
-    },
   ];
+
+  const productRoutes = (data.products || []).map((product) => ({
+    url: `${baseUrl}/products/${product.id}`,
+    lastModified: STATIC_DATE,
+    changeFrequency: 'weekly',
+    priority: 0.9,
+  }));
+
+  return [...staticRoutes, ...productRoutes];
 }

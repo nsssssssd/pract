@@ -426,7 +426,7 @@ export default function AdminContent() {
                   <TableRow key={u.id}>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">{u.name[0].toUpperCase()}</span>
+                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">{(u.name || '')[0]?.toUpperCase()}</span>
                         <span className="font-medium">{u.name}</span>
                       </div>
                     </TableCell>
@@ -446,7 +446,7 @@ export default function AdminContent() {
             {(users || []).map((u) => (
               <Card key={u.id}>
                 <CardContent className="p-4 flex items-center gap-3">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">{u.name[0].toUpperCase()}</span>
+                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">{(u.name || '')[0]?.toUpperCase()}</span>
                   <div className="flex-1">
                     <div className="font-medium">{u.name}</div>
                     <div className="text-xs text-muted-foreground">{u.email}</div>

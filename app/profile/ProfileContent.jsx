@@ -53,7 +53,7 @@ function EditProfileForm({ user, onSave, onCancel }) {
       </div>
       <div className="space-y-2">
         <Label>Email</Label>
-        <Input type="text" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} required />
+        <Input type="email" autoComplete="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} required />
       </div>
       <div className="flex gap-2">
         <Button type="submit" disabled={loading}>{loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Сохраняем...</> : 'Сохранить'}</Button>
@@ -144,7 +144,7 @@ export default function ProfileContent() {
       <Card>
         <CardContent className="p-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground">{user.name[0].toUpperCase()}</div>
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground">{(user.name || '')[0]?.toUpperCase()}</div>
             <div className="flex-1">
               <div className="text-lg font-semibold">{user.name}</div>
               <div className="text-sm text-muted-foreground">{user.email}</div>

@@ -1,4 +1,5 @@
 import HomePage from '@/components/pages/HomePage';
+import { FAQS } from '@/lib/faq';
 
 export const metadata = {
   title: 'Купить тюльпаны в Омске — Свежие тюльпаны с доставкой',
@@ -13,6 +14,19 @@ export const metadata = {
   alternates: {
     canonical: 'https://tulpanomsk55.ru',
   },
+};
+
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: FAQS.map((f) => ({
+    '@type': 'Question',
+    name: f.question,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: f.answer,
+    },
+  })),
 };
 
 const jsonLd = {
@@ -46,6 +60,10 @@ export default function Home() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
       <HomePage />
     </>

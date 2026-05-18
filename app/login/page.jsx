@@ -8,6 +8,10 @@ export const metadata = {
     title: 'Вход в аккаунт | TulpanOmsk55',
     description: 'Войдите в свой аккаунт, чтобы отслеживать заказы и управлять профилем.',
   },
+  robots: {
+    index: false,
+    follow: false,
+  },
   alternates: {
     canonical: 'https://tulpanomsk55.ru/login',
   },

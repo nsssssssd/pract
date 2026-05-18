@@ -71,16 +71,16 @@ export default function RegisterContent() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Имя</Label>
-                <Input id="name" placeholder="Ваше имя" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} required />
+                <Input id="name" autoComplete="name" placeholder="Ваше имя" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} required />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="text" placeholder="you@example.com" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} onBlur={() => setTouched((t) => ({ ...t, email: true }))} className={emailError ? 'border-destructive' : ''} required />
+                <Input id="email" type="email" autoComplete="email" placeholder="you@example.com" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} onBlur={() => setTouched((t) => ({ ...t, email: true }))} className={emailError ? 'border-destructive' : ''} required />
                 {emailError && <p className="text-xs text-destructive">{emailError}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Пароль</Label>
-                <Input id="password" type="password" placeholder="Минимум 8 символов, буква и цифра" value={form.password} onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))} onBlur={() => setTouched((t) => ({ ...t, password: true }))} className={passwordError ? 'border-destructive' : ''} required />
+                <Input id="password" type="password" autoComplete="new-password" placeholder="Минимум 8 символов, буква и цифра" value={form.password} onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))} onBlur={() => setTouched((t) => ({ ...t, password: true }))} className={passwordError ? 'border-destructive' : ''} required />
                 {passwordError && <p className="text-xs text-destructive">{passwordError}</p>}
               </div>
               <Button type="submit" className="w-full" disabled={loading}>

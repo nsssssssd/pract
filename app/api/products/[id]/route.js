@@ -2,6 +2,20 @@ import { readData, writeData } from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth';
 import { NextResponse } from 'next/server';
 
+export async function GET(request, { params }) {
+  try {
+    const { id } = await params;
+    const data = readData();
+    const product = data.products.find((p) => p.id === parseInt(id));
+    if (!product) {
+      return NextResponse.json({ error: 'Товар не найден' }, { status: 404 });
+    }
+    return NextResponse.json(product);
+  } catch (err) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
+}
+
 export async function PUT(request, { params }) {
   try {
     const user = await getCurrentUser();
@@ -11,7 +25,7 @@ export async function PUT(request, { params }) {
 
     const { id } = await params;
     const data = readData();
-    const idx = data.products.findIndex((p) => p.id === parseInt(id));
+    const idx = data.products.findIndex((p) => p.id === parseInt(id, 10));
     if (idx === -1) {
       return NextResponse.json({ error: 'Товар не найден' }, { status: 404 });
     }
@@ -34,7 +48,7 @@ export async function DELETE(request, { params }) {
 
     const { id } = await params;
     const data = readData();
-    data.products = data.products.filter((p) => p.id !== parseInt(id));
+    data.products = data.products.filter((p) => p.id !== parseInt(id, 10));
     writeData(data);
     return NextResponse.json({ success: true });
   } catch (err) {

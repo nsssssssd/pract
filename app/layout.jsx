@@ -5,8 +5,11 @@ import PageTransition from '@/components/PageTransition';
 import { Toaster } from '@/components/ui/sonner';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import YandexMetrika from '@/components/YandexMetrika';
 import Breadcrumbs from '@/components/Breadcrumbs';
 import Cart from '@/components/Cart';
+import MobileBottomNav from '@/components/MobileBottomNav';
+import MobileCartFAB from '@/components/MobileCartFAB';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin', 'cyrillic'] });
@@ -64,18 +67,61 @@ export const metadata = {
   },
 };
 
+const jsonLdWebSite = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'TulpanOmsk55',
+  url: 'https://tulpanomsk55.ru',
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: {
+      '@type': 'EntryPoint',
+      urlTemplate: 'https://tulpanomsk55.ru/?search={search_term_string}',
+    },
+    'query-input': 'required name=search_term_string',
+  },
+};
+
+const jsonLdOrganization = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'TulpanOmsk55',
+  url: 'https://tulpanomsk55.ru',
+  logo: 'https://tulpanomsk55.ru/og-image.svg',
+  contactPoint: {
+    '@type': 'ContactPoint',
+    telephone: '+7-908-107-41-45',
+    contactType: 'customer service',
+    areaServed: 'RU',
+    availableLanguage: 'Russian',
+  },
+};
+
 export default function RootLayout({ children }) {
   return (
     <html lang="ru" suppressHydrationWarning>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdWebSite) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdOrganization) }}
+        />
+      </head>
       <body className={`${inter.className} antialiased min-h-screen flex flex-col`}>
+        <YandexMetrika />
         <Providers>
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
             <Header />
             <Breadcrumbs />
             <Cart />
-            <main className="flex-1">
+            <main className="flex-1 pb-16 md:pb-0">
               <PageTransition>{children}</PageTransition>
             </main>
+            <MobileCartFAB />
+            <MobileBottomNav />
             <Footer />
             <Toaster position="top-right" />
           </ThemeProvider>

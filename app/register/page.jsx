@@ -8,6 +8,10 @@ export const metadata = {
     title: 'Регистрация | TulpanOmsk55',
     description: 'Создайте аккаунт за минуту. Отслеживайте заказы и получайте персональные предложения.',
   },
+  robots: {
+    index: false,
+    follow: false,
+  },
   alternates: {
     canonical: 'https://tulpanomsk55.ru/register',
   },
