@@ -67,39 +67,75 @@ export default function HomePage({ initialProducts }) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="relative overflow-hidden rounded-2xl md:rounded-3xl bg-gradient-to-br from-primary/15 via-background to-background border px-5 py-10 md:px-16 md:py-20"
+        className="relative overflow-hidden rounded-2xl md:rounded-3xl bg-gradient-to-br from-primary/15 via-background to-background border px-4 sm:px-6 md:px-10 lg:px-16 py-8 sm:py-12 md:py-16 lg:py-20"
       >
-        <div className="relative z-10 max-w-2xl space-y-4 md:space-y-5">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
-            className="inline-flex items-center rounded-full bg-primary/10 px-3 md:px-4 py-1.5 text-sm font-medium text-primary"
-          >
-            🚚 Доставка за 2 часа
-          </motion.div>
-          <h1 className="text-3xl md:text-6xl font-bold tracking-tight leading-[1.1]">
-            Свежие тюльпаны
-            <br />
-            <span className="text-primary">прямо с поля</span>
-          </h1>
-          <p className="text-muted-foreground text-base md:text-lg max-w-md leading-relaxed">
-            Каждый день — новая партия. Срезаем утром, доставляем днём.
-          </p>
-          <div className="flex flex-wrap gap-4 md:gap-8 pt-1 md:pt-2">
-            <div>
-              <div className="text-xl md:text-3xl font-bold">500+</div>
-              <div className="text-xs md:text-sm text-muted-foreground mt-0.5 md:mt-1">довольных клиентов</div>
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center gap-6 md:gap-10 lg:gap-16">
+          <div className="max-w-2xl space-y-3 md:space-y-4 lg:space-y-5 flex-1">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2 }}
+              className="inline-flex items-center rounded-full bg-primary/10 px-3 md:px-4 py-1.5 text-sm font-medium text-primary"
+            >
+              🚚 Доставка за 2 часа
+            </motion.div>
+            <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1]">
+              Свежие тюльпаны
+              <br />
+              <span className="text-primary">прямо с поля</span>
+            </h1>
+            <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-md leading-relaxed">
+              Каждый день — новая партия. Срезаем утром, доставляем днём.
+            </p>
+            <div className="flex flex-wrap gap-3 sm:gap-4 md:gap-6 lg:gap-8 pt-1 md:pt-2">
+              <div>
+                <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">500+</div>
+                <div className="text-xs md:text-sm text-muted-foreground mt-0.5 md:mt-1">довольных клиентов</div>
+              </div>
+              <div className="w-px bg-border" />
+              <div>
+                <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">10+</div>
+                <div className="text-xs md:text-sm text-muted-foreground mt-0.5 md:mt-1">сортов тюльпанов</div>
+              </div>
+              <div className="w-px bg-border" />
+              <div>
+                <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">2ч</div>
+                <div className="text-xs md:text-sm text-muted-foreground mt-0.5 md:mt-1">время доставки</div>
+              </div>
             </div>
-            <div className="w-px bg-border" />
-            <div>
-              <div className="text-xl md:text-3xl font-bold">10+</div>
-              <div className="text-xs md:text-sm text-muted-foreground mt-0.5 md:mt-1">сортов тюльпанов</div>
-            </div>
-            <div className="w-px bg-border" />
-            <div>
-              <div className="text-xl md:text-3xl font-bold">2ч</div>
-              <div className="text-xs md:text-sm text-muted-foreground mt-0.5 md:mt-1">время доставки</div>
+          </div>
+
+          <div className="hidden lg:block relative w-72 h-72 shrink-0">
+            {/* Desktop: absolutely positioned tulips */}
+            <div className="relative w-full h-full">
+              {[
+                { emoji: '🌷', size: 'text-6xl', left: '20%', top: '10%', delay: 0 },
+                { emoji: '🌷', size: 'text-5xl', left: '65%', top: '0%', delay: 0.6 },
+                { emoji: '🌷', size: 'text-7xl', left: '35%', top: '45%', delay: 1.2 },
+                { emoji: '🌷', size: 'text-4xl', left: '75%', top: '55%', delay: 1.8 },
+                { emoji: '🌷', size: 'text-5xl', left: '85%', top: '25%', delay: 0.3 },
+                { emoji: '🌷', size: 'text-6xl', left: '10%', top: '65%', delay: 0.9 },
+                { emoji: '🌷', size: 'text-4xl', left: '50%', top: '78%', delay: 1.5 },
+              ].map((t, i) => (
+                <motion.span
+                  key={i}
+                  className={`absolute ${t.size} select-none drop-shadow-lg`}
+                  style={{ left: t.left, top: t.top }}
+                  animate={{
+                    y: [0, -12, 0],
+                    rotate: [-6, 6, -6],
+                    scale: [1, 1.08, 1],
+                  }}
+                  transition={{
+                    duration: 3.5,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                    delay: t.delay,
+                  }}
+                >
+                  {t.emoji}
+                </motion.span>
+              ))}
             </div>
           </div>
         </div>

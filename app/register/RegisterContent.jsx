@@ -2,11 +2,13 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
+
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
@@ -27,7 +29,16 @@ export default function RegisterContent() {
   const [touched, setTouched] = useState({ email: false, password: false });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
   const router = useRouter();
+
+  function handleGoHome() {
+    setShowWelcome(false);
+    window.dispatchEvent(new Event('auth-change'));
+    setTimeout(() => {
+      router.push('/');
+    }, 200);
+  }
 
   const emailError = touched.email && !validateEmail(form.email) ? 'Введите корректный email' : '';
   const passwordError = touched.password ? validatePassword(form.password) : '';
@@ -50,8 +61,7 @@ export default function RegisterContent() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       toast.success('Аккаунт создан!');
-      window.dispatchEvent(new Event('auth-change'));
-      router.push('/');
+      setShowWelcome(true);
     } catch (err) {
       setError(err.message);
     }
@@ -94,6 +104,31 @@ export default function RegisterContent() {
           </CardContent>
         </Card>
       </motion.div>
+
+      {showWelcome && typeof document !== 'undefined' && createPortal(
+        <div
+          className="fixed inset-0 flex items-center justify-center px-4"
+          style={{ zIndex: 9999, backgroundColor: 'rgba(0,0,0,0.5)' }}
+        >
+          <div
+            className="rounded-xl p-6 max-w-sm w-full text-center shadow-2xl"
+            style={{ backgroundColor: '#ffffff', color: '#1a1a1a' }}
+          >
+            <div className="text-5xl mb-3">🌷</div>
+            <h2 className="text-xl font-bold mb-2">Добро пожаловать!</h2>
+            <p className="text-sm mb-4" style={{ color: '#6b6560' }}>
+              Ваш аккаунт успешно создан. Теперь вы можете оформлять заказы и добавлять товары в избранное.
+            </p>
+            <Button
+              className="w-full rounded-full"
+              onClick={handleGoHome}
+            >
+              На главную
+            </Button>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 }
