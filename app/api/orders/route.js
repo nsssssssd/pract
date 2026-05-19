@@ -1,5 +1,6 @@
 import { readData, writeData } from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth';
+import { rateLimit } from '@/lib/rateLimit';
 import { NextResponse } from 'next/server';
 
 function validatePhone(phone) {
@@ -23,6 +24,11 @@ export async function GET() {
 
 export async function POST(request) {
   try {
+    const limit = rateLimit(request, { windowMs: 60 * 1000, max: 5, identifier: 'order' });
+    if (!limit.success) {
+      return NextResponse.json({ error: 'Слишком много заказов. Попробуйте позже.' }, { status: 429 });
+    }
+
     const body = await request.json();
     const { name, phone, address, items } = body;
     if (!name || !phone || !address || !items?.length) {
@@ -71,7 +77,7 @@ export async function POST(request) {
       createdAt: new Date().toISOString(),
     };
     data.orders.push(order);
-    writeData(data);
+    await writeData(data);
     return NextResponse.json({ success: true, orderId: order.id }, { status: 201 });
   } catch (err) {
     return NextResponse.json({ error: err.message }, { status: 500 });

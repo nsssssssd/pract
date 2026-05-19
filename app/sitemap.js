@@ -1,6 +1,6 @@
 import { readData } from '@/lib/db';
 
-const STATIC_DATE = new Date('2024-06-01');
+const STATIC_DATE = new Date();
 
 export default function sitemap() {
   const baseUrl = 'https://tulpanomsk55.ru';

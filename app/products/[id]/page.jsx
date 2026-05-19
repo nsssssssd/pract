@@ -74,7 +74,7 @@ export default async function ProductPage({ params }) {
       url: productUrl,
       priceCurrency: 'RUB',
       price: product.price,
-      priceValidUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      priceValidUntil: '2026-12-31',
       availability: product.available !== false
         ? 'https://schema.org/InStock'
         : 'https://schema.org/OutOfStock',

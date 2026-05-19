@@ -49,7 +49,7 @@ export default function Cart() {
   const updateQuantity = useCartStore((s) => s.updateQuantity);
   const removeItem = useCartStore((s) => s.removeItem);
   const clearCart = useCartStore((s) => s.clearCart);
-  const total = useCartStore(useCallback((s) => s.total(), []));
+  const total = useCartStore((s) => s.total());
 
   const [user, setUser] = useState(null);
   const [step, setStep] = useState('cart');
@@ -70,18 +70,23 @@ export default function Cart() {
   }, []);
 
   useEffect(() => {
-    if (isOpen) {
-      fetch('/api/auth/me', { credentials: 'include' })
-        .then((r) => (r.ok ? r.json() : null))
-        .then((u) => {
-          setUser(u);
-          setForm((f) => ({ ...f, name: u?.name || '' }));
-        });
+    if (!isOpen) return;
+    let cancelled = false;
+    fetch('/api/auth/me', { credentials: 'include' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((u) => {
+        if (cancelled) return;
+        setUser(u);
+        setForm((f) => ({ ...f, name: u?.name || '' }));
+      });
+    const id = setTimeout(() => {
+      if (cancelled) return;
       setStep('cart');
       setLastOrderId(null);
       setFormErrors({});
       setShowPaymentMock(false);
-    }
+    }, 0);
+    return () => { cancelled = true; clearTimeout(id); };
   }, [isOpen]);
 
   function validateForm() {

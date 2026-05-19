@@ -1,4 +1,5 @@
 import HomePage from '@/components/pages/HomePage';
+import { readData } from '@/lib/db';
 import { FAQS } from '@/lib/faq';
 
 export const metadata = {
@@ -55,6 +56,8 @@ const jsonLd = {
 };
 
 export default function Home() {
+  const data = readData();
+
   return (
     <>
       <script
@@ -65,7 +68,7 @@ export default function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
-      <HomePage />
+      <HomePage initialProducts={data.products} />
     </>
   );
 }

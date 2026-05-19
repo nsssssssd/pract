@@ -68,6 +68,9 @@ export default function QuickViewModal({ product, open, onClose }) {
                 fill
                 className="object-cover"
                 sizes="(max-width: 640px) 100vw, 50vw"
+                loading="lazy"
+                placeholder="blur"
+                blurDataURL="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
               />
             ) : (
               <span className="text-7xl select-none">{product.emoji}</span>

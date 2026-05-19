@@ -1,7 +1,7 @@
 import { Inter } from 'next/font/google';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import Providers from '@/components/Providers';
-import PageTransition from '@/components/PageTransition';
+
 import { Toaster } from '@/components/ui/sonner';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -10,7 +10,9 @@ import Breadcrumbs from '@/components/Breadcrumbs';
 import Cart from '@/components/Cart';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import MobileCartFAB from '@/components/MobileCartFAB';
+import { getCurrentUser } from '@/lib/auth';
 import './globals.css';
+
 
 const inter = Inter({ subsets: ['latin', 'cyrillic'] });
 
@@ -97,7 +99,9 @@ const jsonLdOrganization = {
   },
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const user = await getCurrentUser();
+
   return (
     <html lang="ru" suppressHydrationWarning>
       <head>
@@ -114,11 +118,11 @@ export default function RootLayout({ children }) {
         <YandexMetrika />
         <Providers>
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
-            <Header />
+            <Header initialUser={user} />
             <Breadcrumbs />
             <Cart />
             <main className="flex-1 pb-16 md:pb-0">
-              <PageTransition>{children}</PageTransition>
+              {children}
             </main>
             <MobileCartFAB />
             <MobileBottomNav />

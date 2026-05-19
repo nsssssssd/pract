@@ -1,4 +1,5 @@
 import ProfileContent from './ProfileContent';
+import { getCurrentUser } from '@/lib/auth';
 
 export const metadata = {
   title: 'Личный кабинет',
@@ -13,6 +14,7 @@ export const metadata = {
   },
 };
 
-export default function ProfilePage() {
-  return <ProfileContent />;
+export default async function ProfilePage() {
+  const user = await getCurrentUser();
+  return <ProfileContent initialUser={user} />;
 }

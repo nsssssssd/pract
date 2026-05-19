@@ -27,8 +27,9 @@ const COLORS = [
   { value: '#C8E6C9', label: 'Зелёный' },
 ];
 
-export default function HomePage() {
+export default function HomePage({ initialProducts }) {
   const { data: products, isLoading } = useProducts();
+  const displayProducts = products || initialProducts || [];
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState('default');
   const [colorFilter, setColorFilter] = useState('');
@@ -37,7 +38,7 @@ export default function HomePage() {
   const [showFilters, setShowFilters] = useState(false);
 
   const filtered = useMemo(() => {
-    let result = (products || []).filter((p) => {
+    let result = (displayProducts || []).filter((p) => {
       const matchSearch = p.name.toLowerCase().includes(search.toLowerCase()) ||
         p.description.toLowerCase().includes(search.toLowerCase());
       const matchColor = !colorFilter || p.color === colorFilter;
@@ -51,7 +52,7 @@ export default function HomePage() {
     if (sort === 'name_asc') result.sort((a, b) => a.name.localeCompare(b.name));
 
     return result;
-  }, [products, search, sort, colorFilter, priceMin, priceMax]);
+  }, [displayProducts, search, sort, colorFilter, priceMin, priceMax]);
 
   const hasActiveFilters = search || colorFilter || priceMin || priceMax;
 
@@ -143,12 +144,8 @@ export default function HomePage() {
 
           {/* Filters */}
           {showFilters && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 p-4 rounded-xl border bg-card"
-            >
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 p-4 rounded-xl border bg-card animate-fade">
+            
               <div className="space-y-2">
                 <label className="text-sm font-medium">Сортировка</label>
                 <select
@@ -196,7 +193,7 @@ export default function HomePage() {
                   onChange={(e) => setPriceMax(e.target.value)}
                 />
               </div>
-            </motion.div>
+            </div>
           )}
 
           <div className="text-sm text-muted-foreground">

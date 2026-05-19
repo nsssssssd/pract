@@ -55,7 +55,7 @@ export async function PUT(request) {
     }
 
     data.users[userIdx] = user;
-    writeData(data);
+    await writeData(data);
 
     const token = signToken({
       id: user.id,

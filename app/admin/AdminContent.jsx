@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
+import Image from 'next/image';
 import { Loader2, Plus, Pencil, Trash2, Package, Users, DollarSign, Bell } from 'lucide-react';
 import { toast } from 'sonner';
 import Loader from '@/components/Loader';
@@ -20,9 +21,9 @@ import { useOrders } from '@/hooks/useOrders';
 import { useAdminStats } from '@/hooks/useAdminStats';
 import { useAdminUsers } from '@/hooks/useAdminUsers';
 
-const STATUS_OPTIONS = ['new', 'confirmed', 'delivered', 'cancelled'];
-const STATUS_LABELS = { new: 'Новый', confirmed: 'Подтверждён', delivered: 'Доставлен', cancelled: 'Отменён' };
-const STATUS_COLORS = { new: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200', confirmed: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200', delivered: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200', cancelled: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' };
+const STATUS_OPTIONS = ['new', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
+const STATUS_LABELS = { new: 'Новый', confirmed: 'Подтверждён', processing: 'В обработке', shipped: 'Отправлен', delivered: 'Доставлен', cancelled: 'Отменён' };
+const STATUS_COLORS = { new: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200', confirmed: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200', processing: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200', shipped: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200', delivered: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200', cancelled: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' };
 
 export default function AdminContent() {
   const router = useRouter();
@@ -358,7 +359,7 @@ export default function AdminContent() {
                     <div className="flex items-center gap-3">
                       {imagePreview ? (
                         <div className="relative">
-                          <img src={imagePreview} alt="preview" className="h-20 w-20 rounded-lg object-cover" />
+                          <Image src={imagePreview} alt="preview" width={80} height={80} className="rounded-lg object-cover" loading="lazy" placeholder="blur" blurDataURL="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" />
                           <Button type="button" variant="destructive" size="sm" className="absolute -top-2 -right-2 h-6 w-6 p-0 rounded-full" onClick={() => { setImageFile(null); setImagePreview(null); setProductForm((f) => ({ ...f, image: null })); }}>
                             <Trash2 className="h-3 w-3" />
                           </Button>
@@ -385,9 +386,9 @@ export default function AdminContent() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {(products || []).map((p) => (
               <Card key={p.id} className="overflow-hidden">
-                <div className="aspect-square flex items-center justify-center" style={{ background: p.color + '22' }}>
+                <div className="aspect-square relative flex items-center justify-center" style={{ background: p.color + '22' }}>
                   {p.image ? (
-                    <img src={p.image} alt={p.name} className="h-full w-full object-cover" />
+                    <Image src={p.image} alt={p.name} fill className="object-cover" loading="lazy" placeholder="blur" blurDataURL="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" />
                   ) : (
                     <span className="text-5xl">{p.emoji}</span>
                   )}
@@ -426,7 +427,7 @@ export default function AdminContent() {
                   <TableRow key={u.id}>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">{(u.name || '')[0]?.toUpperCase()}</span>
+                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">{(u.name || '?')[0]?.toUpperCase()}</span>
                         <span className="font-medium">{u.name}</span>
                       </div>
                     </TableCell>
@@ -446,7 +447,7 @@ export default function AdminContent() {
             {(users || []).map((u) => (
               <Card key={u.id}>
                 <CardContent className="p-4 flex items-center gap-3">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">{(u.name || '')[0]?.toUpperCase()}</span>
+                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">{(u.name || '?')[0]?.toUpperCase()}</span>
                   <div className="flex-1">
                     <div className="font-medium">{u.name}</div>
                     <div className="text-xs text-muted-foreground">{u.email}</div>

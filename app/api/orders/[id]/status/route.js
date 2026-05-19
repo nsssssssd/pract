@@ -2,7 +2,7 @@ import { readData, writeData } from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth';
 import { NextResponse } from 'next/server';
 
-const ALLOWED_STATUSES = ['new', 'processing', 'shipped', 'delivered', 'cancelled'];
+const ALLOWED_STATUSES = ['new', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
 
 export async function PUT(request, { params }) {
   try {
@@ -28,7 +28,7 @@ export async function PUT(request, { params }) {
     }
 
     order.status = status;
-    writeData(data);
+    await writeData(data);
     return NextResponse.json(order);
   } catch (err) {
     return NextResponse.json({ error: err.message }, { status: 500 });

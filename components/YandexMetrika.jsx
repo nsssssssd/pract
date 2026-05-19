@@ -1,5 +1,7 @@
 'use client';
 
+import Image from 'next/image';
+
 export default function YandexMetrika() {
   return (
     <>
@@ -11,10 +13,14 @@ export default function YandexMetrika() {
       />
       <noscript>
         <div>
-          <img
+          <Image
+            unoptimized
             src="https://mc.yandex.ru/watch/108585745"
-            style={{ position: 'absolute', left: '-9999px' }}
             alt=""
+            width={1}
+            height={1}
+            className="absolute"
+            style={{ left: '-9999px' }}
           />
         </div>
       </noscript>

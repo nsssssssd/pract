@@ -1,6 +1,5 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import { useCartStore } from '@/store/cart';
 import { useWishlistStore } from '@/store/wishlist';
 import { Button } from '@/components/ui/button';
@@ -47,10 +46,9 @@ export default function ProductCard({ product, index }) {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.05, duration: 0.3 }}
+    <div
+      className="animate-fade-in"
+      style={{ animationDelay: `${Math.min(index, 7) * 50}ms` }}
     >
       <Card className="group overflow-hidden border-0 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-[1.02]">
         <div
@@ -71,6 +69,9 @@ export default function ProductCard({ product, index }) {
                 sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
                 priority={index < 4}
+                loading={index < 4 ? 'eager' : 'lazy'}
+                placeholder="blur"
+                blurDataURL="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
               />
             ) : (
               <span className="text-6xl md:text-7xl select-none">{product.emoji}</span>
@@ -124,6 +125,6 @@ export default function ProductCard({ product, index }) {
         </CardContent>
       </Card>
       <QuickViewModal product={product} open={quickOpen} onClose={() => setQuickOpen(false)} />
-    </motion.div>
+    </div>
   );
 }

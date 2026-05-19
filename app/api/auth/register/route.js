@@ -1,12 +1,18 @@
 import bcrypt from 'bcryptjs';
 import { readData, writeData } from '@/lib/db';
 import { signToken, setAuthCookie } from '@/lib/auth';
+import { rateLimit } from '@/lib/rateLimit';
 import { NextResponse } from 'next/server';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function POST(request) {
   try {
+    const limit = rateLimit(request, { windowMs: 60 * 1000, max: 5, identifier: 'register' });
+    if (!limit.success) {
+      return NextResponse.json({ error: 'Слишком много попыток. Попробуйте позже.' }, { status: 429 });
+    }
+
     const { name, email, password } = await request.json();
     if (!name || !email || !password) {
       return NextResponse.json({ error: 'Заполните все поля' }, { status: 400 });
@@ -36,7 +42,7 @@ export async function POST(request) {
       createdAt: new Date().toISOString(),
     };
     data.users.push(user);
-    writeData(data);
+    await writeData(data);
 
     const token = signToken({
       id: user.id,

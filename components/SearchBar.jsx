@@ -22,19 +22,26 @@ export default function SearchBar({ open, onClose }) {
   const openCart = useCartStore((s) => s.openCart);
 
   useEffect(() => {
-    if (open) {
+    if (!open) return;
+    let cancelled = false;
+    const id = setTimeout(() => {
+      if (cancelled) return;
       setQuery('');
       setCategory('all');
       setLoading(true);
-      fetch('/api/products')
-        .then((r) => r.json())
-        .then((data) => {
-          setProducts(Array.isArray(data) ? data : data.products || []);
-          setLoading(false);
-        })
-        .catch(() => setLoading(false));
-      setTimeout(() => inputRef.current?.focus(), 50);
-    }
+    }, 0);
+    fetch('/api/products')
+      .then((r) => r.json())
+      .then((data) => {
+        if (cancelled) return;
+        setProducts(Array.isArray(data) ? data : data.products || []);
+        setLoading(false);
+      })
+      .catch(() => {
+        if (!cancelled) setLoading(false);
+      });
+    const focusId = setTimeout(() => inputRef.current?.focus(), 50);
+    return () => { cancelled = true; clearTimeout(id); clearTimeout(focusId); };
   }, [open]);
 
   const debounceRef = useRef(null);

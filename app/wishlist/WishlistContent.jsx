@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useWishlistStore } from '@/store/wishlist';
 import { useCartStore } from '@/store/cart';
@@ -68,10 +69,14 @@ export default function WishlistContent() {
                     style={{ background: product.color + '22' }}
                   >
                     {product.image ? (
-                      <img
+                      <Image
                         src={product.image}
                         alt={product.name}
-                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        loading="lazy"
+                        placeholder="blur"
+                        blurDataURL="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
                       />
                     ) : (
                       <span className="text-6xl md:text-7xl select-none">{product.emoji}</span>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -120,17 +120,10 @@ function ChangePasswordForm({ onCancel }) {
   );
 }
 
-export default function ProfileContent() {
-  const [user, setUser] = useState(null);
-  const [userLoading, setUserLoading] = useState(true);
+export default function ProfileContent({ initialUser }) {
+  const [user, setUser] = useState(initialUser);
   const [activePanel, setActivePanel] = useState(null);
   const { data: orders, isLoading: ordersLoading } = useMyOrders();
-
-  useEffect(() => {
-    fetch('/api/auth/me', { credentials: 'include' })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((u) => { setUser(u); setUserLoading(false); });
-  }, []);
 
   function handleProfileSaved(data) {
     setUser(data.user);
@@ -138,8 +131,16 @@ export default function ProfileContent() {
     toast.success('Профиль обновлён');
   }
 
-  if (userLoading) return <Loader />;
-  if (!user) return <Loader />;
+  if (!user) {
+    return (
+      <div className="container mx-auto px-4 py-12 text-center">
+        <div className="text-5xl mb-4">🔒</div>
+        <h1 className="text-2xl font-bold mb-2">Доступ ограничен</h1>
+        <p className="text-muted-foreground mb-6">Войдите в аккаунт, чтобы просматривать профиль</p>
+        <Button onClick={() => window.location.href = '/login'}>Войти</Button>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-3xl space-y-6">

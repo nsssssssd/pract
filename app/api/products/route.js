@@ -36,7 +36,7 @@ export async function POST(request) {
       available: true,
     };
     data.products.push(product);
-    writeData(data);
+    await writeData(data);
     return NextResponse.json(product, { status: 201 });
   } catch (err) {
     return NextResponse.json({ error: err.message }, { status: 500 });

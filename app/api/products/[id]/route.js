@@ -31,8 +31,19 @@ export async function PUT(request, { params }) {
     }
 
     const body = await request.json();
-    data.products[idx] = { ...data.products[idx], ...body, id: data.products[idx].id };
-    writeData(data);
+    const allowed = ['name', 'description', 'price', 'unit', 'emoji', 'color', 'image', 'available'];
+    const update = {};
+    for (const key of allowed) {
+      if (key in body) update[key] = body[key];
+    }
+    if (update.price !== undefined) {
+      update.price = Number(update.price);
+      if (!Number.isFinite(update.price) || update.price < 0) {
+        return NextResponse.json({ error: 'Некорректная цена' }, { status: 400 });
+      }
+    }
+    data.products[idx] = { ...data.products[idx], ...update, id: data.products[idx].id };
+    await writeData(data);
     return NextResponse.json(data.products[idx]);
   } catch (err) {
     return NextResponse.json({ error: err.message }, { status: 500 });
@@ -49,7 +60,7 @@ export async function DELETE(request, { params }) {
     const { id } = await params;
     const data = readData();
     data.products = data.products.filter((p) => p.id !== parseInt(id, 10));
-    writeData(data);
+    await writeData(data);
     return NextResponse.json({ success: true });
   } catch (err) {
     return NextResponse.json({ error: err.message }, { status: 500 });

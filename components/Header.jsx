@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
 import { useCartStore } from '@/store/cart';
 import { useWishlistStore } from '@/store/wishlist';
@@ -10,9 +10,9 @@ import SearchBar from './SearchBar';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart, Sun, Moon, LogOut, User, Shield, Heart, Search } from 'lucide-react';
 
-export default function Header() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+export default function Header({ initialUser }) {
+  const [user, setUser] = useState(initialUser ?? null);
+  const [loading, setLoading] = useState(initialUser === undefined);
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
@@ -22,20 +22,36 @@ export default function Header() {
   const openCart = useCartStore((s) => s.openCart);
   const [searchOpen, setSearchOpen] = useState(false);
 
+  // Sync with server-rendered user
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    if (initialUser !== undefined) {
+      setUser(initialUser);
+      setLoading(false);
+    }
+  }, [initialUser]);
 
-
-
+  // Client-side fetch if server didn't provide user
   useEffect(() => {
-    setLoading(true);
+    if (initialUser !== undefined) return;
+    let cancelled = false;
     fetch('/api/auth/me', { credentials: 'include' })
       .then((r) => (r.ok ? r.json() : null))
-      .then((u) => setUser(u))
-      .catch(() => setUser(null))
-      .finally(() => setLoading(false));
-  }, [pathname]);
+      .then((u) => {
+        if (!cancelled) setUser(u);
+      })
+      .catch(() => {
+        if (!cancelled) setUser(null);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [initialUser]);
+
+  useEffect(() => {
+    const id = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(id);
+  }, []);
 
   async function handleLogout() {
     await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
@@ -142,7 +158,7 @@ export default function Header() {
                   <Link href="/profile">
                     <Button variant="ghost" size="sm" className="gap-2 rounded-full">
                       <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-                        {user.name[0].toUpperCase()}
+                        {(user.name || '?')[0].toUpperCase()}
                       </span>
                       <span className="text-sm">{user.name}</span>
                     </Button>

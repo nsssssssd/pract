@@ -1,6 +1,9 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+// NOTE: selectors should be stable or wrapped with useShallow if using objects/arrays
+// Primitive selectors like s.total() are fine as-is
+
 export const useCartStore = create(
   persist(
     (set, get) => ({
