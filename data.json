@@ -1,0 +1,108 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "name": "Красные тюльпаны",
+      "description": "Классические алые тюльпаны — символ страсти и любви",
+      "price": 150,
+      "unit": "шт",
+      "emoji": "🌷",
+      "color": "#E8506A",
+      "image": "/uploads/product_1779132310423.jpg",
+      "available": true
+    },
+    {
+      "id": 2,
+      "name": "Розовые тюльпаны",
+      "description": "Нежные розовые тюльпаны для особых моментов",
+      "price": 140,
+      "unit": "шт",
+      "emoji": "🌸",
+      "color": "#F4A7B9",
+      "image": "/uploads/product_1779132325644.jpeg",
+      "available": true
+    },
+    {
+      "id": 3,
+      "name": "Белые тюльпаны",
+      "description": "Элегантные белые тюльпаны — чистота и изящество",
+      "price": 160,
+      "unit": "шт",
+      "emoji": "🤍",
+      "color": "#F5F0EB",
+      "image": null,
+      "available": true
+    },
+    {
+      "id": 4,
+      "name": "Жёлтые тюльпаны",
+      "description": "Солнечные жёлтые тюльпаны — радость и тепло",
+      "price": 130,
+      "unit": "шт",
+      "emoji": "💛",
+      "color": "#F9D56E",
+      "image": null,
+      "available": true
+    },
+    {
+      "id": 5,
+      "name": "Букет «Весна»",
+      "description": "Микс из 11 тюльпанов разных оттенков",
+      "price": 1490,
+      "unit": "букет",
+      "emoji": "💐",
+      "color": "#C8E6C9",
+      "image": null,
+      "available": true
+    },
+    {
+      "id": 6,
+      "name": "Букет «Нежность»",
+      "description": "25 розовых и белых тюльпанов с зеленью",
+      "price": 2990,
+      "unit": "букет",
+      "emoji": "🌺",
+      "color": "#F8BBD0",
+      "image": null,
+      "available": true
+    }
+  ],
+  "orders": [
+    {
+      "id": 1779132392322,
+      "userId": 1779132365007,
+      "name": "Костян",
+      "phone": "89081074145",
+      "address": "тюленина 19",
+      "items": [
+        {
+          "id": 2,
+          "name": "Розовые тюльпаны",
+          "price": 140,
+          "qty": 7
+        }
+      ],
+      "total": 980,
+      "status": "confirmed",
+      "createdAt": "2026-05-18T19:26:32.322Z"
+    }
+  ],
+  "users": [
+    {
+      "id": 1,
+      "name": "Администратор",
+      "email": "admin@tulips.ru",
+      "password": "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
+      "role": "admin",
+      "createdAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 1779132365007,
+      "name": "Костян",
+      "email": "isupov_kostya@bk.ru",
+      "password": "$2b$10$X7y6PhbXtZ//qcWmidArROOC0psV.I6r7evVvqBC8uytIbFdzLITC",
+      "role": "user",
+      "createdAt": "2026-05-18T19:26:05.007Z"
+    }
+  ]
+}
