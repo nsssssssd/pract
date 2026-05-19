@@ -2,13 +2,10 @@
 
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { useProducts } from '@/hooks/useProducts';
 import ProductCard from '@/components/ProductCard';
-import Loader from '@/components/Loader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Search, ArrowUpDown, SlidersHorizontal, X } from 'lucide-react';
+import { Search, SlidersHorizontal, X } from 'lucide-react';
 import FAQSection from '@/components/FAQSection';
 
 const SORT_OPTIONS = [
@@ -28,8 +25,7 @@ const COLORS = [
 ];
 
 export default function HomePage({ initialProducts }) {
-  const { data: products, isLoading } = useProducts();
-  const displayProducts = products || initialProducts || [];
+  const displayProducts = initialProducts || [];
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState('default');
   const [colorFilter, setColorFilter] = useState('');
@@ -201,24 +197,7 @@ export default function HomePage({ initialProducts }) {
           </div>
         </div>
 
-        {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="rounded-2xl border bg-card overflow-hidden">
-                <Skeleton className="aspect-[4/3]" />
-                <div className="p-4 space-y-3">
-                  <Skeleton className="h-4 w-2/3" />
-                  <Skeleton className="h-3 w-full" />
-                  <Skeleton className="h-3 w-4/5" />
-                  <div className="flex items-center justify-between pt-1">
-                    <Skeleton className="h-5 w-16" />
-                    <Skeleton className="h-9 w-9 rounded-full" />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : filtered.length === 0 ? (
+        {filtered.length === 0 ? (
           <div className="text-center py-16 text-muted-foreground">
             <div className="text-5xl mb-4">🔍</div>
             <p className="text-lg">Ничего не найдено</p>

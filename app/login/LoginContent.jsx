@@ -31,8 +31,8 @@ export default function LoginContent() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       toast.success('Добро пожаловать!');
+      window.dispatchEvent(new Event('auth-change'));
       router.push(data.user.role === 'admin' ? '/admin' : '/');
-      router.refresh();
     } catch (err) {
       setError(err.message);
     }

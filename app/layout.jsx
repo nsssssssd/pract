@@ -10,7 +10,6 @@ import Breadcrumbs from '@/components/Breadcrumbs';
 import Cart from '@/components/Cart';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import MobileCartFAB from '@/components/MobileCartFAB';
-import { getCurrentUser } from '@/lib/auth';
 import './globals.css';
 
 
@@ -99,9 +98,7 @@ const jsonLdOrganization = {
   },
 };
 
-export default async function RootLayout({ children }) {
-  const user = await getCurrentUser();
-
+export default function RootLayout({ children }) {
   return (
     <html lang="ru" suppressHydrationWarning>
       <head>
@@ -118,7 +115,7 @@ export default async function RootLayout({ children }) {
         <YandexMetrika />
         <Providers>
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
-            <Header initialUser={user} />
+            <Header />
             <Breadcrumbs />
             <Cart />
             <main className="flex-1 pb-16 md:pb-0">

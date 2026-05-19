@@ -50,8 +50,8 @@ export default function RegisterContent() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       toast.success('Аккаунт создан!');
+      window.dispatchEvent(new Event('auth-change'));
       router.push('/');
-      router.refresh();
     } catch (err) {
       setError(err.message);
     }

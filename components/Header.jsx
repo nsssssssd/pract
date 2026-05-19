@@ -10,9 +10,9 @@ import SearchBar from './SearchBar';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart, Sun, Moon, LogOut, User, Shield, Heart, Search } from 'lucide-react';
 
-export default function Header({ initialUser }) {
-  const [user, setUser] = useState(initialUser ?? null);
-  const [loading, setLoading] = useState(initialUser === undefined);
+export default function Header() {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
@@ -22,17 +22,7 @@ export default function Header({ initialUser }) {
   const openCart = useCartStore((s) => s.openCart);
   const [searchOpen, setSearchOpen] = useState(false);
 
-  // Sync with server-rendered user
-  useEffect(() => {
-    if (initialUser !== undefined) {
-      setUser(initialUser);
-      setLoading(false);
-    }
-  }, [initialUser]);
-
-  // Client-side fetch if server didn't provide user
-  useEffect(() => {
-    if (initialUser !== undefined) return;
+  function refreshUser() {
     let cancelled = false;
     fetch('/api/auth/me', { credentials: 'include' })
       .then((r) => (r.ok ? r.json() : null))
@@ -46,7 +36,17 @@ export default function Header({ initialUser }) {
         if (!cancelled) setLoading(false);
       });
     return () => { cancelled = true; };
-  }, [initialUser]);
+  }
+
+  useEffect(() => {
+    const cleanup = refreshUser();
+    function onAuthChange() { refreshUser(); }
+    window.addEventListener('auth-change', onAuthChange);
+    return () => {
+      cleanup();
+      window.removeEventListener('auth-change', onAuthChange);
+    };
+  }, []);
 
   useEffect(() => {
     const id = setTimeout(() => setMounted(true), 0);
@@ -56,8 +56,8 @@ export default function Header({ initialUser }) {
   async function handleLogout() {
     await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
     setUser(null);
+    window.dispatchEvent(new Event('auth-change'));
     router.push('/');
-    router.refresh();
   }
 
   const navLinks = [

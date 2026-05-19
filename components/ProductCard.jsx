@@ -124,7 +124,9 @@ export default function ProductCard({ product, index }) {
           </div>
         </CardContent>
       </Card>
-      <QuickViewModal product={product} open={quickOpen} onClose={() => setQuickOpen(false)} />
+      {quickOpen && (
+        <QuickViewModal product={product} open={quickOpen} onClose={() => setQuickOpen(false)} />
+      )}
     </div>
   );
 }
