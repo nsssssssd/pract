@@ -71,7 +71,7 @@ export default function Cart() {
 
   useEffect(() => {
     if (isOpen) {
-      fetch('/api/auth/me')
+      fetch('/api/auth/me', { credentials: 'include' })
         .then((r) => (r.ok ? r.json() : null))
         .then((u) => {
           setUser(u);

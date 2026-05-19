@@ -43,6 +43,7 @@ export default function RegisterContent() {
     try {
       const res = await fetch('/api/auth/register', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       });

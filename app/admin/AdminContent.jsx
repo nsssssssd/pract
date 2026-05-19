@@ -40,7 +40,7 @@ export default function AdminContent() {
   const { data: users, isLoading: usersLoading } = useAdminUsers();
 
   useEffect(() => {
-    fetch('/api/auth/me')
+    fetch('/api/auth/me', { credentials: 'include' })
       .then((r) => (r.ok ? r.json() : null))
       .then((u) => { if (!u || u.role !== 'admin') { router.push('/'); return; } setUser(u); });
   }, [router]);

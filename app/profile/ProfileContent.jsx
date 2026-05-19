@@ -30,6 +30,7 @@ function EditProfileForm({ user, onSave, onCancel }) {
     try {
       const res = await fetch('/api/auth/profile', {
         method: 'PUT',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: form.name.trim(), email: form.email.trim() }),
       });
@@ -80,6 +81,7 @@ function ChangePasswordForm({ onCancel }) {
     try {
       const res = await fetch('/api/auth/profile', {
         method: 'PUT',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ currentPassword: form.currentPassword, newPassword: form.newPassword }),
       });
@@ -125,7 +127,7 @@ export default function ProfileContent() {
   const { data: orders, isLoading: ordersLoading } = useMyOrders();
 
   useEffect(() => {
-    fetch('/api/auth/me')
+    fetch('/api/auth/me', { credentials: 'include' })
       .then((r) => (r.ok ? r.json() : null))
       .then((u) => { setUser(u); setUserLoading(false); });
   }, []);

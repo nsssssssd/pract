@@ -30,7 +30,7 @@ export default function Header() {
 
   useEffect(() => {
     setLoading(true);
-    fetch('/api/auth/me')
+    fetch('/api/auth/me', { credentials: 'include' })
       .then((r) => (r.ok ? r.json() : null))
       .then((u) => setUser(u))
       .catch(() => setUser(null))
@@ -38,7 +38,7 @@ export default function Header() {
   }, [pathname]);
 
   async function handleLogout() {
-    await fetch('/api/auth/logout', { method: 'POST' });
+    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
     setUser(null);
     router.push('/');
     router.refresh();

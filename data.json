@@ -19,7 +19,7 @@
       "unit": "шт",
       "emoji": "🌸",
       "color": "#F4A7B9",
-      "image": "/uploads/product_1779132325644.jpeg",
+      "image": "/uploads/product_1779197845841.png",
       "available": true
     },
     {
@@ -30,7 +30,7 @@
       "unit": "шт",
       "emoji": "🤍",
       "color": "#F5F0EB",
-      "image": null,
+      "image": "/uploads/product_1779197850741.png",
       "available": true
     },
     {
@@ -41,7 +41,7 @@
       "unit": "шт",
       "emoji": "💛",
       "color": "#F9D56E",
-      "image": null,
+      "image": "/uploads/product_1779197855556.png",
       "available": true
     },
     {
@@ -52,7 +52,7 @@
       "unit": "букет",
       "emoji": "💐",
       "color": "#C8E6C9",
-      "image": null,
+      "image": "/uploads/product_1779197862074.png",
       "available": true
     },
     {
@@ -63,7 +63,7 @@
       "unit": "букет",
       "emoji": "🌺",
       "color": "#F8BBD0",
-      "image": null,
+      "image": "/uploads/product_1779197866187.png",
       "available": true
     }
   ],
