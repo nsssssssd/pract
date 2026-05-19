@@ -32,8 +32,11 @@ export async function POST(request) {
 
     const buffer = Buffer.from(bytes);
 
-    const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
+    const uploadsDir = process.env.UPLOAD_DIR
+      ? path.resolve(process.env.UPLOAD_DIR)
+      : path.join(process.cwd(), 'public', 'uploads');
     await mkdir(uploadsDir, { recursive: true });
+    console.log('[UPLOAD] writing to:', uploadsDir);
 
     const ext = path.extname(file.name || '').toLowerCase();
     if (!ALLOWED_EXTS.includes(ext)) {

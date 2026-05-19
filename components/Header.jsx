@@ -29,12 +29,13 @@ export default function Header() {
 
 
   useEffect(() => {
+    setLoading(true);
     fetch('/api/auth/me')
       .then((r) => (r.ok ? r.json() : null))
       .then((u) => setUser(u))
       .catch(() => setUser(null))
       .finally(() => setLoading(false));
-  }, []);
+  }, [pathname]);
 
   async function handleLogout() {
     await fetch('/api/auth/logout', { method: 'POST' });
@@ -118,19 +119,19 @@ export default function Header() {
               <Search className="h-4 w-4 md:h-5 md:w-5" />
             </Button>
 
-            <Button
-              variant="ghost"
-              size="icon"
-              className="relative rounded-full h-9 w-9"
-              onClick={openCart}
-            >
-              <ShoppingCart className="h-4 w-4 md:h-5 md:w-5" />
-              {count > 0 && (
+            {count > 0 && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="relative rounded-full h-9 w-9"
+                onClick={openCart}
+              >
+                <ShoppingCart className="h-4 w-4 md:h-5 md:w-5" />
                 <span className="absolute -top-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
                   {count}
                 </span>
-              )}
-            </Button>
+              </Button>
+            )}
           </div>
 
           {/* Desktop user */}

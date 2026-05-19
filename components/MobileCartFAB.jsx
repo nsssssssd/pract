@@ -7,6 +7,8 @@ export default function MobileCartFAB() {
   const count = useCartStore((s) => s.count());
   const openCart = useCartStore((s) => s.openCart);
 
+  if (count === 0) return null;
+
   return (
     <button
       type="button"
@@ -15,11 +17,9 @@ export default function MobileCartFAB() {
       aria-label="Открыть корзину"
     >
       <ShoppingCart className="h-6 w-6" aria-hidden="true" />
-      {count > 0 && (
-        <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
-          {count}
-        </span>
-      )}
+      <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
+        {count}
+      </span>
     </button>
   );
 }
