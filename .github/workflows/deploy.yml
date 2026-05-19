@@ -42,9 +42,19 @@ jobs:
           script: |
             set -e
             cd /var/www/tulpan
+            echo "=== Backing up uploads ==="
+            if [ -d "public/uploads" ]; then
+              cp -r public/uploads /tmp/tulpan-uploads-backup
+            fi
             echo "=== Pulling latest code ==="
             git fetch origin main
             git reset --hard origin/main
+            echo "=== Restoring uploads ==="
+            mkdir -p public/uploads
+            if [ -d "/tmp/tulpan-uploads-backup" ]; then
+              cp -rn /tmp/tulpan-uploads-backup/* public/uploads/ 2>/dev/null || true
+              rm -rf /tmp/tulpan-uploads-backup
+            fi
             echo "=== Installing dependencies ==="
             npm ci
             echo "=== Building ==="
