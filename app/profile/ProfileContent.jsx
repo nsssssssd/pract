@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -131,13 +132,17 @@ export default function ProfileContent({ initialUser }) {
     toast.success('Профиль обновлён');
   }
 
+  const router = useRouter();
+
   if (!user) {
+    useEffect(() => {
+      router.push('/login');
+    }, [router]);
     return (
       <div className="container mx-auto px-4 py-12 text-center">
         <div className="text-5xl mb-4">🔒</div>
         <h1 className="text-2xl font-bold mb-2">Доступ ограничен</h1>
-        <p className="text-muted-foreground mb-6">Войдите в аккаунт, чтобы просматривать профиль</p>
-        <Button onClick={() => window.location.href = '/login'}>Войти</Button>
+        <p className="text-muted-foreground mb-6">Перенаправляем на страницу входа...</p>
       </div>
     );
   }

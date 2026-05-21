@@ -131,7 +131,29 @@
       "emailVerified": true,
       "phoneVerified": false,
       "createdAt": "2026-05-21T17:08:42.173Z"
+    },
+    {
+      "id": 1779384482761,
+      "name": "ко",
+      "email": null,
+      "phone": "+79012638514",
+      "password": null,
+      "role": "user",
+      "emailVerified": false,
+      "phoneVerified": true,
+      "createdAt": "2026-05-21T17:28:02.761Z"
     }
   ],
-  "verificationCodes": []
+  "verificationCodes": [
+    {
+      "id": "17793844099627eliw8hjs74",
+      "target": "+79081074145",
+      "type": "phone",
+      "code": "897117",
+      "attempts": 0,
+      "expiresAt": 1779385009962,
+      "createdAt": 1779384409962,
+      "meta": {}
+    }
+  ]
 }

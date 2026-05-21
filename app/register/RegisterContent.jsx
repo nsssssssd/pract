@@ -169,7 +169,7 @@ export default function RegisterContent() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-12 max-w-md">
+    <div className="container mx-auto px-4 pt-10 pb-12 max-w-md">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         <Card>
           <CardHeader className="text-center space-y-2">
@@ -215,11 +215,12 @@ export default function RegisterContent() {
 
               {/* Step 1: Form */}
               {method && step === 1 && (
-                <motion.div
+                <motion.form
                   key="form"
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 20 }}
+                  onSubmit={(e) => { e.preventDefault(); handleSendCode(); }}
                   className="space-y-4"
                 >
                   <button
@@ -295,10 +296,9 @@ export default function RegisterContent() {
                   )}
 
                   <Button
-                    type="button"
+                    type="submit"
                     className="w-full"
                     disabled={loading}
-                    onClick={handleSendCode}
                   >
                     {loading ? (
                       <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Отправляем...</>
@@ -306,16 +306,17 @@ export default function RegisterContent() {
                       'Получить код'
                     )}
                   </Button>
-                </motion.div>
+                </motion.form>
               )}
 
               {/* Step 2: Code */}
               {method && step === 2 && (
-                <motion.div
+                <motion.form
                   key="code"
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 20 }}
+                  onSubmit={(e) => { e.preventDefault(); handleVerifyAndRegister(); }}
                   className="space-y-4"
                 >
                   <button
@@ -347,10 +348,9 @@ export default function RegisterContent() {
                   </div>
 
                   <Button
-                    type="button"
+                    type="submit"
                     className="w-full"
                     disabled={loading || code.length !== 6}
-                    onClick={handleVerifyAndRegister}
                   >
                     {loading ? (
                       <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Проверяем...</>
@@ -373,7 +373,7 @@ export default function RegisterContent() {
                       </button>
                     )}
                   </div>
-                </motion.div>
+                </motion.form>
               )}
             </AnimatePresence>
           </CardContent>

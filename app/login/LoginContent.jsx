@@ -44,7 +44,7 @@ export default function LoginContent() {
   }
 
   async function handleEmailLogin(e) {
-    e.preventDefault();
+    e?.preventDefault?.();
     setError('');
     setLoading(true);
     try {
@@ -197,11 +197,12 @@ export default function LoginContent() {
               )}
 
               {method === 'phone' && phoneStep === 1 && (
-                <motion.div
+                <motion.form
                   key="phone-form"
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 10 }}
+                  onSubmit={(e) => { e.preventDefault(); handleSendPhoneCode(); }}
                   className="space-y-4"
                 >
                   <div className="space-y-2">
@@ -217,22 +218,22 @@ export default function LoginContent() {
                     <p className="text-xs text-muted-foreground">На этот номер придёт SMS с кодом для входа</p>
                   </div>
                   <Button
-                    type="button"
+                    type="submit"
                     className="w-full"
                     disabled={loading}
-                    onClick={handleSendPhoneCode}
                   >
                     {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Отправляем...</> : 'Получить код'}
                   </Button>
-                </motion.div>
+                </motion.form>
               )}
 
               {method === 'phone' && phoneStep === 2 && (
-                <motion.div
+                <motion.form
                   key="phone-code"
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 10 }}
+                  onSubmit={(e) => { e.preventDefault(); handlePhoneLogin(); }}
                   className="space-y-4"
                 >
                   <button
@@ -262,10 +263,9 @@ export default function LoginContent() {
                   </div>
 
                   <Button
-                    type="button"
+                    type="submit"
                     className="w-full"
                     disabled={loading || code.length !== 6}
-                    onClick={handlePhoneLogin}
                   >
                     {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Входим...</> : 'Войти'}
                   </Button>
@@ -284,7 +284,7 @@ export default function LoginContent() {
                       </button>
                     )}
                   </div>
-                </motion.div>
+                </motion.form>
               )}
             </AnimatePresence>
 
