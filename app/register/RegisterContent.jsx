@@ -153,7 +153,7 @@ export default function RegisterContent() {
     setShowWelcome(false);
     window.dispatchEvent(new Event('auth-change'));
     setTimeout(() => {
-      router.push('/');
+      router.push('/profile');
     }, 200);
   }
 
@@ -392,7 +392,7 @@ export default function RegisterContent() {
               Ваш аккаунт успешно создан. Теперь вы можете оформлять заказы и добавлять товары в избранное.
             </p>
             <Button className="w-full rounded-full" onClick={handleGoHome}>
-              На главную
+              В профиль →
             </Button>
           </div>
         </div>,
