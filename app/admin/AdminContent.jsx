@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
 import Image from 'next/image';
-import { Loader2, Plus, Pencil, Trash2, Package, Users, DollarSign, Bell } from 'lucide-react';
+import { Loader2, Plus, Pencil, Trash2, Package, Users, DollarSign, Bell, Shield } from 'lucide-react';
 import { toast } from 'sonner';
 import Loader from '@/components/Loader';
 import { useProducts } from '@/hooks/useProducts';
@@ -38,7 +38,7 @@ export default function AdminContent() {
   const { data: products, isLoading: productsLoading, refetch: refetchProducts } = useProducts();
   const { data: orders, isLoading: ordersLoading, refetch: refetchOrders } = useOrders();
   const { data: stats, isLoading: statsLoading } = useAdminStats();
-  const { data: users, isLoading: usersLoading } = useAdminUsers();
+  const { data: users, isLoading: usersLoading, refetch: refetchUsers } = useAdminUsers();
 
   useEffect(() => {
     fetch('/api/auth/me', { credentials: 'include' })
@@ -66,6 +66,29 @@ export default function AdminContent() {
       refetchProducts();
       toast.success('Товар удалён');
     } catch { toast.error('Ошибка удаления'); }
+  }
+
+  async function deleteUser(id) {
+    if (!confirm('Удалить пользователя?')) return;
+    try {
+      const res = await fetch(`/api/auth/users/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Ошибка');
+      refetchUsers();
+      toast.success('Пользователь удалён');
+    } catch { toast.error('Ошибка удаления'); }
+  }
+
+  async function updateUserRole(id, role) {
+    try {
+      const res = await fetch(`/api/auth/users/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role }),
+      });
+      if (!res.ok) throw new Error('Ошибка');
+      refetchUsers();
+      toast.success(role === 'admin' ? 'Роль повышена до админа' : 'Роль понижена до клиента');
+    } catch { toast.error('Ошибка изменения роли'); }
   }
 
   async function saveProduct(e) {
@@ -417,9 +440,10 @@ export default function AdminContent() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Имя</TableHead>
-                  <TableHead>Email</TableHead>
+                  <TableHead>Email / Телефон</TableHead>
                   <TableHead>Роль</TableHead>
                   <TableHead>Дата</TableHead>
+                  <TableHead className="w-24">Действия</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -431,13 +455,23 @@ export default function AdminContent() {
                         <span className="font-medium">{u.name}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="text-sm">{u.email}</TableCell>
+                    <TableCell className="text-sm">{u.email || u.phone || '—'}</TableCell>
                     <TableCell>
                       <Badge variant={u.role === 'admin' ? 'default' : 'secondary'}>
                         {u.role === 'admin' ? '👑 Админ' : '🌷 Клиент'}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-muted-foreground text-xs">{new Date(u.createdAt).toLocaleDateString('ru-RU')}</TableCell>
+                    <TableCell>
+                      <div className="flex gap-1">
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => updateUserRole(u.id, u.role === 'admin' ? 'user' : 'admin')} title={u.role === 'admin' ? 'Понизить до клиента' : 'Сделать админом'}>
+                          <Shield className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:text-destructive" onClick={() => deleteUser(u.id)} title="Удалить">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -446,14 +480,25 @@ export default function AdminContent() {
           <div className="md:hidden space-y-3">
             {(users || []).map((u) => (
               <Card key={u.id}>
-                <CardContent className="p-4 flex items-center gap-3">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">{(u.name || '?')[0]?.toUpperCase()}</span>
-                  <div className="flex-1">
-                    <div className="font-medium">{u.name}</div>
-                    <div className="text-xs text-muted-foreground">{u.email}</div>
-                    <div className="text-xs text-muted-foreground">{new Date(u.createdAt).toLocaleDateString('ru-RU')}</div>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">{(u.name || '?')[0]?.toUpperCase()}</span>
+                    <div className="flex-1">
+                      <div className="font-medium">{u.name}</div>
+                      <div className="text-xs text-muted-foreground">{u.email || u.phone || '—'}</div>
+                      <div className="text-xs text-muted-foreground">{new Date(u.createdAt).toLocaleDateString('ru-RU')}</div>
+                    </div>
+                    <Badge variant={u.role === 'admin' ? 'default' : 'secondary'}>{u.role === 'admin' ? '👑' : '🌷'}</Badge>
                   </div>
-                  <Badge variant={u.role === 'admin' ? 'default' : 'secondary'}>{u.role === 'admin' ? '👑' : '🌷'}</Badge>
+                  <div className="flex gap-2 pt-2 border-t">
+                    <Button variant="outline" size="sm" className="flex-1 gap-1" onClick={() => updateUserRole(u.id, u.role === 'admin' ? 'user' : 'admin')}>
+                      <Shield className="h-3 w-3" />
+                      {u.role === 'admin' ? 'Понизить' : 'Админ'}
+                    </Button>
+                    <Button variant="destructive" size="sm" className="flex-1 gap-1" onClick={() => deleteUser(u.id)}>
+                      <Trash2 className="h-3 w-3" /> Удалить
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             ))}
