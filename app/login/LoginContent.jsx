@@ -123,7 +123,7 @@ export default function LoginContent() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-12 max-w-md">
+    <div className="container mx-auto px-4 max-w-md flex flex-col justify-center min-h-[calc(100dvh-3.5rem-4rem)] md:py-12 md:block md:min-h-0">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         <Card>
           <CardHeader className="text-center space-y-2">
