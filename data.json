@@ -94,7 +94,10 @@
       "email": "admin@tulips.ru",
       "password": "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
       "role": "admin",
-      "createdAt": "2026-01-01T00:00:00.000Z"
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "emailVerified": true,
+      "phoneVerified": false,
+      "phone": null
     },
     {
       "id": 1779132365007,
@@ -102,7 +105,35 @@
       "email": "isupov_kostya@bk.ru",
       "password": "$2b$10$X7y6PhbXtZ//qcWmidArROOC0psV.I6r7evVvqBC8uytIbFdzLITC",
       "role": "user",
-      "createdAt": "2026-05-18T19:26:05.007Z"
+      "createdAt": "2026-05-18T19:26:05.007Z",
+      "emailVerified": true,
+      "phoneVerified": false,
+      "phone": null
+    },
+    {
+      "id": 1779381647228,
+      "name": "Константин",
+      "email": null,
+      "phone": "+79081074145",
+      "password": null,
+      "role": "user",
+      "emailVerified": false,
+      "phoneVerified": true,
+      "createdAt": "2026-05-21T16:40:47.228Z"
+    }
+  ],
+  "verificationCodes": [
+    {
+      "id": "1779381290891g175rp11c8u",
+      "target": "+79091074145",
+      "type": "phone",
+      "code": "831509",
+      "attempts": 0,
+      "expiresAt": 1779381890891,
+      "createdAt": 1779381290891,
+      "meta": {
+        "name": "Константин"
+      }
     }
   ]
 }

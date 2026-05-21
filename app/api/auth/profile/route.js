@@ -41,12 +41,14 @@ export async function PUT(request) {
     }
 
     if (newPassword) {
-      if (!currentPassword) {
-        return NextResponse.json({ error: 'Введите текущий пароль' }, { status: 400 });
-      }
-      const valid = await bcrypt.compare(currentPassword, user.password);
-      if (!valid) {
-        return NextResponse.json({ error: 'Неверный текущий пароль' }, { status: 400 });
+      if (user.password) {
+        if (!currentPassword) {
+          return NextResponse.json({ error: 'Введите текущий пароль' }, { status: 400 });
+        }
+        const valid = await bcrypt.compare(currentPassword, user.password);
+        if (!valid) {
+          return NextResponse.json({ error: 'Неверный текущий пароль' }, { status: 400 });
+        }
       }
       if (typeof newPassword !== 'string' || newPassword.length < 6) {
         return NextResponse.json({ error: 'Новый пароль минимум 6 символов' }, { status: 400 });
@@ -57,15 +59,18 @@ export async function PUT(request) {
     data.users[userIdx] = user;
     await writeData(data);
 
-    const token = signToken({
+    const tokenPayload = {
       id: user.id,
       name: user.name,
-      email: user.email,
       role: user.role,
-    });
+    };
+    if (user.email) tokenPayload.email = user.email;
+    if (user.phone) tokenPayload.phone = user.phone;
+
+    const token = signToken(tokenPayload);
     const response = NextResponse.json({
       token,
-      user: { id: user.id, name: user.name, email: user.email, role: user.role },
+      user: { id: user.id, name: user.name, email: user.email, phone: user.phone, role: user.role },
     });
     return setAuthCookie(response, token);
   } catch (err) {

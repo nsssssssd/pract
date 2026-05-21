@@ -150,7 +150,7 @@ export default function ProfileContent({ initialUser }) {
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground">{(user.name || '')[0]?.toUpperCase()}</div>
             <div className="flex-1">
               <div className="text-lg font-semibold">{user.name}</div>
-              <div className="text-sm text-muted-foreground">{user.email}</div>
+              <div className="text-sm text-muted-foreground">{user.email || user.phone || ''}</div>
             </div>
             <div className="flex flex-col items-start sm:items-end gap-2">
               <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>{user.role === 'admin' ? '👑 Админ' : '🌷 Клиент'}</Badge>
