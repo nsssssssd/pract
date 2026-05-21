@@ -152,9 +152,8 @@ export default function RegisterContent() {
   function handleGoHome() {
     setShowWelcome(false);
     window.dispatchEvent(new Event('auth-change'));
-    setTimeout(() => {
-      router.push('/profile');
-    }, 200);
+    // Полная перезагрузка для гарантированной передачи cookie на мобильных
+    window.location.href = '/profile';
   }
 
   function reset() {
