@@ -14,10 +14,12 @@ const LABELS = {
   wishlist: 'Избранное',
 };
 
+const HIDDEN_PATHS = ['/login', '/register'];
+
 export default function Breadcrumbs() {
   const pathname = usePathname();
 
-  if (pathname === '/') return null;
+  if (pathname === '/' || HIDDEN_PATHS.includes(pathname)) return null;
 
   const segments = pathname.split('/').filter(Boolean);
 
