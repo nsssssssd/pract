@@ -134,7 +134,7 @@ export default function AdminContent() {
   return (
     <div className="container mx-auto px-4 py-8">
       <Tabs defaultValue="stats" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 md:w-fit">
+        <TabsList className="grid w-full grid-cols-2 md:w-fit md:grid-cols-4">
           <TabsTrigger value="stats">Статистика</TabsTrigger>
           <TabsTrigger value="orders">Заказы</TabsTrigger>
           <TabsTrigger value="products">Товары</TabsTrigger>
@@ -317,7 +317,7 @@ export default function AdminContent() {
                   <DialogTitle>{editingProduct ? 'Редактировать товар' : 'Новый товар'}</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={saveProduct} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="space-y-2">
                       <Label>Название</Label>
                       <Input value={productForm.name} onChange={(e) => setProductForm((f) => ({ ...f, name: e.target.value }))} required />
@@ -331,7 +331,7 @@ export default function AdminContent() {
                     <Label>Описание</Label>
                     <Input value={productForm.description} onChange={(e) => setProductForm((f) => ({ ...f, description: e.target.value }))} />
                   </div>
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div className="space-y-2">
                       <Label>Единица</Label>
                       <Select value={productForm.unit} onValueChange={(v) => setProductForm((f) => ({ ...f, unit: v }))}>

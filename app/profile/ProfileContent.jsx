@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Edit, Lock, CheckCircle } from 'lucide-react';
+import { Loader2, Edit, Lock, CheckCircle, LogOut } from 'lucide-react';
 import { toast } from 'sonner';
 import Loader from '@/components/Loader';
 import { useMyOrders } from '@/hooks/useMyOrders';
@@ -154,9 +154,10 @@ export default function ProfileContent({ initialUser }) {
             </div>
             <div className="flex flex-col items-start sm:items-end gap-2">
               <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>{user.role === 'admin' ? '👑 Админ' : '🌷 Клиент'}</Badge>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Button variant="outline" size="sm" className="gap-1" onClick={() => setActivePanel((p) => p === 'edit' ? null : 'edit')}><Edit className="h-3 w-3" /> Редактировать</Button>
                 <Button variant="outline" size="sm" className="gap-1" onClick={() => setActivePanel((p) => p === 'password' ? null : 'password')}><Lock className="h-3 w-3" /> Сменить пароль</Button>
+                <Button variant="ghost" size="sm" className="gap-1 text-destructive hover:text-destructive" onClick={async () => { await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' }); window.location.href = '/'; }}><LogOut className="h-3 w-3" /> Выйти</Button>
               </div>
             </div>
           </div>

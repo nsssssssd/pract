@@ -129,18 +129,9 @@
   }
 }
 
-/* Мобильные: +4 пункта (16px → 20px) */
-@media (max-width: 768px) {
-  html {
-    font-size: 20px;
-  }
-}
-
-/* Десктоп: +8 пунктов (16px → 24px) */
-@media (min-width: 769px) {
-  html {
-    font-size: 24px;
-  }
+/* Стандартный базовый размер шрифта для корректной работы Tailwind */
+html {
+  font-size: 16px;
 }
 
 @keyframes fade-in-up {

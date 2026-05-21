@@ -29,6 +29,11 @@ export default function WishlistContent() {
         <Badge variant="secondary">{items.length}</Badge>
       </div>
 
+      {items.length > 0 && (
+        <p className="text-xs text-muted-foreground mb-4 md:hidden">
+          👈 Свайпните карточку влево, чтобы удалить
+        </p>
+      )}
       {items.length === 0 ? (
         <div className="text-center py-16 space-y-4">
           <div className="text-6xl">🌷</div>

@@ -113,7 +113,7 @@ export default function ProductPageClient({ product }) {
             Каталог
           </Link>
           <ChevronRight className="h-3.5 w-3.5" />
-          <span className="text-foreground font-medium truncate max-w-[200px] md:max-w-md">
+          <span className="text-foreground font-medium truncate max-w-[160px] sm:max-w-[240px] md:max-w-md">
             {product.name}
           </span>
         </nav>

@@ -111,8 +111,7 @@ export default function RegisterContent() {
           style={{ zIndex: 9999, backgroundColor: 'rgba(0,0,0,0.5)' }}
         >
           <div
-            className="rounded-xl p-6 max-w-sm w-full text-center shadow-2xl"
-            style={{ backgroundColor: '#ffffff', color: '#1a1a1a' }}
+            className="rounded-xl p-6 max-w-sm w-full text-center shadow-2xl bg-card text-card-foreground"
           >
             <div className="text-5xl mb-3">🌷</div>
             <h2 className="text-xl font-bold mb-2">Добро пожаловать!</h2>

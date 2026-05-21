@@ -58,7 +58,7 @@ export default function QuickViewModal({ product, open, onClose }) {
         <div className="grid grid-cols-1 sm:grid-cols-2">
           {/* Image */}
           <div
-            className="relative aspect-square sm:aspect-auto flex items-center justify-center"
+            className="relative aspect-[4/3] sm:aspect-auto flex items-center justify-center"
             style={{ background: product.color + '22' }}
           >
             {product.image ? (

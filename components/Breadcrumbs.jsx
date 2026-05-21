@@ -11,6 +11,7 @@ const LABELS = {
   admin: 'Панель администратора',
   login: 'Вход',
   register: 'Регистрация',
+  wishlist: 'Избранное',
 };
 
 export default function Breadcrumbs() {
