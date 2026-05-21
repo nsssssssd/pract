@@ -157,7 +157,7 @@ export default function ProfileContent({ initialUser }) {
               <div className="flex flex-wrap gap-2">
                 <Button variant="outline" size="sm" className="gap-1" onClick={() => setActivePanel((p) => p === 'edit' ? null : 'edit')}><Edit className="h-3 w-3" /> Редактировать</Button>
                 <Button variant="outline" size="sm" className="gap-1" onClick={() => setActivePanel((p) => p === 'password' ? null : 'password')}><Lock className="h-3 w-3" /> Сменить пароль</Button>
-                <Button variant="ghost" size="sm" className="gap-1 text-destructive hover:text-destructive" onClick={async () => { await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' }); window.location.href = '/'; }}><LogOut className="h-3 w-3" /> Выйти</Button>
+                <Button variant="ghost" size="sm" className="gap-1 text-destructive hover:text-destructive md:hidden" onClick={async () => { await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' }); window.location.href = '/'; }}><LogOut className="h-3 w-3" /> Выйти</Button>
               </div>
             </div>
           </div>
