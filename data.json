@@ -120,20 +120,18 @@
       "emailVerified": false,
       "phoneVerified": true,
       "createdAt": "2026-05-21T16:40:47.228Z"
+    },
+    {
+      "id": 1779383322173,
+      "name": "zzz zzz",
+      "email": "zzz.zz.z.zz1232176@gmail.com",
+      "password": "$2b$10$NsSzBa4XEh2/1qvNN/LvXuqmUS4u.bx6p5WOZypkJ4TNJTcNpRZ8u",
+      "phone": null,
+      "role": "user",
+      "emailVerified": true,
+      "phoneVerified": false,
+      "createdAt": "2026-05-21T17:08:42.173Z"
     }
   ],
-  "verificationCodes": [
-    {
-      "id": "1779381290891g175rp11c8u",
-      "target": "+79091074145",
-      "type": "phone",
-      "code": "831509",
-      "attempts": 0,
-      "expiresAt": 1779381890891,
-      "createdAt": 1779381290891,
-      "meta": {
-        "name": "Константин"
-      }
-    }
-  ]
+  "verificationCodes": []
 }
