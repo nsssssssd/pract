@@ -22,28 +22,30 @@ export default function RecaptchaProvider() {
   );
 }
 
-export async function executeRecaptcha(action = 'submit', retries = 3) {
+export async function executeRecaptcha(action = 'submit') {
   const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
   if (!siteKey || typeof window === 'undefined') {
     return null;
   }
 
-  // Ждём загрузки reCAPTCHA
-  for (let i = 0; i < retries; i++) {
-    if (window.grecaptcha && window.grecaptcha.ready) {
-      break;
-    }
-    await new Promise((resolve) => setTimeout(resolve, 500));
+  // Если grecaptcha ещё не загрузился — ждём максимум 3 секунды
+  if (!window.grecaptcha) {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
   }
 
   if (!window.grecaptcha || !window.grecaptcha.ready) {
-    console.warn('[recaptcha] Script not loaded after retries');
+    console.warn('[recaptcha] Not available, skipping');
     return null;
   }
 
   return new Promise((resolve) => {
     window.grecaptcha.ready(() => {
-      window.grecaptcha.execute(siteKey, { action }).then(resolve).catch(() => resolve(null));
+      window.grecaptcha.execute(siteKey, { action })
+        .then((token) => resolve(token))
+        .catch((err) => {
+          console.error('[recaptcha] execute error:', err);
+          resolve(null);
+        });
     });
   });
 }
