@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import { readData } from '@/lib/db';
 import { signToken, setAuthCookie } from '@/lib/auth';
-import { rateLimit, bruteForceProtection, recordFailedAttempt, resetAttempts } from '@/lib/rateLimit';
+import { rateLimit, bruteForceProtection, emailBruteForceProtection, recordFailedAttempt, recordEmailFailedAttempt, resetAttempts, resetEmailAttempts } from '@/lib/rateLimit';
 import { verifyCode } from '@/lib/verification';
 import { parsePhoneNumber } from 'libphonenumber-js';
 import { NextResponse } from 'next/server';
@@ -71,26 +71,36 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Введите email и пароль' }, { status: 400 });
     }
 
+    // Проверка брутфорса по email
+    const emailBf = emailBruteForceProtection(email);
+    if (!emailBf.success) {
+      return NextResponse.json({ error: emailBf.message }, { status: 429 });
+    }
+
     const data = readData();
     const user = data.users?.find((u) => u.email === email);
     if (!user) {
       recordFailedAttempt(request, { identifier: 'login' });
+      recordEmailFailedAttempt(email);
       return NextResponse.json({ error: 'Неверный email или пароль' }, { status: 401 });
     }
 
     if (!user.password) {
       recordFailedAttempt(request, { identifier: 'login' });
+      recordEmailFailedAttempt(email);
       return NextResponse.json({ error: 'Для этого аккаунта вход только по коду' }, { status: 401 });
     }
 
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) {
       recordFailedAttempt(request, { identifier: 'login' });
+      recordEmailFailedAttempt(email);
       return NextResponse.json({ error: 'Неверный email или пароль' }, { status: 401 });
     }
 
-    // Успешный вход — сбрасываем счётчик неудачных попыток
+    // Успешный вход — сбрасываем счётчики
     resetAttempts(request, { identifier: 'login' });
+    resetEmailAttempts(email);
 
     const token = signToken({ id: user.id, name: user.name, email: user.email, role: user.role });
     const response = NextResponse.json({
