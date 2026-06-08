@@ -18,8 +18,9 @@ export async function POST(request) {
       return NextResponse.json({ error: 'VK OAuth не настроен на сервере' }, { status: 500 });
     }
 
-    // Шаг 1: Обменять code на access_token (PKCE)
+    // VK ID OAuth 2.1 - обмен code на access_token
     const tokenBody = new URLSearchParams();
+    tokenBody.set('grant_type', 'authorization_code');
     tokenBody.set('client_id', VK_APP_ID);
     tokenBody.set('client_secret', VK_APP_SECRET);
     tokenBody.set('redirect_uri', VK_REDIRECT_URI);
@@ -29,7 +30,7 @@ export async function POST(request) {
       tokenBody.set('code_verifier', code_verifier);
     }
 
-    const tokenRes = await fetch('https://api.vk.com/oauth/access_token', {
+    const tokenRes = await fetch('https://id.vk.com/oauth2/auth', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: tokenBody.toString(),
