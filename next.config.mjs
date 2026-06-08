@@ -67,7 +67,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline'; " +
               "img-src 'self' data: https: blob:; " +
               "font-src 'self'; " +
-              "connect-src 'self' https://mc.yandex.ru https://api.vk.com https://id.vk.com wss://mc.yandex.ru; " +
+              "connect-src 'self' https://mc.yandex.ru https://api.vk.com https://id.vk.com wss://mc.yandex.ru https://www.google.com https://www.gstatic.com; " +
               "frame-ancestors 'none'; " +
               "base-uri 'self'; " +
               "form-action 'self';",
