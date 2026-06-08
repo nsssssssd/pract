@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { readData } from '@/lib/db';
 import { rateLimit } from '@/lib/rateLimit';
+import { verifyRecaptcha } from '@/lib/recaptcha';
 import { createCode, canResendCode } from '@/lib/verification';
 import { sendVerificationCode } from '@/lib/email';
 import { sendSmsCode } from '@/lib/sms';
@@ -15,7 +16,13 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Слишком много запросов. Попробуйте позже.' }, { status: 429 });
     }
 
-    const { target, type, name, mode = 'register' } = await request.json();
+    const { target, type, name, mode = 'register', recaptchaToken } = await request.json();
+
+    // Verify reCAPTCHA
+    const recaptcha = await verifyRecaptcha(recaptchaToken);
+    if (!recaptcha.success && !recaptcha.skipped) {
+      return NextResponse.json({ error: recaptcha.error }, { status: 400 });
+    }
 
     if (!target || !type) {
       return NextResponse.json({ error: 'Укажите target и type' }, { status: 400 });

@@ -68,6 +68,7 @@ const nextConfig = {
               "img-src 'self' data: https: blob:; " +
               "font-src 'self'; " +
               "connect-src 'self' https://mc.yandex.ru https://api.vk.com https://id.vk.com wss://mc.yandex.ru https://www.google.com https://www.gstatic.com; " +
+              "frame-src https://www.google.com https://www.recaptcha.net; " +
               "frame-ancestors 'none'; " +
               "base-uri 'self'; " +
               "form-action 'self';",

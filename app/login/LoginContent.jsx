@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Loader2, Mail, Smartphone, ArrowLeft } from 'lucide-react';
 import VKLoginButton from '@/components/VKLoginButton';
+import RecaptchaCheckbox from '@/components/RecaptchaCheckbox';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -22,6 +23,7 @@ export default function LoginContent() {
   const [loading, setLoading] = useState(false);
   const [timer, setTimer] = useState(0);
   const [normalizedPhone, setNormalizedPhone] = useState('');
+  const [recaptchaToken, setRecaptchaToken] = useState('');
   const timerRef = useRef(null);
 
   useEffect(() => {
@@ -49,11 +51,17 @@ export default function LoginContent() {
     setError('');
     setLoading(true);
     try {
+      if (!recaptchaToken) {
+        setError('Пройдите проверку CAPTCHA');
+        setLoading(false);
+        return;
+      }
+
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: form.email, password: form.password }),
+        body: JSON.stringify({ email: form.email, password: form.password, recaptchaToken }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
@@ -109,11 +117,17 @@ export default function LoginContent() {
     try {
       const phone = normalizedPhone || form.phone.trim();
 
+      if (!recaptchaToken) {
+        setError('Пройдите проверку CAPTCHA');
+        setLoading(false);
+        return;
+      }
+
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, code }),
+        body: JSON.stringify({ phone, code, recaptchaToken }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
@@ -201,7 +215,11 @@ export default function LoginContent() {
                       required
                     />
                   </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
+                  <RecaptchaCheckbox
+                    onVerify={setRecaptchaToken}
+                    onExpire={() => setRecaptchaToken('')}
+                  />
+                  <Button type="submit" className="w-full" disabled={loading || !recaptchaToken}>
                     {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Входим...</> : 'Войти'}
                   </Button>
                 </motion.form>
@@ -273,10 +291,14 @@ export default function LoginContent() {
                     />
                   </div>
 
+                  <RecaptchaCheckbox
+                    onVerify={setRecaptchaToken}
+                    onExpire={() => setRecaptchaToken('')}
+                  />
                   <Button
                     type="submit"
                     className="w-full"
-                    disabled={loading || code.length !== 6}
+                    disabled={loading || code.length !== 6 || !recaptchaToken}
                   >
                     {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Входим...</> : 'Войти'}
                   </Button>

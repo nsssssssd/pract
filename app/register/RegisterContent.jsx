@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Loader2, Mail, Smartphone, ArrowLeft, CheckCircle } from 'lucide-react';
 import VKLoginButton from '@/components/VKLoginButton';
+import RecaptchaCheckbox from '@/components/RecaptchaCheckbox';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -35,6 +36,7 @@ export default function RegisterContent() {
   const [timer, setTimer] = useState(0);
   const [showWelcome, setShowWelcome] = useState(false);
   const [normalizedTarget, setNormalizedTarget] = useState('');
+  const [recaptchaToken, setRecaptchaToken] = useState('');
   const timerRef = useRef(null);
 
   useEffect(() => {
@@ -87,13 +89,18 @@ export default function RegisterContent() {
       return;
     }
 
+    if (!recaptchaToken) {
+      setError('Пройдите проверку CAPTCHA');
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await fetch('/api/auth/send-code', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ target, type: method, name: form.name.trim(), mode: 'register' }),
+        body: JSON.stringify({ target, type: method, name: form.name.trim(), mode: 'register', recaptchaToken }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
@@ -309,10 +316,14 @@ export default function RegisterContent() {
                     </div>
                   )}
 
+                  <RecaptchaCheckbox
+                    onVerify={setRecaptchaToken}
+                    onExpire={() => setRecaptchaToken('')}
+                  />
                   <Button
                     type="submit"
                     className="w-full"
-                    disabled={loading}
+                    disabled={loading || !recaptchaToken}
                   >
                     {loading ? (
                       <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Отправляем...</>

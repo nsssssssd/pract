@@ -10,29 +10,28 @@ export default function RecaptchaProvider() {
   return (
     <Script
       id="recaptcha-script"
-      src={`https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}`}
-      strategy="lazyOnload"
+      src={`https://www.google.com/recaptcha/api.js?render=explicit`}
+      strategy="afterInteractive"
     />
   );
 }
 
-export async function executeRecaptcha(action = 'submit') {
+export function renderRecaptcha(containerId, onVerify) {
   const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
-  if (!siteKey || typeof window === 'undefined') {
+  if (!siteKey || typeof window === 'undefined' || !window.grecaptcha) {
     return null;
   }
 
-  // Если grecaptcha уже загружен — сразу выполняем
-  if (window.grecaptcha?.ready) {
-    return new Promise((resolve) => {
-      window.grecaptcha.ready(() => {
-        window.grecaptcha.execute(siteKey, { action })
-          .then(resolve)
-          .catch(() => resolve(null));
-      });
-    });
-  }
+  return window.grecaptcha.render(containerId, {
+    sitekey: siteKey,
+    callback: onVerify,
+    'expired-callback': () => onVerify(null),
+    'error-callback': () => onVerify(null),
+  });
+}
 
-  // Если не загружен — пропускаем, не ждём
-  return null;
+export function resetRecaptcha(widgetId) {
+  if (typeof window !== 'undefined' && window.grecaptcha && widgetId !== null) {
+    window.grecaptcha.reset(widgetId);
+  }
 }
