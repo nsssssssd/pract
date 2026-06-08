@@ -8,7 +8,7 @@ const VK_REDIRECT_URI = process.env.VK_REDIRECT_URI || 'https://tulpanomsk55.ru/
 
 export async function POST(request) {
   try {
-    const { code, device_id, state } = await request.json();
+    const { code, device_id, state, code_verifier } = await request.json();
 
     if (!code || !device_id) {
       return NextResponse.json({ error: 'Отсутствует code или device_id' }, { status: 400 });
@@ -18,21 +18,28 @@ export async function POST(request) {
       return NextResponse.json({ error: 'VK OAuth не настроен на сервере' }, { status: 500 });
     }
 
-    // Шаг 1: Обменять code на access_token
-    const tokenUrl = new URL('https://api.vk.com/oauth/access_token');
-    tokenUrl.searchParams.set('client_id', VK_APP_ID);
-    tokenUrl.searchParams.set('client_secret', VK_APP_SECRET);
-    tokenUrl.searchParams.set('redirect_uri', VK_REDIRECT_URI);
-    tokenUrl.searchParams.set('code', code);
-    tokenUrl.searchParams.set('device_id', device_id);
+    // Шаг 1: Обменять code на access_token (PKCE)
+    const tokenBody = new URLSearchParams();
+    tokenBody.set('client_id', VK_APP_ID);
+    tokenBody.set('client_secret', VK_APP_SECRET);
+    tokenBody.set('redirect_uri', VK_REDIRECT_URI);
+    tokenBody.set('code', code);
+    tokenBody.set('device_id', device_id);
+    if (code_verifier) {
+      tokenBody.set('code_verifier', code_verifier);
+    }
 
-    const tokenRes = await fetch(tokenUrl.toString());
+    const tokenRes = await fetch('https://api.vk.com/oauth/access_token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: tokenBody.toString(),
+    });
     const tokenData = await tokenRes.json();
 
     if (tokenData.error) {
       console.error('[vk/oauth] token error:', tokenData);
       return NextResponse.json(
-        { error: tokenData.error_description || 'Ошибка авторизации VK' },
+        { error: tokenData.error_description || tokenData.error || 'Ошибка авторизации VK' },
         { status: 400 }
       );
     }
@@ -77,7 +84,6 @@ export async function POST(request) {
     let user = data.users.find((u) => u.vkId === vkUserId);
 
     if (!user) {
-      // Создаём нового пользователя
       user = {
         id: Date.now(),
         name: vkName,
@@ -94,7 +100,6 @@ export async function POST(request) {
       data.users.push(user);
       await writeData(data);
     } else {
-      // Обновляем аватар и имя, если изменились
       let updated = false;
       if (user.name !== vkName) {
         user.name = vkName;

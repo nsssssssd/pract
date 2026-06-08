@@ -20,9 +20,13 @@ export default function VKLoginButton({ mode = 'login' }) {
     const deviceId = urlParams.get('device_id');
     const state = urlParams.get('state');
     const error = urlParams.get('error');
+    const errorDescription = urlParams.get('error_description');
 
     if (error) {
-      toast.error('Ошибка авторизации VK');
+      console.error('VK OAuth error:', error, errorDescription);
+      toast.error(errorDescription || 'Ошибка авторизации VK');
+      // Очищаем URL
+      window.history.replaceState({}, document.title, window.location.pathname);
       return;
     }
 
@@ -56,9 +60,19 @@ export default function VKLoginButton({ mode = 'login' }) {
   }
 
   function generateState() {
-    const arr = new Uint8Array(16);
+    const arr = new Uint8Array(32);
     crypto.getRandomValues(arr);
     return Array.from(arr, (b) => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  async function generateCodeChallenge(codeVerifier) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(codeVerifier);
+    const digest = await crypto.subtle.digest('SHA-256', data);
+    return btoa(String.fromCharCode(...new Uint8Array(digest)))
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=/g, '');
   }
 
   async function handleClick() {
@@ -69,15 +83,31 @@ export default function VKLoginButton({ mode = 'login' }) {
 
     setLoading(true);
 
-    // Прямой редирект на VK ID
-    const authUrl = new URL('https://id.vk.com/authorize');
-    authUrl.searchParams.set('client_id', VK_APP_ID);
-    authUrl.searchParams.set('redirect_uri', `${window.location.origin}/login`);
-    authUrl.searchParams.set('response_type', 'code');
-    authUrl.searchParams.set('scope', 'profile');
-    authUrl.searchParams.set('state', generateState());
+    try {
+      // PKCE для VK ID OAuth 2.1
+      const codeVerifier = generateState() + generateState();
+      const codeChallenge = await generateCodeChallenge(codeVerifier);
+      const state = generateState();
 
-    window.location.href = authUrl.toString();
+      // Сохраняем code_verifier для обмена на токен
+      sessionStorage.setItem('vk_code_verifier', codeVerifier);
+      sessionStorage.setItem('vk_state', state);
+
+      const authUrl = new URL('https://id.vk.com/authorize');
+      authUrl.searchParams.set('client_id', VK_APP_ID);
+      authUrl.searchParams.set('redirect_uri', `${window.location.origin}/login`);
+      authUrl.searchParams.set('response_type', 'code');
+      authUrl.searchParams.set('scope', 'profile');
+      authUrl.searchParams.set('state', state);
+      authUrl.searchParams.set('code_challenge', codeChallenge);
+      authUrl.searchParams.set('code_challenge_method', 'S256');
+
+      window.location.href = authUrl.toString();
+    } catch (err) {
+      console.error('VK auth error:', err);
+      toast.error('Не удалось инициализировать авторизацию VK');
+      setLoading(false);
+    }
   }
 
   // Если VK не настроен — не показываем кнопку
