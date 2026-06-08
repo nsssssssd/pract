@@ -6,6 +6,7 @@ import { Toaster } from '@/components/ui/sonner';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import YandexMetrika from '@/components/YandexMetrika';
+import RecaptchaProvider from '@/components/RecaptchaProvider';
 import Breadcrumbs from '@/components/Breadcrumbs';
 import Cart from '@/components/Cart';
 import MobileBottomNav from '@/components/MobileBottomNav';
@@ -112,6 +113,7 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body className={`${inter.className} antialiased min-h-screen flex flex-col`}>
+        <RecaptchaProvider />
         <YandexMetrika />
         <Providers>
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
