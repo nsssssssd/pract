@@ -32,12 +32,19 @@ function loadRecaptchaScript() {
 export default function RecaptchaCheckbox({ onVerify, onExpire, theme = 'light', size = 'normal' }) {
   const containerRef = useRef(null);
   const widgetIdRef = useRef(null);
-  const [ready, setReady] = useState(false);
   const [error, setError] = useState('');
+
+  // Stabilize callbacks with refs to avoid effect re-runs
+  const onVerifyRef = useRef(onVerify);
+  const onExpireRef = useRef(onExpire);
+  useEffect(() => {
+    onVerifyRef.current = onVerify;
+    onExpireRef.current = onExpire;
+  });
 
   useEffect(() => {
     if (!SITE_KEY) {
-      if (onVerify) onVerify('');
+      if (onVerifyRef.current) onVerifyRef.current('');
       return;
     }
 
@@ -51,7 +58,6 @@ export default function RecaptchaCheckbox({ onVerify, onExpire, theme = 'light',
         return;
       }
 
-      // Wait for container to be available
       const tryRender = () => {
         if (cancelled) return;
         if (!containerRef.current) {
@@ -67,18 +73,17 @@ export default function RecaptchaCheckbox({ onVerify, onExpire, theme = 'light',
             size,
             callback: (token) => {
               setError('');
-              if (onVerify) onVerify(token);
+              if (onVerifyRef.current) onVerifyRef.current(token);
             },
             'expired-callback': () => {
-              if (onExpire) onExpire();
-              if (onVerify) onVerify('');
+              if (onExpireRef.current) onExpireRef.current();
+              if (onVerifyRef.current) onVerifyRef.current('');
             },
             'error-callback': () => {
               setError('Ошибка CAPTCHA. Обновите страницу.');
-              if (onVerify) onVerify('');
+              if (onVerifyRef.current) onVerifyRef.current('');
             },
           });
-          setReady(true);
         } catch (err) {
           console.error('[RecaptchaCheckbox] render error:', err);
           setError('Ошибка загрузки CAPTCHA');
@@ -101,7 +106,7 @@ export default function RecaptchaCheckbox({ onVerify, onExpire, theme = 'light',
       }
       widgetIdRef.current = null;
     };
-  }, [theme, size, onVerify, onExpire]);
+  }, [theme, size]); // Only re-run when theme/size changes
 
   if (!SITE_KEY) {
     return null;
