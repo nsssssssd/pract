@@ -15,9 +15,22 @@ export default function RecaptchaProvider() {
   );
 }
 
-export async function executeRecaptcha(action = 'submit') {
+export async function executeRecaptcha(action = 'submit', retries = 3) {
   const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
-  if (!siteKey || typeof window === 'undefined' || !window.grecaptcha) {
+  if (!siteKey || typeof window === 'undefined') {
+    return null;
+  }
+
+  // Ждём загрузки reCAPTCHA
+  for (let i = 0; i < retries; i++) {
+    if (window.grecaptcha && window.grecaptcha.ready) {
+      break;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+
+  if (!window.grecaptcha || !window.grecaptcha.ready) {
+    console.warn('[recaptcha] Script not loaded after retries');
     return null;
   }
 
