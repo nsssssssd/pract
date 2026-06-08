@@ -2,7 +2,6 @@ import bcrypt from 'bcryptjs';
 import { readData } from '@/lib/db';
 import { signToken, setAuthCookie } from '@/lib/auth';
 import { rateLimit, bruteForceProtection, recordFailedAttempt, resetAttempts } from '@/lib/rateLimit';
-import { verifyRecaptcha } from '@/lib/recaptcha';
 import { verifyCode } from '@/lib/verification';
 import { parsePhoneNumber } from 'libphonenumber-js';
 import { NextResponse } from 'next/server';
@@ -34,13 +33,7 @@ export async function POST(request) {
       await new Promise((resolve) => setTimeout(resolve, bf.delay));
     }
 
-    const { email, password, phone: rawPhone, code, recaptchaToken } = await request.json();
-
-    // reCAPTCHA verification
-    const recaptcha = await verifyRecaptcha(recaptchaToken);
-    if (!recaptcha.success && !recaptcha.skipped) {
-      return NextResponse.json({ error: recaptcha.error || 'Проверка reCAPTCHA не пройдена' }, { status: 400 });
-    }
+    const { email, password, phone: rawPhone, code } = await request.json();
 
     // Phone login (OTP)
     if (rawPhone) {

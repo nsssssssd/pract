@@ -10,7 +10,6 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Loader2, Mail, Smartphone, ArrowLeft, CheckCircle } from 'lucide-react';
 import VKLoginButton from '@/components/VKLoginButton';
-import { executeRecaptcha } from '@/components/RecaptchaProvider';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -132,9 +131,6 @@ export default function RegisterContent() {
       } else {
         payload.phone = target;
       }
-
-      const recaptchaToken = await executeRecaptcha('register');
-      payload.recaptchaToken = recaptchaToken;
 
       const regRes = await fetch('/api/auth/register', {
         method: 'POST',

@@ -9,7 +9,6 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Loader2, Mail, Smartphone, ArrowLeft } from 'lucide-react';
 import VKLoginButton from '@/components/VKLoginButton';
-import { executeRecaptcha } from '@/components/RecaptchaProvider';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -50,12 +49,11 @@ export default function LoginContent() {
     setError('');
     setLoading(true);
     try {
-      const recaptchaToken = await executeRecaptcha('login_email');
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: form.email, password: form.password, recaptchaToken }),
+        body: JSON.stringify({ email: form.email, password: form.password }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
@@ -104,13 +102,12 @@ export default function LoginContent() {
     setLoading(true);
     try {
       const phone = normalizedPhone || form.phone.trim();
-      const recaptchaToken = await executeRecaptcha('login_phone');
 
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, code, recaptchaToken }),
+        body: JSON.stringify({ phone, code }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);

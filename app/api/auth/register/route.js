@@ -2,7 +2,6 @@ import bcrypt from 'bcryptjs';
 import { readData, writeData } from '@/lib/db';
 import { signToken, setAuthCookie } from '@/lib/auth';
 import { rateLimit } from '@/lib/rateLimit';
-import { verifyRecaptcha } from '@/lib/recaptcha';
 import { verifyCode } from '@/lib/verification';
 import { parsePhoneNumber } from 'libphonenumber-js';
 import { NextResponse } from 'next/server';
@@ -16,13 +15,7 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Слишком много попыток. Попробуйте позже.' }, { status: 429 });
     }
 
-    const { name, email, password, phone: rawPhone, code, type, recaptchaToken } = await request.json();
-
-    // reCAPTCHA verification
-    const recaptcha = await verifyRecaptcha(recaptchaToken);
-    if (!recaptcha.success && !recaptcha.skipped) {
-      return NextResponse.json({ error: recaptcha.error || 'Проверка reCAPTCHA не пройдена' }, { status: 400 });
-    }
+    const { name, email, password, phone: rawPhone, code, type } = await request.json();
 
     if (!name || !code || !type) {
       return NextResponse.json({ error: 'Заполните все обязательные поля' }, { status: 400 });
