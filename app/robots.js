@@ -4,23 +4,41 @@ export default function robots() {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/admin', '/api/', '/login', '/register', '/profile', '/wishlist'],
+        disallow: [
+          '/admin',
+          '/login',
+          '/register',
+          '/profile',
+          '/wishlist',
+          '/api/',
+        ],
       },
       {
         userAgent: 'Googlebot',
         allow: '/',
-        disallow: ['/admin', '/api/', '/login', '/register', '/profile', '/wishlist'],
+        disallow: [
+          '/admin',
+          '/login',
+          '/register',
+          '/profile',
+          '/wishlist',
+          '/api/',
+        ],
       },
       {
         userAgent: 'Yandex',
         allow: '/',
-        disallow: ['/admin', '/api/', '/login', '/register', '/profile', '/wishlist'],
+        disallow: [
+          '/admin',
+          '/login',
+          '/register',
+          '/profile',
+          '/wishlist',
+          '/api/',
+        ],
       },
     ],
-    sitemap: [
-      'https://tulpanomsk55.ru/sitemap.xml',
-      'https://tulpanomsk55.ru/image-sitemap.xml',
-    ],
+    sitemap: 'https://tulpanomsk55.ru/sitemap.xml',
     host: 'https://tulpanomsk55.ru',
   };
 }

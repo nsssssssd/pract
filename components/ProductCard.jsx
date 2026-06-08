@@ -58,7 +58,7 @@ export default function ProductCard({ product, index }) {
           <button
             type="button"
             onClick={() => setQuickOpen(true)}
-            className="w-full h-full flex items-center justify-center"
+            className="relative w-full h-full flex items-center justify-center"
             aria-label={`Быстрый просмотр: ${product.name}`}
           >
             {product.image ? (

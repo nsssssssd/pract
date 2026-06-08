@@ -1,37 +1,30 @@
 import { readData } from '@/lib/db';
 
-const STATIC_DATE = new Date();
-
-export default function sitemap() {
+export default async function sitemap() {
   const baseUrl = 'https://tulpanomsk55.ru';
-  let data;
-  try {
-    data = readData();
-  } catch {
-    data = { products: [] };
-  }
+  const data = readData();
 
-  const staticRoutes = [
+  const staticPages = [
     {
       url: baseUrl,
-      lastModified: STATIC_DATE,
+      lastModified: new Date(),
       changeFrequency: 'daily',
-      priority: 1,
+      priority: 1.0,
     },
     {
       url: `${baseUrl}/care`,
-      lastModified: STATIC_DATE,
-      changeFrequency: 'weekly',
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
       priority: 0.8,
     },
   ];
 
-  const productRoutes = (data.products || []).map((product) => ({
+  const productPages = data.products.map((product) => ({
     url: `${baseUrl}/products/${product.id}`,
-    lastModified: STATIC_DATE,
+    lastModified: new Date(),
     changeFrequency: 'weekly',
     priority: 0.9,
   }));
 
-  return [...staticRoutes, ...productRoutes];
+  return [...staticPages, ...productPages];
 }

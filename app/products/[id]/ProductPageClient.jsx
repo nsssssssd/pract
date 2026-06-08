@@ -22,12 +22,13 @@ import {
   Share2,
   X,
 } from 'lucide-react';
+import ProductCard from '@/components/ProductCard';
 import Image from 'next/image';
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { hapticLight } from '@/lib/haptics';
 
-export default function ProductPageClient({ product }) {
+export default function ProductPageClient({ product, relatedProducts = [] }) {
   const addItem = useCartStore((s) => s.addItem);
   const openCart = useCartStore((s) => s.openCart);
   const toggleItem = useWishlistStore((s) => s.toggleItem);
@@ -126,12 +127,15 @@ export default function ProductPageClient({ product }) {
             transition={{ duration: 0.4 }}
           >
             <Card className="overflow-hidden border-0 shadow-sm">
-              <button
-                type="button"
-                onClick={() => setLightboxOpen(true)}
+              <div
                 className="relative aspect-square md:aspect-[4/3] flex items-center justify-center w-full"
-                aria-label="Открыть изображение"
               >
+                <button
+                  type="button"
+                  onClick={() => setLightboxOpen(true)}
+                  className="relative w-full h-full flex items-center justify-center"
+                  aria-label="Открыть изображение"
+                >
                 {product.image ? (
                   <Image
                     src={product.image}
@@ -151,7 +155,8 @@ export default function ProductPageClient({ product }) {
                     Букет
                   </Badge>
                 )}
-              </button>
+                </button>
+              </div>
             </Card>
           </motion.div>
 
@@ -303,6 +308,18 @@ export default function ProductPageClient({ product }) {
           <Share2 className="h-5 w-5" aria-hidden="true" />
         </Button>
       </div>
+
+      {/* Related Products */}
+      {relatedProducts.length > 0 && (
+        <section className="container mx-auto px-4 py-10 md:py-16 max-w-5xl">
+          <h2 className="text-xl md:text-2xl font-bold mb-6 md:mb-8">Похожие товары</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
+            {relatedProducts.map((p, i) => (
+              <ProductCard key={p.id} product={p} index={i} />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Lightbox */}
       <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>

@@ -112,6 +112,10 @@ export default async function ProductPage({ params }) {
     ],
   };
 
+  const relatedProducts = data.products
+    .filter((p) => p.id !== product.id && p.available !== false)
+    .slice(0, 4);
+
   return (
     <>
       <script
@@ -122,7 +126,7 @@ export default async function ProductPage({ params }) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdBreadcrumb) }}
       />
-      <ProductPageClient product={product} />
+      <ProductPageClient product={product} relatedProducts={relatedProducts} />
     </>
   );
 }

@@ -91,7 +91,7 @@ const jsonLdOrganization = {
   logo: 'https://tulpanomsk55.ru/og-image.svg',
   contactPoint: {
     '@type': 'ContactPoint',
-    telephone: '+7-908-107-41-45',
+    telephone: '+79081074145',
     contactType: 'customer service',
     areaServed: 'RU',
     availableLanguage: 'Russian',

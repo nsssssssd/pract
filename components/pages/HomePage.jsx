@@ -236,8 +236,11 @@ export default function HomePage({ initialProducts }) {
         {filtered.length === 0 ? (
           <div className="text-center py-16 text-muted-foreground">
             <div className="text-5xl mb-4">🔍</div>
-            <p className="text-lg">Ничего не найдено</p>
-            <p className="text-sm">Попробуйте изменить параметры поиска или фильтры</p>
+            <p className="text-lg font-medium">Ничего не найдено</p>
+            <p className="text-sm mb-6">Попробуйте изменить параметры поиска или фильтры</p>
+            <Button onClick={clearFilters} variant="outline" className="rounded-full gap-2">
+              <X className="h-4 w-4" /> Сбросить фильтры
+            </Button>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
