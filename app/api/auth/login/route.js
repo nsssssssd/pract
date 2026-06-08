@@ -11,13 +11,23 @@ export async function POST(request) {
     // Rate limiting: 5 запросов в минуту с одного IP
     const limit = rateLimit(request, { windowMs: 60 * 1000, max: 5, identifier: 'login' });
     if (!limit.success) {
-      return NextResponse.json({ error: 'Слишком много попыток. Попробуйте позже.' }, { status: 429 });
+      const response = NextResponse.json({ error: 'Слишком много попыток. Попробуйте позже.' }, { status: 429 });
+      response.headers.set('X-RateLimit-Limit', '5');
+      response.headers.set('X-RateLimit-Remaining', '0');
+      response.headers.set('X-RateLimit-Reset', String(Math.ceil(limit.resetTime / 1000)));
+      return response;
     }
 
     // Brute force protection
     const bf = bruteForceProtection(request, { identifier: 'login', maxAttempts: 5 });
     if (!bf.success) {
-      return NextResponse.json({ error: bf.message }, { status: 429 });
+      const response = NextResponse.json({ error: bf.message }, { status: 429 });
+      response.headers.set('X-RateLimit-Limit', '5');
+      response.headers.set('X-RateLimit-Remaining', '0');
+      if (bf.remainingMs) {
+        response.headers.set('Retry-After', String(Math.ceil(bf.remainingMs / 1000)));
+      }
+      return response;
     }
     if (bf.delay > 0) {
       await new Promise((resolve) => setTimeout(resolve, bf.delay));
@@ -87,6 +97,8 @@ export async function POST(request) {
       token,
       user: { id: user.id, name: user.name, email: user.email, role: user.role },
     });
+    response.headers.set('X-RateLimit-Limit', '5');
+    response.headers.set('X-RateLimit-Remaining', String(Math.max(0, 5 - (limit?.count || 0))));
     return setAuthCookie(response, token);
   } catch (err) {
     console.error('[login]', err);
