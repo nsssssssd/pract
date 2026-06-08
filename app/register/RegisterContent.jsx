@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
-import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -405,7 +404,7 @@ export default function RegisterContent() {
         </Card>
       </motion.div>
 
-      {showWelcome && typeof document !== 'undefined' && createPortal(
+      {showWelcome && (
         <div
           className="fixed inset-0 flex items-center justify-center px-4"
           style={{ zIndex: 9999, backgroundColor: 'rgba(0,0,0,0.5)' }}
@@ -420,8 +419,7 @@ export default function RegisterContent() {
               В профиль →
             </Button>
           </div>
-        </div>,
-        document.body
+        </div>
       )}
     </div>
   );

@@ -4,42 +4,43 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 
 const SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
-let scriptPromise = null;
+let scriptLoaded = false;
+let scriptCallbacks = [];
+
+function onScriptLoad() {
+  scriptLoaded = true;
+  scriptCallbacks.forEach((cb) => cb());
+  scriptCallbacks = [];
+}
 
 function loadRecaptchaScript() {
-  if (scriptPromise) return scriptPromise;
-
-  if (typeof window === 'undefined') return Promise.resolve();
-
+  if (typeof window === 'undefined') return Promise.resolve(false);
   if (window.grecaptcha?.render) {
-    scriptPromise = Promise.resolve();
-    return scriptPromise;
+    scriptLoaded = true;
+    return Promise.resolve(true);
   }
+  if (scriptLoaded) return Promise.resolve(true);
 
-  scriptPromise = new Promise((resolve, reject) => {
-    const script = document.createElement('script');
-    script.src = 'https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit';
-    script.async = true;
-    script.defer = true;
+  return new Promise((resolve) => {
+    scriptCallbacks.push(() => resolve(true));
 
-    window.onRecaptchaLoad = () => {
-      resolve();
-    };
+    // Only create script tag once
+    if (!document.querySelector('script[src*="recaptcha/api.js"]')) {
+      const script = document.createElement('script');
+      script.src = 'https://www.google.com/recaptcha/api.js?onload=__recaptchaOnLoad&render=explicit';
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
+    }
 
-    script.onerror = () => {
-      reject(new Error('Failed to load reCAPTCHA'));
-    };
-
-    document.head.appendChild(script);
+    window.__recaptchaOnLoad = onScriptLoad;
   });
-
-  return scriptPromise;
 }
 
 export default function RecaptchaCheckbox({ onVerify, onExpire, theme = 'light', size = 'normal' }) {
   const containerRef = useRef(null);
   const widgetIdRef = useRef(null);
-  const [loaded, setLoaded] = useState(false);
+  const renderedRef = useRef(false);
   const [error, setError] = useState('');
 
   const reset = useCallback(() => {
@@ -55,46 +56,41 @@ export default function RecaptchaCheckbox({ onVerify, onExpire, theme = 'light',
 
   useEffect(() => {
     if (!SITE_KEY) {
-      console.warn('[RecaptchaCheckbox] NEXT_PUBLIC_RECAPTCHA_SITE_KEY not set');
       if (onVerify) onVerify('');
       return;
     }
 
     let mounted = true;
 
-    loadRecaptchaScript()
-      .then(() => {
-        if (!mounted || !containerRef.current) return;
-        setLoaded(true);
+    loadRecaptchaScript().then((ok) => {
+      if (!mounted || !ok || !containerRef.current) return;
+      if (renderedRef.current) return;
 
-        try {
-          widgetIdRef.current = window.grecaptcha.render(containerRef.current, {
-            sitekey: SITE_KEY,
-            theme,
-            size,
-            callback: (token) => {
-              setError('');
-              if (onVerify) onVerify(token);
-            },
-            'expired-callback': () => {
-              if (onExpire) onExpire();
-              if (onVerify) onVerify('');
-            },
-            'error-callback': () => {
-              setError('Ошибка загрузки CAPTCHA. Обновите страницу.');
-              if (onVerify) onVerify('');
-            },
-          });
-        } catch (err) {
-          console.error('[RecaptchaCheckbox] render error:', err);
-          setError('Ошибка загрузки CAPTCHA');
-        }
-      })
-      .catch((err) => {
-        if (!mounted) return;
-        console.error('[RecaptchaCheckbox] script load error:', err);
-        setError('Не удалось загрузить CAPTCHA. Проверьте соединение.');
-      });
+      renderedRef.current = true;
+
+      try {
+        widgetIdRef.current = window.grecaptcha.render(containerRef.current, {
+          sitekey: SITE_KEY,
+          theme,
+          size,
+          callback: (token) => {
+            setError('');
+            if (onVerify) onVerify(token);
+          },
+          'expired-callback': () => {
+            if (onExpire) onExpire();
+            if (onVerify) onVerify('');
+          },
+          'error-callback': () => {
+            setError('Ошибка загрузки CAPTCHA. Обновите страницу.');
+            if (onVerify) onVerify('');
+          },
+        });
+      } catch (err) {
+        console.error('[RecaptchaCheckbox] render error:', err);
+        setError('Ошибка загрузки CAPTCHA');
+      }
+    });
 
     return () => {
       mounted = false;
@@ -105,8 +101,9 @@ export default function RecaptchaCheckbox({ onVerify, onExpire, theme = 'light',
           // ignore
         }
       }
+      renderedRef.current = false;
     };
-  }, [onVerify, onExpire, theme, size]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!SITE_KEY) {
     return null;
