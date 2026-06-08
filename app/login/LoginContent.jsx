@@ -62,7 +62,7 @@ export default function LoginContent() {
       // На мобильных редиректим в профиль, на десктопе — на главную
       const isMobile = window.innerWidth < 768;
       if (isMobile && data.user.role !== 'admin') {
-        router.push('/profile');
+        window.location.href = '/profile';
       } else {
         router.push(data.user.role === 'admin' ? '/admin' : '/');
       }
@@ -123,7 +123,7 @@ export default function LoginContent() {
       // На мобильных редиректим в профиль, на десктопе — на главную
       const isMobile = window.innerWidth < 768;
       if (isMobile && data.user.role !== 'admin') {
-        router.push('/profile');
+        window.location.href = '/profile';
       } else {
         router.push(data.user.role === 'admin' ? '/admin' : '/');
       }
