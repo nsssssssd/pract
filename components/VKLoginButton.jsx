@@ -40,11 +40,16 @@ export default function VKLoginButton({ mode = 'login' }) {
   async function handleVKCode(code, deviceId, state) {
     setLoading(true);
     try {
+      // Получаем code_verifier из sessionStorage
+      const codeVerifier = sessionStorage.getItem('vk_code_verifier');
+      sessionStorage.removeItem('vk_code_verifier');
+      sessionStorage.removeItem('vk_state');
+
       const res = await fetch('/api/auth/vk', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code, device_id: deviceId, state }),
+        body: JSON.stringify({ code, device_id: deviceId, state, code_verifier: codeVerifier }),
       });
 
       const data = await res.json();
