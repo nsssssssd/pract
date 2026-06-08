@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Loader2, Mail, Smartphone, ArrowLeft, CheckCircle } from 'lucide-react';
+import VKLoginButton from '@/components/VKLoginButton';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -190,6 +191,7 @@ export default function RegisterContent() {
                   className="space-y-3"
                 >
                   <p className="text-sm text-muted-foreground text-center mb-2">Выберите способ регистрации</p>
+
                   <Button
                     variant="outline"
                     className="w-full h-14 justify-start gap-3 text-base"
@@ -206,6 +208,19 @@ export default function RegisterContent() {
                     <Smartphone className="h-5 w-5 text-primary" />
                     По номеру телефона
                   </Button>
+
+                  <div className="relative my-4">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-card px-2 text-muted-foreground">или</span>
+                    </div>
+                  </div>
+
+                  {/* VK OAuth */}
+                  <VKLoginButton mode="register" />
+
                   <p className="text-center text-sm text-muted-foreground pt-2">
                     Уже есть аккаунт? <Link href="/login" className="text-primary hover:underline">Войти</Link>
                   </p>

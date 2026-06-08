@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Loader2, Mail, Smartphone, ArrowLeft } from 'lucide-react';
+import VKLoginButton from '@/components/VKLoginButton';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -287,6 +288,18 @@ export default function LoginContent() {
                 </motion.form>
               )}
             </AnimatePresence>
+
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-card px-2 text-muted-foreground">или</span>
+              </div>
+            </div>
+
+            {/* VK OAuth */}
+            <VKLoginButton mode="login" />
 
             <p className="mt-4 text-center text-sm text-muted-foreground">
               Нет аккаунта? <Link href="/register" className="text-primary hover:underline">Зарегистрироваться</Link>
