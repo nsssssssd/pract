@@ -59,7 +59,13 @@ export default function LoginContent() {
       if (!res.ok) throw new Error(data.error);
       toast.success('Добро пожаловать!');
       window.dispatchEvent(new Event('auth-change'));
-      router.push(data.user.role === 'admin' ? '/admin' : '/');
+      // На мобильных редиректим в профиль, на десктопе — на главную
+      const isMobile = window.innerWidth < 768;
+      if (isMobile && data.user.role !== 'admin') {
+        router.push('/profile');
+      } else {
+        router.push(data.user.role === 'admin' ? '/admin' : '/');
+      }
     } catch (err) {
       setError(err.message);
     }
@@ -114,7 +120,13 @@ export default function LoginContent() {
 
       toast.success('Добро пожаловать!');
       window.dispatchEvent(new Event('auth-change'));
-      router.push(data.user.role === 'admin' ? '/admin' : '/');
+      // На мобильных редиректим в профиль, на десктопе — на главную
+      const isMobile = window.innerWidth < 768;
+      if (isMobile && data.user.role !== 'admin') {
+        router.push('/profile');
+      } else {
+        router.push(data.user.role === 'admin' ? '/admin' : '/');
+      }
     } catch (err) {
       setError(err.message);
     }
