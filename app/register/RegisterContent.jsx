@@ -101,15 +101,24 @@ export default function RegisterContent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ target, type: method, name: form.name.trim(), mode: 'register', recaptchaToken }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      
+      let data;
+      const contentType = res.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        throw new Error('Сервер вернул ошибку. Попробуйте позже.');
+      }
+      
+      if (!res.ok) throw new Error(data.error || 'Ошибка отправки кода');
 
       toast.success(data.message || 'Код отправлен');
       if (data.target) setNormalizedTarget(data.target);
       setStep(2);
       startTimer(60);
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Ошибка сети. Попробуйте позже.');
     }
     setLoading(false);
   }
