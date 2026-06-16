@@ -86,13 +86,17 @@ export default function LoginContent() {
       setError('Введите номер телефона');
       return;
     }
+    if (!recaptchaToken) {
+      setError('Пройдите проверку CAPTCHA');
+      return;
+    }
     setLoading(true);
     try {
       const res = await fetch('/api/auth/send-code', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ target: form.phone.trim(), type: 'phone', mode: 'login' }),
+        body: JSON.stringify({ target: form.phone.trim(), type: 'phone', mode: 'login', recaptchaToken }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
@@ -163,7 +167,7 @@ export default function LoginContent() {
             <div className="flex rounded-lg border p-1 mb-6 bg-muted/50">
               <button
                 type="button"
-                onClick={() => { setMethod('email'); setPhoneStep(1); setCode(''); setError(''); }}
+                onClick={() => { setMethod('email'); setPhoneStep(1); setCode(''); setError(''); setRecaptchaToken(''); }}
                 className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium rounded-md transition-all ${
                   method === 'email' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
                 }`}
@@ -172,7 +176,7 @@ export default function LoginContent() {
               </button>
               <button
                 type="button"
-                onClick={() => { setMethod('phone'); setError(''); }}
+                onClick={() => { setMethod('phone'); setError(''); setRecaptchaToken(''); }}
                 className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium rounded-md transition-all ${
                   method === 'phone' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
                 }`}
@@ -271,7 +275,7 @@ export default function LoginContent() {
                 >
                   <button
                     type="button"
-                    onClick={() => { setPhoneStep(1); setCode(''); setError(''); }}
+                    onClick={() => { setPhoneStep(1); setCode(''); setError(''); setRecaptchaToken(''); }}
                     className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1 mb-2"
                   >
                     <ArrowLeft className="h-3.5 w-3.5" /> Назад
