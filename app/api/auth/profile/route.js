@@ -4,6 +4,7 @@ import { getCurrentUser, signToken, setAuthCookie } from '@/lib/auth';
 import { NextResponse } from 'next/server';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_REGEX = /^\+?[\d\s()-]{7,20}$/;
 
 export async function PUT(request) {
   try {
@@ -12,7 +13,7 @@ export async function PUT(request) {
       return NextResponse.json({ error: 'Не авторизован' }, { status: 401 });
     }
 
-    const { name, email, currentPassword, newPassword } = await request.json();
+    const { name, email, phone, currentPassword, newPassword } = await request.json();
     const data = readData();
     const userIdx = data.users.findIndex((u) => u.id === currentUser.id);
     if (userIdx === -1) {
@@ -38,6 +39,13 @@ export async function PUT(request) {
         }
         user.email = email.trim().toLowerCase();
       }
+    }
+
+    if (phone !== undefined) {
+      if (phone && !PHONE_REGEX.test(phone)) {
+        return NextResponse.json({ error: 'Введите корректный телефон' }, { status: 400 });
+      }
+      user.phone = phone ? phone.trim() : null;
     }
 
     if (newPassword) {

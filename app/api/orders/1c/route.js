@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth';
-import { getOrdersByPhone, isCommerceMLConfigured } from '@/lib/commerceml';
+import { getOrdersByPhone, isCommerceMLConfigured, isDemoMode } from '@/lib/commerceml';
 
 export async function GET() {
   try {
@@ -27,13 +27,18 @@ export async function GET() {
 
     if (!phone) {
       return NextResponse.json(
-        { error: 'В профиле не указан телефон для поиска заказов в 1С' },
+        { error: 'В профиле не указан телефон для поиска заказов в 1С', code: 'NO_PHONE' },
         { status: 400 }
       );
     }
 
     const orders = getOrdersByPhone(phone);
-    return NextResponse.json({ orders, source: 'commerceml' });
+    return NextResponse.json({ 
+      orders, 
+      source: 'commerceml',
+      demo: isDemoMode(),
+      phone: phone.replace(/\d(?=\d{4})/g, '*'), // маскируем телефон
+    });
   } catch (err) {
     console.error('CommerceML orders fetch error:', err);
     return NextResponse.json(

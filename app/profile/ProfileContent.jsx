@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Edit, Lock, CheckCircle, LogOut } from 'lucide-react';
+import { Loader2, Edit, Lock, CheckCircle, LogOut, Phone } from 'lucide-react';
 import { toast } from 'sonner';
 import Loader from '@/components/Loader';
 import { useMyOrders } from '@/hooks/useMyOrders';
@@ -25,7 +25,7 @@ const C1_STATUS_COLORS = {
 };
 
 function EditProfileForm({ user, onSave, onCancel }) {
-  const [form, setForm] = useState({ name: user.name, email: user.email });
+  const [form, setForm] = useState({ name: user.name, email: user.email, phone: user.phone || '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -34,6 +34,7 @@ function EditProfileForm({ user, onSave, onCancel }) {
     e.preventDefault();
     if (!form.name.trim()) { setError('Введите имя'); return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) { setError('Введите корректный email'); return; }
+    if (form.phone && !/^\+?[\d\s()-]{7,20}$/.test(form.phone)) { setError('Введите корректный телефон'); return; }
     setError('');
     setLoading(true);
     try {
@@ -41,7 +42,7 @@ function EditProfileForm({ user, onSave, onCancel }) {
         method: 'PUT',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: form.name.trim(), email: form.email.trim() }),
+        body: JSON.stringify({ name: form.name.trim(), email: form.email.trim(), phone: form.phone.trim() || null }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
@@ -64,6 +65,11 @@ function EditProfileForm({ user, onSave, onCancel }) {
       <div className="space-y-2">
         <Label>Email</Label>
         <Input type="email" autoComplete="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} required />
+      </div>
+      <div className="space-y-2">
+        <Label>Телефон</Label>
+        <Input type="tel" placeholder="+7 (999) 123-45-67" autoComplete="tel" value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} />
+        <p className="text-xs text-muted-foreground">Укажите телефон, чтобы видеть заказы из 1С</p>
       </div>
       <div className="flex gap-2">
         <Button type="submit" disabled={loading}>{loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Сохраняем...</> : 'Сохранить'}</Button>
@@ -157,6 +163,9 @@ export default function ProfileContent({ initialUser }) {
     );
   }
 
+  const isDemo = c1Data?.demo;
+  const noPhoneError = c1Error?.message?.includes('не указан телефон') || c1Error?.message?.includes('NO_PHONE');
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-3xl space-y-6">
       <Card>
@@ -166,6 +175,11 @@ export default function ProfileContent({ initialUser }) {
             <div className="flex-1">
               <div className="text-lg font-semibold">{user.name}</div>
               <div className="text-sm text-muted-foreground">{user.email || user.phone || ''}</div>
+              {user.phone && (
+                <div className="text-sm text-muted-foreground flex items-center gap-1 mt-0.5">
+                  <Phone className="h-3 w-3" /> {user.phone}
+                </div>
+              )}
             </div>
             <div className="flex flex-col items-start sm:items-end gap-2">
               <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>{user.role === 'admin' ? '👑 Админ' : '🌷 Клиент'}</Badge>
@@ -241,34 +255,49 @@ export default function ProfileContent({ initialUser }) {
               <Card>
                 <CardContent className="p-8 text-center">
                   <div className="text-4xl mb-2">⚙️</div>
-                  <p className="text-muted-foreground mb-2">Не удалось загрузить заказы из 1С</p>
-                  <p className="text-xs text-destructive">{c1Error.message}</p>
+                  <p className="text-muted-foreground mb-2">
+                    {noPhoneError ? 'Укажите телефон в профиле для поиска заказов из 1С' : 'Не удалось загрузить заказы из 1С'}
+                  </p>
+                  {noPhoneError && (
+                    <Button size="sm" variant="outline" onClick={() => setActivePanel('edit')} className="mt-2">
+                      Указать телефон
+                    </Button>
+                  )}
+                  {!noPhoneError && <p className="text-xs text-destructive">{c1Error.message}</p>}
                 </CardContent>
               </Card>
             ) : !c1Data?.orders || c1Data.orders.length === 0 ? (
               <Card><CardContent className="p-8 text-center text-muted-foreground"><div className="text-4xl mb-2">📋</div><p>Заказов в 1С не найдено</p></CardContent></Card>
             ) : (
-              <div className="space-y-3">
-                {c1Data.orders.map((o, idx) => (
-                  <Card key={idx}>
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-medium">Заказ {o.number}</span>
-                        <Badge variant="outline" className={C1_STATUS_COLORS[o.status] || 'bg-gray-100 text-gray-800'}>{o.status}</Badge>
-                      </div>
-                      <div className="flex flex-wrap gap-2 text-xs text-muted-foreground mb-2">
-                        {o.items.map((i, iidx) => (
-                          <span key={iidx} className="rounded-full bg-muted px-2 py-0.5">{i.name} × {i.quantity}</span>
-                        ))}
-                      </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">{o.date ? new Date(o.date).toLocaleDateString('ru-RU') : '—'}</span>
-                        <span className="font-semibold">{o.total.toLocaleString('ru-RU')} ₽</span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+              <>
+                {isDemo && (
+                  <div className="rounded-lg border border-dashed border-yellow-400 bg-yellow-50 dark:bg-yellow-900/20 p-3 text-sm text-yellow-800 dark:text-yellow-200 flex items-center gap-2">
+                    <span>💡</span>
+                    <span>Отображаются демо-заказы. Для загрузки реальных данных настройте выгрузку из 1С (CommerceML).</span>
+                  </div>
+                )}
+                <div className="space-y-3">
+                  {c1Data.orders.map((o, idx) => (
+                    <Card key={idx}>
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-medium">Заказ {o.number}</span>
+                          <Badge variant="outline" className={C1_STATUS_COLORS[o.status] || 'bg-gray-100 text-gray-800'}>{o.status}</Badge>
+                        </div>
+                        <div className="flex flex-wrap gap-2 text-xs text-muted-foreground mb-2">
+                          {o.items.map((i, iidx) => (
+                            <span key={iidx} className="rounded-full bg-muted px-2 py-0.5">{i.name} × {i.quantity}</span>
+                          ))}
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">{o.date ? new Date(o.date).toLocaleDateString('ru-RU') : '—'}</span>
+                          <span className="font-semibold">{o.total.toLocaleString('ru-RU')} ₽</span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </>
             )
           )}
         </>
