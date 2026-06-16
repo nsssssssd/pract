@@ -2,6 +2,7 @@ import { readData, writeData } from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth';
 import { rateLimit } from '@/lib/rateLimit';
 import { NextResponse } from 'next/server';
+import { create1COrder, is1CConfigured } from '@/lib/1c';
 
 function validatePhone(phone) {
   const cleaned = String(phone).replace(/\D/g, '');
@@ -76,9 +77,35 @@ export async function POST(request) {
       status: 'new',
       createdAt: new Date().toISOString(),
     };
+
+    // Отправляем заказ в 1С если интеграция настроена
+    let number1C = null;
+    if (is1CConfigured()) {
+      try {
+        const result = await create1COrder({
+          number: `WEB-${String(order.id).slice(-6)}`,
+          clientName: order.name,
+          clientPhone: order.phone,
+          items: order.items,
+          total: order.total,
+          comment: `Адрес: ${order.address}`,
+        });
+        if (result.success) {
+          number1C = result.number1C;
+        }
+      } catch (err) {
+        console.error('[1C] Failed to create order:', err.message);
+        // Не прерываем создание заказа на сайте, если 1С недоступна
+      }
+    }
+
+    if (number1C) {
+      order.number1C = number1C;
+    }
+
     data.orders.push(order);
     await writeData(data);
-    return NextResponse.json({ success: true, orderId: order.id }, { status: 201 });
+    return NextResponse.json({ success: true, orderId: order.id, number1C }, { status: 201 });
   } catch (err) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }

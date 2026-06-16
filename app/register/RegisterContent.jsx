@@ -169,8 +169,10 @@ export default function RegisterContent() {
     setForm({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
     setCode('');
     setError('');
+    setLoading(false);
     setTimer(0);
     setNormalizedTarget('');
+    setRecaptchaToken('');
     if (timerRef.current) clearInterval(timerRef.current);
   }
 
@@ -201,7 +203,7 @@ export default function RegisterContent() {
                   <Button
                     variant="outline"
                     className="w-full h-14 justify-start gap-3 text-base"
-                    onClick={() => setMethod('email')}
+                    onClick={() => { setMethod('email'); setStep(1); setError(''); setLoading(false); setRecaptchaToken(''); }}
                   >
                     <Mail className="h-5 w-5 text-primary" />
                     По Email
@@ -209,7 +211,7 @@ export default function RegisterContent() {
                   <Button
                     variant="outline"
                     className="w-full h-14 justify-start gap-3 text-base"
-                    onClick={() => setMethod('phone')}
+                    onClick={() => { setMethod('phone'); setStep(1); setError(''); setLoading(false); setRecaptchaToken(''); }}
                   >
                     <Smartphone className="h-5 w-5 text-primary" />
                     По номеру телефона
@@ -345,7 +347,7 @@ export default function RegisterContent() {
                 >
                   <button
                     type="button"
-                    onClick={() => { setStep(1); setCode(''); setError(''); }}
+                    onClick={() => { setStep(1); setCode(''); setError(''); setLoading(false); setRecaptchaToken(''); }}
                     className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1 mb-2"
                   >
                     <ArrowLeft className="h-3.5 w-3.5" /> Назад

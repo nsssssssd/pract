@@ -67,81 +67,18 @@
       "available": true
     }
   ],
-  "orders": [
-    {
-      "id": 1779132392322,
-      "userId": 1779132365007,
-      "name": "Костян",
-      "phone": "89081074145",
-      "address": "тюленина 19",
-      "items": [
-        {
-          "id": 2,
-          "name": "Розовые тюльпаны",
-          "price": 140,
-          "qty": 7
-        }
-      ],
-      "total": 980,
-      "status": "confirmed",
-      "createdAt": "2026-05-18T19:26:32.322Z"
-    }
-  ],
+  "orders": [],
   "users": [
     {
       "id": 1,
       "name": "Администратор",
       "email": "admin@tulips.ru",
-      "password": "$2b$10$dIgaMZZTJFa6LmVIKYIG5eUvGA4KSHF2VXbwt5aE3T5OqRjJBs3mG",
+      "password": "$2b$10$XQWqrV51brzse7X.7I0lT.djXmvWBy6ytRyzrJIvxS.J4T8DnSC3K",
       "role": "admin",
       "createdAt": "2026-01-01T00:00:00.000Z",
       "emailVerified": true,
       "phoneVerified": false,
       "phone": null
-    },
-    {
-      "id": 1779132365007,
-      "name": "Костян",
-      "email": "isupov_kostya@bk.ru",
-      "password": "$2b$10$X7y6PhbXtZ//qcWmidArROOC0psV.I6r7evVvqBC8uytIbFdzLITC",
-      "role": "user",
-      "createdAt": "2026-05-18T19:26:05.007Z",
-      "emailVerified": true,
-      "phoneVerified": false,
-      "phone": null
-    },
-    {
-      "id": 1779381647228,
-      "name": "Константин",
-      "email": null,
-      "phone": "+79081074145",
-      "password": null,
-      "role": "user",
-      "emailVerified": false,
-      "phoneVerified": true,
-      "createdAt": "2026-05-21T16:40:47.228Z"
-    },
-    {
-      "id": 1779383322173,
-      "name": "zzz zzz",
-      "email": "zzz.zz.z.zz1232176@gmail.com",
-      "password": "$2b$10$NsSzBa4XEh2/1qvNN/LvXuqmUS4u.bx6p5WOZypkJ4TNJTcNpRZ8u",
-      "phone": null,
-      "role": "user",
-      "emailVerified": true,
-      "phoneVerified": false,
-      "createdAt": "2026-05-21T17:08:42.173Z"
-    },
-    {
-      "id": 1779384482761,
-      "name": "ко",
-      "email": null,
-      "phone": "+79012638514",
-      "password": null,
-      "role": "user",
-      "emailVerified": false,
-      "phoneVerified": true,
-      "createdAt": "2026-05-21T17:28:02.761Z"
     }
   ],
   "verificationCodes": []

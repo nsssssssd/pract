@@ -49,6 +49,8 @@ export default function RecaptchaCheckbox({ onVerify, onExpire, theme = 'light',
     }
 
     let cancelled = false;
+    let attempts = 0;
+    const MAX_ATTEMPTS = 300; // ~5 seconds at 60fps
 
     const init = async () => {
       const ok = await loadRecaptchaScript();
@@ -61,6 +63,11 @@ export default function RecaptchaCheckbox({ onVerify, onExpire, theme = 'light',
       const tryRender = () => {
         if (cancelled) return;
         if (!containerRef.current) {
+          attempts++;
+          if (attempts > MAX_ATTEMPTS) {
+            setError('Ошибка загрузки CAPTCHA. Обновите страницу.');
+            return;
+          }
           requestAnimationFrame(tryRender);
           return;
         }

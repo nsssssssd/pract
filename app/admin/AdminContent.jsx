@@ -19,9 +19,10 @@ import Loader from '@/components/Loader';
 import { useProducts } from '@/hooks/useProducts';
 import { useOrders } from '@/hooks/useOrders';
 import { useAdminStats } from '@/hooks/useAdminStats';
-import { useAdminUsers } from '@/hooks/useAdminUsers';
+import { useAll1COrders } from '@/hooks/use1COrders';
 
-const STATUS_OPTIONS = ['new', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
+const C1_STATUS_LABELS = { 'Новый': 'Новый', 'В работе': 'В работе', 'Выполнен': 'Выполнен', 'Отменён': 'Отменён' };
+const C1_STATUS_COLORS = { 'Новый': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200', 'В работе': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200', 'Выполнен': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200', 'Отменён': 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' };
 const STATUS_LABELS = { new: 'Новый', confirmed: 'Подтверждён', processing: 'В обработке', shipped: 'Отправлен', delivered: 'Доставлен', cancelled: 'Отменён' };
 const STATUS_COLORS = { new: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200', confirmed: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200', processing: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200', shipped: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200', delivered: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200', cancelled: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' };
 
@@ -34,11 +35,12 @@ export default function AdminContent() {
   const [editingProduct, setEditingProduct] = useState(null);
   const [showProductForm, setShowProductForm] = useState(false);
   const [savingProduct, setSavingProduct] = useState(false);
+  const [ordersTab, setOrdersTab] = useState('site'); // 'site' | '1c'
 
   const { data: products, isLoading: productsLoading, refetch: refetchProducts } = useProducts();
   const { data: orders, isLoading: ordersLoading, refetch: refetchOrders } = useOrders();
   const { data: stats, isLoading: statsLoading } = useAdminStats();
-  const { data: users, isLoading: usersLoading, refetch: refetchUsers } = useAdminUsers();
+  const { data: c1OrdersData, isLoading: c1OrdersLoading, refetch: refetchC1Orders } = useAll1COrders();
 
   useEffect(() => {
     fetch('/api/auth/me', { credentials: 'include' })
@@ -76,6 +78,18 @@ export default function AdminContent() {
       refetchUsers();
       toast.success('Пользователь удалён');
     } catch { toast.error('Ошибка удаления'); }
+  }
+
+  async function sync1CStatus() {
+    try {
+      const res = await fetch('/api/orders/1c/sync', { method: 'POST', credentials: 'include' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      toast.success(data.message);
+      refetchOrders();
+    } catch (err) {
+      toast.error(err.message || 'Ошибка синхронизации');
+    }
   }
 
   async function updateUserRole(id, role) {
@@ -239,86 +253,196 @@ export default function AdminContent() {
 
         <TabsContent value="orders" className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold">Заказы <Badge variant="secondary">{(orders || []).length}</Badge></h2>
+            <h2 className="text-xl font-bold">
+              Заказы
+              <Badge variant="secondary" className="ml-2">
+                {ordersTab === 'site' ? (orders || []).length : (c1OrdersData?.orders || []).length}
+              </Badge>
+            </h2>
+            <div className="flex items-center gap-2">
+              <div className="flex rounded-lg border bg-card p-1 gap-1">
+                <button
+                  onClick={() => setOrdersTab('site')}
+                  className={`px-3 py-1 text-sm rounded-md transition-colors ${ordersTab === 'site' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                >
+                  На сайте
+                </button>
+                <button
+                  onClick={() => setOrdersTab('1c')}
+                  className={`px-3 py-1 text-sm rounded-md transition-colors ${ordersTab === '1c' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                >
+                  1С:УНФ
+                </button>
+              </div>
+              {ordersTab === '1c' && (
+                <Button size="sm" variant="outline" onClick={sync1CStatus}>
+                  🔄 Синхронизировать
+                </Button>
+              )}
+            </div>
           </div>
-          {ordersLoading ? <Loader /> : (
-            <>
-              <div className="rounded-lg border overflow-hidden hidden md:block">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>ID</TableHead>
-                      <TableHead>Клиент</TableHead>
-                      <TableHead>Телефон</TableHead>
-                      <TableHead>Товары</TableHead>
-                      <TableHead>Сумма</TableHead>
-                      <TableHead>Статус</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {(orders || []).map((o) => (
-                      <TableRow key={o.id}>
-                        <TableCell className="font-mono text-xs">#{String(o.id).slice(-6)}</TableCell>
-                        <TableCell>
-                          <div className="font-medium">{o.name}</div>
-                          <div className="text-xs text-muted-foreground">{o.address}</div>
-                        </TableCell>
-                        <TableCell className="text-sm">{o.phone}</TableCell>
-                        <TableCell>
-                          <div className="flex flex-wrap gap-1">
-                            {o.items.map((i) => (
-                              <span key={i.id} className="text-xs bg-muted rounded px-1.5 py-0.5">{i.name} ×{i.qty}</span>
-                            ))}
-                          </div>
-                        </TableCell>
-                        <TableCell className="font-medium">{o.total} ₽</TableCell>
-                        <TableCell>
+
+          {ordersTab === 'site' ? (
+            ordersLoading ? <Loader /> : (
+              <>
+                <div className="rounded-lg border overflow-hidden hidden md:block">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>ID</TableHead>
+                        <TableHead>Клиент</TableHead>
+                        <TableHead>Телефон</TableHead>
+                        <TableHead>Товары</TableHead>
+                        <TableHead>Сумма</TableHead>
+                        <TableHead>Статус</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {(orders || []).map((o) => (
+                        <TableRow key={o.id}>
+                          <TableCell className="font-mono text-xs">
+                            #{String(o.id).slice(-6)}
+                            {o.number1C && <div className="text-xs text-muted-foreground">1С: {o.number1C}</div>}
+                          </TableCell>
+                          <TableCell>
+                            <div className="font-medium">{o.name}</div>
+                            <div className="text-xs text-muted-foreground">{o.address}</div>
+                          </TableCell>
+                          <TableCell className="text-sm">{o.phone}</TableCell>
+                          <TableCell>
+                            <div className="flex flex-wrap gap-1">
+                              {o.items.map((i) => (
+                                <span key={i.id} className="text-xs bg-muted rounded px-1.5 py-0.5">{i.name} ×{i.qty}</span>
+                              ))}
+                            </div>
+                          </TableCell>
+                          <TableCell className="font-medium">{o.total} ₽</TableCell>
+                          <TableCell>
+                            <Select value={o.status} onValueChange={(v) => updateOrderStatus(o.id, v)}>
+                              <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
+                              <SelectContent>
+                                {STATUS_OPTIONS.map((s) => (
+                                  <SelectItem key={s} value={s}>{STATUS_LABELS[s]}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+                <div className="md:hidden space-y-3">
+                  {(orders || []).map((o) => (
+                    <Card key={o.id}>
+                      <CardContent className="p-4 space-y-2">
+                        <div className="flex justify-between">
+                          <span className="font-mono text-xs">#{String(o.id).slice(-6)}</span>
+                          <span className="text-xs text-muted-foreground">{new Date(o.createdAt).toLocaleDateString('ru-RU')}</span>
+                        </div>
+                        {o.number1C && <div className="text-xs text-muted-foreground">1С: {o.number1C}</div>}
+                        <div className="font-medium">{o.name}</div>
+                        <div className="text-sm text-muted-foreground">{o.phone}</div>
+                        <div className="text-sm text-muted-foreground">{o.address}</div>
+                        <div className="flex flex-wrap gap-1">
+                          {o.items.map((i) => (
+                            <span key={i.id} className="text-xs bg-muted rounded px-1.5 py-0.5">{i.name} ×{i.qty}</span>
+                          ))}
+                        </div>
+                        <div className="flex justify-between items-center pt-1">
                           <Select value={o.status} onValueChange={(v) => updateOrderStatus(o.id, v)}>
-                            <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
+                            <SelectTrigger className="w-32 h-8"><SelectValue /></SelectTrigger>
                             <SelectContent>
                               {STATUS_OPTIONS.map((s) => (
                                 <SelectItem key={s} value={s}>{STATUS_LABELS[s]}</SelectItem>
                               ))}
                             </SelectContent>
                           </Select>
-                        </TableCell>
+                          <span className="font-semibold">{o.total} ₽</span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </>
+            )
+          ) : (
+            c1OrdersLoading ? <Loader /> : !c1OrdersData?.orders || c1OrdersData.orders.length === 0 ? (
+              <Card>
+                <CardContent className="p-8 text-center text-muted-foreground">
+                  <div className="text-4xl mb-2">📋</div>
+                  <p>Заказов в 1С не найдено</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <>
+                <div className="rounded-lg border overflow-hidden hidden md:block">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Номер 1С</TableHead>
+                        <TableHead>Клиент</TableHead>
+                        <TableHead>Телефон</TableHead>
+                        <TableHead>Товары</TableHead>
+                        <TableHead>Сумма</TableHead>
+                        <TableHead>Статус</TableHead>
+                        <TableHead>Дата</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-              <div className="md:hidden space-y-3">
-                {(orders || []).map((o) => (
-                  <Card key={o.id}>
-                    <CardContent className="p-4 space-y-2">
-                      <div className="flex justify-between">
-                        <span className="font-mono text-xs">#{String(o.id).slice(-6)}</span>
-                        <span className="text-xs text-muted-foreground">{new Date(o.createdAt).toLocaleDateString('ru-RU')}</span>
-                      </div>
-                      <div className="font-medium">{o.name}</div>
-                      <div className="text-sm text-muted-foreground">{o.phone}</div>
-                      <div className="text-sm text-muted-foreground">{o.address}</div>
-                      <div className="flex flex-wrap gap-1">
-                        {o.items.map((i) => (
-                          <span key={i.id} className="text-xs bg-muted rounded px-1.5 py-0.5">{i.name} ×{i.qty}</span>
-                        ))}
-                      </div>
-                      <div className="flex justify-between items-center pt-1">
-                        <Select value={o.status} onValueChange={(v) => updateOrderStatus(o.id, v)}>
-                          <SelectTrigger className="w-32 h-8"><SelectValue /></SelectTrigger>
-                          <SelectContent>
-                            {STATUS_OPTIONS.map((s) => (
-                              <SelectItem key={s} value={s}>{STATUS_LABELS[s]}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <span className="font-semibold">{o.total} ₽</span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </>
+                    </TableHeader>
+                    <TableBody>
+                      {c1OrdersData.orders.map((o) => (
+                        <TableRow key={o.number}>
+                          <TableCell className="font-mono text-xs">{o.number}</TableCell>
+                          <TableCell>
+                            <div className="font-medium">{o.clientName}</div>
+                          </TableCell>
+                          <TableCell className="text-sm">{o.clientPhone}</TableCell>
+                          <TableCell>
+                            <div className="flex flex-wrap gap-1">
+                              {o.items.map((i, idx) => (
+                                <span key={idx} className="text-xs bg-muted rounded px-1.5 py-0.5">{i.name} ×{i.quantity}</span>
+                              ))}
+                            </div>
+                          </TableCell>
+                          <TableCell className="font-medium">{o.total.toLocaleString('ru-RU')} ₽</TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className={C1_STATUS_COLORS[o.status] || 'bg-gray-100 text-gray-800'}>
+                              {C1_STATUS_LABELS[o.status] || o.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-muted-foreground text-xs">{o.date ? new Date(o.date).toLocaleDateString('ru-RU') : '—'}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+                <div className="md:hidden space-y-3">
+                  {c1OrdersData.orders.map((o) => (
+                    <Card key={o.number}>
+                      <CardContent className="p-4 space-y-2">
+                        <div className="flex justify-between">
+                          <span className="font-mono text-xs">{o.number}</span>
+                          <span className="text-xs text-muted-foreground">{o.date ? new Date(o.date).toLocaleDateString('ru-RU') : '—'}</span>
+                        </div>
+                        <div className="font-medium">{o.clientName}</div>
+                        <div className="text-sm text-muted-foreground">{o.clientPhone}</div>
+                        <div className="flex flex-wrap gap-1">
+                          {o.items.map((i, idx) => (
+                            <span key={idx} className="text-xs bg-muted rounded px-1.5 py-0.5">{i.name} ×{i.quantity}</span>
+                          ))}
+                        </div>
+                        <div className="flex justify-between items-center pt-1">
+                          <Badge variant="outline" className={C1_STATUS_COLORS[o.status] || 'bg-gray-100 text-gray-800'}>
+                            {C1_STATUS_LABELS[o.status] || o.status}
+                          </Badge>
+                          <span className="font-semibold">{o.total.toLocaleString('ru-RU')} ₽</span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </>
+            )
           )}
         </TabsContent>
 
