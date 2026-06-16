@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth';
-import { readData } from '@/lib/db';
-import { fetch1COrders, is1CConfigured } from '@/lib/1c';
+import { getOrdersByPhone, isCommerceMLConfigured } from '@/lib/commerceml';
 
 export async function GET() {
   try {
@@ -10,16 +9,17 @@ export async function GET() {
       return NextResponse.json({ error: 'Не авторизован' }, { status: 401 });
     }
 
-    if (!is1CConfigured()) {
+    if (!isCommerceMLConfigured()) {
       return NextResponse.json(
-        { error: 'Интеграция с 1С не настроена' },
+        { error: 'CommerceML не настроен. Создайте папку C:\\1C\\Exchange и выгрузите данные из 1С' },
         { status: 503 }
       );
     }
 
-    // Получаем телефон: сначала из JWT, затем из БД
+    // Получаем телефон из JWT или БД
     let phone = user.phone || null;
     if (!phone) {
+      const { readData } = await import('@/lib/db');
       const data = readData();
       const dbUser = data.users?.find((u) => u.id === user.id);
       phone = dbUser?.phone || null;
@@ -32,10 +32,10 @@ export async function GET() {
       );
     }
 
-    const orders = await fetch1COrders(phone);
-    return NextResponse.json({ orders });
+    const orders = getOrdersByPhone(phone);
+    return NextResponse.json({ orders, source: 'commerceml' });
   } catch (err) {
-    console.error('1C orders fetch error:', err);
+    console.error('CommerceML orders fetch error:', err);
     return NextResponse.json(
       { error: err.message || 'Ошибка получения заказов из 1С' },
       { status: 502 }
