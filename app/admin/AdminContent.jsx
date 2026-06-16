@@ -20,7 +20,9 @@ import { useProducts } from '@/hooks/useProducts';
 import { useOrders } from '@/hooks/useOrders';
 import { useAdminStats } from '@/hooks/useAdminStats';
 import { useAll1COrders } from '@/hooks/use1COrders';
+import { useAdminUsers } from '@/hooks/useAdminUsers';
 
+const STATUS_OPTIONS = ['new', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
 const C1_STATUS_LABELS = { 'Новый': 'Новый', 'В работе': 'В работе', 'Выполнен': 'Выполнен', 'Отменён': 'Отменён' };
 const C1_STATUS_COLORS = { 'Новый': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200', 'В работе': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200', 'Выполнен': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200', 'Отменён': 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' };
 const STATUS_LABELS = { new: 'Новый', confirmed: 'Подтверждён', processing: 'В обработке', shipped: 'Отправлен', delivered: 'Доставлен', cancelled: 'Отменён' };
@@ -41,6 +43,7 @@ export default function AdminContent() {
   const { data: orders, isLoading: ordersLoading, refetch: refetchOrders } = useOrders();
   const { data: stats, isLoading: statsLoading } = useAdminStats();
   const { data: c1OrdersData, isLoading: c1OrdersLoading, refetch: refetchC1Orders } = useAll1COrders();
+  const { data: users, refetch: refetchUsers } = useAdminUsers();
 
   useEffect(() => {
     fetch('/api/auth/me', { credentials: 'include' })
