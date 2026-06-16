@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { motion } from 'framer-motion';
 import ProductCard from '@/components/ProductCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -63,22 +62,12 @@ export default function HomePage({ initialProducts }) {
   return (
     <div className="container mx-auto px-4 py-6 md:py-12 space-y-10 md:space-y-16">
       {/* Hero */}
-      <motion.section
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="relative overflow-hidden rounded-2xl md:rounded-3xl bg-gradient-to-br from-primary/15 via-background to-background border px-4 sm:px-6 md:px-10 lg:px-16 py-8 sm:py-12 md:py-16 lg:py-20"
-      >
+      <section className="relative overflow-hidden rounded-2xl md:rounded-3xl bg-gradient-to-br from-primary/15 via-background to-background border px-4 sm:px-6 md:px-10 lg:px-16 py-8 sm:py-12 md:py-16 lg:py-20 animate-fade-in">
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center gap-6 md:gap-10 lg:gap-16">
           <div className="max-w-2xl space-y-3 md:space-y-4 lg:space-y-5 flex-1">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2 }}
-              className="inline-flex items-center rounded-full bg-primary/10 px-3 md:px-4 py-1.5 text-sm font-medium text-primary"
-            >
+            <div className="inline-flex items-center rounded-full bg-primary/10 px-3 md:px-4 py-1.5 text-sm font-medium text-primary animate-fade-in-up">
               🚚 Доставка за 2 часа
-            </motion.div>
+            </div>
             <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1]">
               Свежие тюльпаны
               <br />
@@ -117,29 +106,18 @@ export default function HomePage({ initialProducts }) {
                 { emoji: '🌷', size: 'text-6xl', left: '10%', top: '65%', delay: 0.9 },
                 { emoji: '🌷', size: 'text-4xl', left: '50%', top: '78%', delay: 1.5 },
               ].map((t, i) => (
-                <motion.span
+                <span
                   key={i}
-                  className={`absolute ${t.size} select-none drop-shadow-lg`}
-                  style={{ left: t.left, top: t.top }}
-                  animate={{
-                    y: [0, -12, 0],
-                    rotate: [-6, 6, -6],
-                    scale: [1, 1.08, 1],
-                  }}
-                  transition={{
-                    duration: 3.5,
-                    repeat: Infinity,
-                    ease: 'easeInOut',
-                    delay: t.delay,
-                  }}
+                  className={`absolute ${t.size} select-none drop-shadow-lg animate-float`}
+                  style={{ left: t.left, top: t.top, animationDelay: `${t.delay}s` }}
                 >
                   {t.emoji}
-                </motion.span>
+                </span>
               ))}
             </div>
           </div>
         </div>
-      </motion.section>
+      </section>
 
       {/* Catalog */}
       <section>
@@ -255,12 +233,7 @@ export default function HomePage({ initialProducts }) {
       <FAQSection />
 
       {/* CTA */}
-      <motion.section
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true }}
-        className="rounded-2xl md:rounded-3xl bg-muted px-5 py-10 md:px-12 md:py-12 text-center space-y-4 md:space-y-5"
-      >
+      <section className="rounded-2xl md:rounded-3xl bg-muted px-5 py-10 md:px-12 md:py-12 text-center space-y-4 md:space-y-5">
         <div className="text-4xl md:text-5xl">🌷</div>
         <h2 className="text-2xl md:text-4xl font-bold">Нужен большой заказ?</h2>
         <p className="text-muted-foreground max-w-md mx-auto text-base md:text-lg">
@@ -271,7 +244,7 @@ export default function HomePage({ initialProducts }) {
             Позвонить нам
           </Button>
         </a>
-      </motion.section>
+      </section>
     </div>
   );
 }

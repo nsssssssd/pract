@@ -1,21 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import { FAQS } from '@/lib/faq';
 
 export default function FAQSection() {
   const [openIndex, setOpenIndex] = useState(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <section className="py-10 md:py-16">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        className="max-w-3xl mx-auto"
-      >
+      <div className="max-w-3xl mx-auto">
         <h2 className="text-2xl md:text-4xl font-bold text-center mb-8 md:mb-10">
           Часто задаваемые вопросы
         </h2>
@@ -58,7 +58,7 @@ export default function FAQSection() {
             </div>
           ))}
         </div>
-      </motion.div>
+      </div>
     </section>
   );
 }

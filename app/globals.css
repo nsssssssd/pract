@@ -170,3 +170,16 @@
 .animate-fade {
   animation: fade-in 0.25s ease-out both;
 }
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotate(-6deg) scale(1);
+  }
+  50% {
+    transform: translateY(-12px) rotate(6deg) scale(1.08);
+  }
+}
+
+.animate-float {
+  animation: float 3.5s ease-in-out infinite;
+}
