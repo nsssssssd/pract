@@ -246,10 +246,14 @@ export default function LoginContent() {
                     />
                     <p className="text-xs text-muted-foreground">На этот номер придёт SMS с кодом для входа</p>
                   </div>
+                  <RecaptchaCheckbox
+                    onVerify={setRecaptchaToken}
+                    onExpire={() => setRecaptchaToken('')}
+                  />
                   <Button
                     type="submit"
                     className="w-full"
-                    disabled={loading}
+                    disabled={loading || !recaptchaToken}
                   >
                     {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Отправляем...</> : 'Получить код'}
                   </Button>

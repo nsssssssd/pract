@@ -11,10 +11,18 @@ import { Loader2, Edit, Lock, CheckCircle, LogOut } from 'lucide-react';
 import { toast } from 'sonner';
 import Loader from '@/components/Loader';
 import { useMyOrders } from '@/hooks/useMyOrders';
+import { use1COrders } from '@/hooks/use1COrders';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const STATUS_LABELS = { new: 'Новый', confirmed: 'Подтверждён', delivered: 'Доставлен', cancelled: 'Отменён' };
 const STATUS_COLORS = { new: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200', confirmed: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200', delivered: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200', cancelled: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' };
+
+const C1_STATUS_COLORS = {
+  'Выполнен': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+  'Отменён': 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+  'В работе': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+  'Новый': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+};
 
 function EditProfileForm({ user, onSave, onCancel }) {
   const [form, setForm] = useState({ name: user.name, email: user.email });
@@ -124,7 +132,9 @@ function ChangePasswordForm({ onCancel }) {
 export default function ProfileContent({ initialUser }) {
   const [user, setUser] = useState(initialUser);
   const [activePanel, setActivePanel] = useState(null);
+  const [ordersTab, setOrdersTab] = useState('site'); // 'site' | '1c'
   const { data: orders, isLoading: ordersLoading } = useMyOrders();
+  const { data: c1Data, isLoading: c1Loading, error: c1Error } = use1COrders();
 
   function handleProfileSaved(data) {
     setUser(data.user);
@@ -184,29 +194,82 @@ export default function ProfileContent({ initialUser }) {
 
       {user.role !== 'admin' && (
         <>
-          <h2 className="text-xl font-bold">Мои заказы</h2>
-          {ordersLoading ? <Loader /> : !orders || orders.length === 0 ? (
-            <Card><CardContent className="p-8 text-center text-muted-foreground"><div className="text-4xl mb-2">📦</div><p>Заказов пока нет</p></CardContent></Card>
-          ) : (
-            <div className="space-y-3">
-              {orders.map((o) => (
-                <Card key={o.id}>
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-medium">Заказ #{String(o.id).slice(-6)}</span>
-                      <Badge variant="outline" className={STATUS_COLORS[o.status]}>{STATUS_LABELS[o.status] || o.status}</Badge>
-                    </div>
-                    <div className="flex flex-wrap gap-2 text-xs text-muted-foreground mb-2">
-                      {o.items.map((i) => (<span key={i.id} className="rounded-full bg-muted px-2 py-0.5">{i.name} × {i.qty}</span>))}
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">{new Date(o.createdAt).toLocaleDateString('ru-RU')}</span>
-                      <span className="font-semibold">{o.total} ₽</span>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-bold">Мои заказы</h2>
+            <div className="flex rounded-lg border bg-card p-1 gap-1">
+              <button
+                onClick={() => setOrdersTab('site')}
+                className={`px-3 py-1 text-sm rounded-md transition-colors ${ordersTab === 'site' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+              >
+                На сайте
+              </button>
+              <button
+                onClick={() => setOrdersTab('1c')}
+                className={`px-3 py-1 text-sm rounded-md transition-colors ${ordersTab === '1c' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+              >
+                1С:УНФ
+              </button>
             </div>
+          </div>
+
+          {ordersTab === 'site' ? (
+            ordersLoading ? <Loader /> : !orders || orders.length === 0 ? (
+              <Card><CardContent className="p-8 text-center text-muted-foreground"><div className="text-4xl mb-2">📦</div><p>Заказов пока нет</p></CardContent></Card>
+            ) : (
+              <div className="space-y-3">
+                {orders.map((o) => (
+                  <Card key={o.id}>
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-medium">Заказ #{String(o.id).slice(-6)}</span>
+                        <Badge variant="outline" className={STATUS_COLORS[o.status]}>{STATUS_LABELS[o.status] || o.status}</Badge>
+                      </div>
+                      <div className="flex flex-wrap gap-2 text-xs text-muted-foreground mb-2">
+                        {o.items.map((i) => (<span key={i.id} className="rounded-full bg-muted px-2 py-0.5">{i.name} × {i.qty}</span>))}
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">{new Date(o.createdAt).toLocaleDateString('ru-RU')}</span>
+                        <span className="font-semibold">{o.total} ₽</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )
+          ) : (
+            c1Loading ? <Loader /> : c1Error ? (
+              <Card>
+                <CardContent className="p-8 text-center">
+                  <div className="text-4xl mb-2">⚙️</div>
+                  <p className="text-muted-foreground mb-2">Не удалось загрузить заказы из 1С</p>
+                  <p className="text-xs text-destructive">{c1Error.message}</p>
+                </CardContent>
+              </Card>
+            ) : !c1Data?.orders || c1Data.orders.length === 0 ? (
+              <Card><CardContent className="p-8 text-center text-muted-foreground"><div className="text-4xl mb-2">📋</div><p>Заказов в 1С не найдено</p></CardContent></Card>
+            ) : (
+              <div className="space-y-3">
+                {c1Data.orders.map((o, idx) => (
+                  <Card key={idx}>
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-medium">Заказ {o.number}</span>
+                        <Badge variant="outline" className={C1_STATUS_COLORS[o.status] || 'bg-gray-100 text-gray-800'}>{o.status}</Badge>
+                      </div>
+                      <div className="flex flex-wrap gap-2 text-xs text-muted-foreground mb-2">
+                        {o.items.map((i, iidx) => (
+                          <span key={iidx} className="rounded-full bg-muted px-2 py-0.5">{i.name} × {i.quantity}</span>
+                        ))}
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">{o.date ? new Date(o.date).toLocaleDateString('ru-RU') : '—'}</span>
+                        <span className="font-semibold">{o.total.toLocaleString('ru-RU')} ₽</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )
           )}
         </>
       )}
