@@ -8,6 +8,7 @@ import path from 'path';
 const XLS_FILE_LOCAL = path.join(process.cwd(), '1c', 'orders.xls');
 const EXCHANGE_DIR = process.env.ONE_C_EXCHANGE_DIR || 'C:\\1C\\Exchange';
 const XLS_FILE = path.join(EXCHANGE_DIR, 'orders.xls');
+const JSON_FILE = path.join(process.cwd(), '1c', 'orders.json');
 
 function normalizePhone(phone) {
   if (!phone) return '';
@@ -65,6 +66,15 @@ function readXLSOrders() {
   }
 }
 
+function readJSONOrders() {
+  if (!fs.existsSync(JSON_FILE)) return [];
+  try {
+    return JSON.parse(fs.readFileSync(JSON_FILE, 'utf-8'));
+  } catch {
+    return [];
+  }
+}
+
 export async function GET() {
   try {
     const user = await getCurrentUser();
@@ -73,6 +83,8 @@ export async function GET() {
     }
 
     const data = readData();
+    const userPhone = user.phone || data.users?.find((u) => u.id === user.id)?.phone;
+    const normalizedPhone = userPhone ? normalizePhone(userPhone) : '';
 
     // 1. Заказы с сайта (по userId)
     const siteOrders = data.orders
@@ -95,11 +107,34 @@ export async function GET() {
         source: 'site',
       }));
 
-    // 2. Заказы из XLS (по телефону)
+    // 2. Заказы без userId (импортированные) - ищем по телефону
+    const importedOrders = data.orders
+      .filter((o) => !o.userId && normalizedPhone)
+      .filter((o) => {
+        const orderPhone = normalizePhone(o.phone);
+        return orderPhone.includes(normalizedPhone) || normalizedPhone.includes(orderPhone);
+      })
+      .map((o) => ({
+        id: o.id,
+        number: `IMP-${String(o.id).slice(-6)}`,
+        date: o.createdAt?.split('T')[0],
+        status: o.status,
+        total: o.total,
+        clientName: o.name,
+        clientPhone: normalizePhone(o.phone),
+        address: o.address || '—',
+        items: (o.items || []).map((i) => ({
+          name: i.name,
+          quantity: i.qty || 1,
+          price: i.price,
+          sum: i.price * (i.qty || 1),
+        })),
+        source: 'import',
+      }));
+
+    // 3. Заказы из XLS (по телефону)
     let xlsOrders = [];
-    const userPhone = user.phone || data.users?.find((u) => u.id === user.id)?.phone;
-    if (userPhone) {
-      const normalizedPhone = normalizePhone(userPhone);
+    if (normalizedPhone) {
       const allXlsOrders = readXLSOrders();
       xlsOrders = allXlsOrders.filter((order) => {
         const orderPhone = normalizePhone(order.clientPhone);
@@ -107,8 +142,18 @@ export async function GET() {
       });
     }
 
-    // Объединяем: сначала сайт, потом 1С
-    const allOrders = [...siteOrders, ...xlsOrders];
+    // 4. Заказы из JSON cache (по телефону)
+    let jsonOrders = [];
+    if (normalizedPhone) {
+      const allJsonOrders = readJSONOrders();
+      jsonOrders = allJsonOrders.filter((order) => {
+        const orderPhone = normalizePhone(order.clientPhone);
+        return orderPhone.includes(normalizedPhone) || normalizedPhone.includes(orderPhone);
+      });
+    }
+
+    // Объединяем: сначала сайт, потом импорт, потом 1С
+    const allOrders = [...siteOrders, ...importedOrders, ...xlsOrders, ...jsonOrders];
 
     return NextResponse.json(allOrders);
   } catch (err) {
