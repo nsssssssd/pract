@@ -3,7 +3,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useWishlistStore } from '@/store/wishlist';
-import { Home, Flower2, Heart, User } from 'lucide-react';
+import { Home, Flower2, Heart, User, Shield } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 const NAV_ITEMS = [
   { href: '/', label: 'Главная', icon: Home },
@@ -15,11 +16,22 @@ const NAV_ITEMS = [
 export default function MobileBottomNav() {
   const pathname = usePathname();
   const wishlistCount = useWishlistStore((s) => s.count());
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/auth/me', { credentials: 'include' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((u) => setIsAdmin(u?.role === 'admin'));
+  }, []);
+
+  const items = isAdmin
+    ? [...NAV_ITEMS, { href: '/admin', label: 'Админ', icon: Shield }]
+    : NAV_ITEMS;
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-t">
       <div className="flex items-center justify-around h-16">
-        {NAV_ITEMS.map((item) => {
+        {items.map((item) => {
           const isActive = pathname === item.href;
           const Icon = item.icon;
           return (

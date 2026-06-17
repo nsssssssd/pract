@@ -160,12 +160,12 @@ export default function AdminContent() {
   return (
     <div className="container mx-auto px-4 py-8">
       <Tabs defaultValue="stats" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2 md:w-fit md:grid-cols-5">
-          <TabsTrigger value="stats">Статистика</TabsTrigger>
-          <TabsTrigger value="orders">Заказы</TabsTrigger>
-          <TabsTrigger value="products">Товары</TabsTrigger>
-          <TabsTrigger value="users">Пользователи</TabsTrigger>
-          <TabsTrigger value="import">Импорт</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5 h-auto gap-1 p-1">
+          <TabsTrigger value="stats" className="text-xs md:text-sm py-2 px-2">Статистика</TabsTrigger>
+          <TabsTrigger value="orders" className="text-xs md:text-sm py-2 px-2">Заказы</TabsTrigger>
+          <TabsTrigger value="products" className="text-xs md:text-sm py-2 px-2">Товары</TabsTrigger>
+          <TabsTrigger value="users" className="text-xs md:text-sm py-2 px-2">Пользователи</TabsTrigger>
+          <TabsTrigger value="import" className="text-xs md:text-sm py-2 px-2">Импорт</TabsTrigger>
         </TabsList>
 
         <TabsContent value="stats" className="space-y-6">
@@ -505,42 +505,10 @@ export default function AdminContent() {
 }
 
 function ImportTab() {
-  const [priceFile, setPriceFile] = useState(null);
   const [ordersFile, setOrdersFile] = useState(null);
-  const [priceMode, setPriceMode] = useState('append');
   const [ordersMode, setOrdersMode] = useState('append');
-  const [priceLoading, setPriceLoading] = useState(false);
   const [ordersLoading, setOrdersLoading] = useState(false);
-  const [priceResult, setPriceResult] = useState(null);
   const [ordersResult, setOrdersResult] = useState(null);
-  const [activeSubTab, setActiveSubTab] = useState('prices');
-
-  async function handlePriceUpload(e) {
-    e.preventDefault();
-    if (!priceFile) {
-      toast.error('Выберите файл');
-      return;
-    }
-    setPriceLoading(true);
-    setPriceResult(null);
-    try {
-      const fd = new FormData();
-      fd.append('price_file', priceFile);
-      const res = await fetch(`/api/admin/import?mode=${priceMode}`, {
-        method: 'POST',
-        body: fd,
-        credentials: 'include',
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Ошибка импорта');
-      setPriceResult(data);
-      toast.success(`Импортировано ${data.imported}, обновлено ${data.updated}`);
-      setPriceFile(null);
-    } catch (err) {
-      toast.error(err.message);
-    }
-    setPriceLoading(false);
-  }
 
   async function handleOrdersUpload(e) {
     e.preventDefault();
@@ -571,164 +539,76 @@ function ImportTab() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold">Импорт</h2>
-        <div className="flex rounded-lg border bg-card p-1 gap-1">
-          <button
-            onClick={() => setActiveSubTab('prices')}
-            className={`px-3 py-1 text-sm rounded-md transition-colors ${activeSubTab === 'prices' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
-          >
-            Прайсы
-          </button>
-          <button
-            onClick={() => setActiveSubTab('orders')}
-            className={`px-3 py-1 text-sm rounded-md transition-colors ${activeSubTab === 'orders' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
-          >
-            Заказы
-          </button>
-        </div>
-      </div>
-
-      {activeSubTab === 'prices' && (
-        <Card>
-          <CardContent className="p-6 space-y-4">
-            <h3 className="text-lg font-semibold">Импорт прайсов</h3>
-            <form onSubmit={handlePriceUpload} className="space-y-4">
-              <div className="space-y-2">
-                <Label>Файл прайса (CSV, XLSX, XLS)</Label>
-                <div className="flex items-center gap-3">
-                  <Label className="flex h-24 w-full cursor-pointer items-center justify-center rounded-lg border border-dashed hover:bg-accent">
-                    <div className="flex flex-col items-center gap-1 text-muted-foreground">
-                      <FileSpreadsheet className="h-6 w-6" />
-                      <span className="text-sm">{priceFile ? priceFile.name : 'Нажмите или перетащите файл'}</span>
-                      <span className="text-xs">CSV, XLSX, XLS (до 100 МБ)</span>
-                    </div>
-                    <input
-                      type="file"
-                      accept=".csv,.xls,.xlsx"
-                      className="hidden"
-                      onChange={(e) => setPriceFile(e.target.files[0])}
-                    />
-                  </Label>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Режим импорта</Label>
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setPriceMode('append')}
-                    className={`flex-1 px-3 py-2 text-sm rounded-md border transition-colors ${priceMode === 'append' ? 'bg-primary text-primary-foreground border-primary' : 'hover:bg-accent'}`}
-                  >
-                    Добавить к существующему
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPriceMode('replace')}
-                    className={`flex-1 px-3 py-2 text-sm rounded-md border transition-colors ${priceMode === 'replace' ? 'bg-primary text-primary-foreground border-primary' : 'hover:bg-accent'}`}
-                  >
-                    Заменить каталог
-                  </button>
-                </div>
-              </div>
-
-              <Button type="submit" disabled={priceLoading || !priceFile} className="gap-1">
-                {priceLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Импортируем...</> : <><Upload className="h-4 w-4" /> Загрузить и импортировать</>}
-              </Button>
-            </form>
-
-            {priceResult && (
-              <div className="rounded-lg bg-green-50 dark:bg-green-900/20 p-4 space-y-1">
-                <div className="font-medium text-green-800 dark:text-green-200">Импорт завершён</div>
-                <div className="text-sm text-green-700 dark:text-green-300">
-                  Импортировано: <strong>{priceResult.imported}</strong>, Обновлено: <strong>{priceResult.updated}</strong>, Пропущено: <strong>{priceResult.skipped}</strong>
-                </div>
-                <div className="text-xs text-green-600 dark:text-green-400">
-                  Всего товаров в каталоге: {priceResult.total}
-                </div>
-                {priceResult.errors?.length > 0 && (
-                  <div className="text-xs text-red-600 dark:text-red-400 mt-2">
-                    Ошибки: {priceResult.errors.join(', ')}
+      <h2 className="text-xl font-bold">Импорт заказов из JSON</h2>
+      
+      <Card>
+        <CardContent className="p-6 space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Загрузите JSON файл с заказами. Формат: массив объектов с полями name, phone, address, items (name, price, qty)
+          </p>
+          <form onSubmit={handleOrdersUpload} className="space-y-4">
+            <div className="space-y-2">
+              <Label>Файл заказов (JSON)</Label>
+              <div className="flex items-center gap-3">
+                <Label className="flex h-24 w-full cursor-pointer items-center justify-center rounded-lg border border-dashed hover:bg-accent">
+                  <div className="flex flex-col items-center gap-1 text-muted-foreground">
+                    <FileJson className="h-6 w-6" />
+                    <span className="text-sm">{ordersFile ? ordersFile.name : 'Нажмите или перетащите файл'}</span>
+                    <span className="text-xs">JSON (до 10 МБ)</span>
                   </div>
-                )}
+                  <input
+                    type="file"
+                    accept=".json"
+                    className="hidden"
+                    onChange={(e) => setOrdersFile(e.target.files[0])}
+                  />
+                </Label>
               </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
+            </div>
 
-      {activeSubTab === 'orders' && (
-        <Card>
-          <CardContent className="p-6 space-y-4">
-            <h3 className="text-lg font-semibold">Импорт заказов из JSON</h3>
-            <p className="text-sm text-muted-foreground">
-              Загрузите JSON файл с заказами. Формат: массив объектов с полями name, phone, address, items (name, price, qty)
-            </p>
-            <form onSubmit={handleOrdersUpload} className="space-y-4">
-              <div className="space-y-2">
-                <Label>Файл заказов (JSON)</Label>
-                <div className="flex items-center gap-3">
-                  <Label className="flex h-24 w-full cursor-pointer items-center justify-center rounded-lg border border-dashed hover:bg-accent">
-                    <div className="flex flex-col items-center gap-1 text-muted-foreground">
-                      <FileJson className="h-6 w-6" />
-                      <span className="text-sm">{ordersFile ? ordersFile.name : 'Нажмите или перетащите файл'}</span>
-                      <span className="text-xs">JSON (до 10 МБ)</span>
-                    </div>
-                    <input
-                      type="file"
-                      accept=".json"
-                      className="hidden"
-                      onChange={(e) => setOrdersFile(e.target.files[0])}
-                    />
-                  </Label>
-                </div>
+            <div className="space-y-2">
+              <Label>Режим импорта</Label>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setOrdersMode('append')}
+                  className={`flex-1 px-3 py-2 text-sm rounded-md border transition-colors ${ordersMode === 'append' ? 'bg-primary text-primary-foreground border-primary' : 'hover:bg-accent'}`}
+                >
+                  Добавить к существующим
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setOrdersMode('replace')}
+                  className={`flex-1 px-3 py-2 text-sm rounded-md border transition-colors ${ordersMode === 'replace' ? 'bg-primary text-primary-foreground border-primary' : 'hover:bg-accent'}`}
+                >
+                  Заменить все заказы
+                </button>
               </div>
+            </div>
 
-              <div className="space-y-2">
-                <Label>Режим импорта</Label>
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setOrdersMode('append')}
-                    className={`flex-1 px-3 py-2 text-sm rounded-md border transition-colors ${ordersMode === 'append' ? 'bg-primary text-primary-foreground border-primary' : 'hover:bg-accent'}`}
-                  >
-                    Добавить к существующим
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setOrdersMode('replace')}
-                    className={`flex-1 px-3 py-2 text-sm rounded-md border transition-colors ${ordersMode === 'replace' ? 'bg-primary text-primary-foreground border-primary' : 'hover:bg-accent'}`}
-                  >
-                    Заменить все заказы
-                  </button>
-                </div>
+            <Button type="submit" disabled={ordersLoading || !ordersFile} className="gap-1">
+              {ordersLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Импортируем...</> : <><Upload className="h-4 w-4" /> Загрузить и импортировать</>}
+            </Button>
+          </form>
+
+          {ordersResult && (
+            <div className="rounded-lg bg-green-50 dark:bg-green-900/20 p-4 space-y-1">
+              <div className="font-medium text-green-800 dark:text-green-200">Импорт завершён</div>
+              <div className="text-sm text-green-700 dark:text-green-300">
+                Импортировано: <strong>{ordersResult.imported}</strong>, Пропущено: <strong>{ordersResult.skipped}</strong>
               </div>
-
-              <Button type="submit" disabled={ordersLoading || !ordersFile} className="gap-1">
-                {ordersLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Импортируем...</> : <><Upload className="h-4 w-4" /> Загрузить и импортировать</>}
-              </Button>
-            </form>
-
-            {ordersResult && (
-              <div className="rounded-lg bg-green-50 dark:bg-green-900/20 p-4 space-y-1">
-                <div className="font-medium text-green-800 dark:text-green-200">Импорт завершён</div>
-                <div className="text-sm text-green-700 dark:text-green-300">
-                  Импортировано: <strong>{ordersResult.imported}</strong>, Пропущено: <strong>{ordersResult.skipped}</strong>
-                </div>
-                <div className="text-xs text-green-600 dark:text-green-400">
-                  Всего заказов: {ordersResult.total}
-                </div>
-                {ordersResult.errors?.length > 0 && (
-                  <div className="text-xs text-red-600 dark:text-red-400 mt-2">
-                    Ошибки: {ordersResult.errors.join(', ')}
-                  </div>
-                )}
+              <div className="text-xs text-green-600 dark:text-green-400">
+                Всего заказов: {ordersResult.total}
               </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
+              {ordersResult.errors?.length > 0 && (
+                <div className="text-xs text-red-600 dark:text-red-400 mt-2">
+                  Ошибки: {ordersResult.errors.join(', ')}
+                </div>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

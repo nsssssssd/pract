@@ -74,22 +74,22 @@ export default function HomePage({ initialProducts }) {
               <span className="text-primary">прямо с поля</span>
             </h1>
             <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-md leading-relaxed">
-              Каждый день — новая партия. Срезаем утром, доставляем днём.
+              Доставляем по всему городу. Свежие тюльпаны прямо с поля — без посредников.
             </p>
             <div className="flex flex-wrap gap-3 sm:gap-4 md:gap-6 lg:gap-8 pt-1 md:pt-2">
               <div>
-                <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">500+</div>
-                <div className="text-xs md:text-sm text-muted-foreground mt-0.5 md:mt-1">довольных клиентов</div>
+                <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">30 мин</div>
+                <div className="text-xs md:text-sm text-muted-foreground mt-0.5 md:mt-1">в центр Омска</div>
               </div>
               <div className="w-px bg-border" />
               <div>
-                <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">10+</div>
-                <div className="text-xs md:text-sm text-muted-foreground mt-0.5 md:mt-1">сортов тюльпанов</div>
+                <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">1 час</div>
+                <div className="text-xs md:text-sm text-muted-foreground mt-0.5 md:mt-1">на Левый берег</div>
               </div>
               <div className="w-px bg-border" />
               <div>
-                <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">2ч</div>
-                <div className="text-xs md:text-sm text-muted-foreground mt-0.5 md:mt-1">время доставки</div>
+                <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">0 ₽</div>
+                <div className="text-xs md:text-sm text-muted-foreground mt-0.5 md:mt-1">самовывоз</div>
               </div>
             </div>
           </div>
@@ -232,8 +232,8 @@ export default function HomePage({ initialProducts }) {
       {/* FAQ */}
       <FAQSection />
 
-      {/* CTA */}
-      <section className="rounded-2xl md:rounded-3xl bg-muted px-5 py-10 md:px-12 md:py-12 text-center space-y-4 md:space-y-5">
+      {/* CTA — только мобильные */}
+      <section className="rounded-2xl md:rounded-3xl bg-muted px-5 py-10 md:px-12 md:py-12 text-center space-y-4 md:space-y-5 md:hidden">
         <div className="text-4xl md:text-5xl">🌷</div>
         <h2 className="text-2xl md:text-4xl font-bold">Нужен большой заказ?</h2>
         <p className="text-muted-foreground max-w-md mx-auto text-base md:text-lg">

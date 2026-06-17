@@ -148,7 +148,7 @@ export default function Cart() {
       <SheetContent
         side={sheetSide}
         className={`w-full flex flex-col ${
-          sheetSide === 'bottom' ? 'h-[90vh] rounded-t-3xl' : 'sm:max-w-lg'
+          sheetSide === 'bottom' ? 'h-[90vh] rounded-t-3xl px-4 py-6' : 'sm:max-w-lg px-6 py-6'
         }`}
       >
         {/* Progress */}
@@ -190,7 +190,7 @@ export default function Cart() {
           </SheetTitle>
         </SheetHeader>
 
-        <div className="flex-1 overflow-y-auto py-2">
+        <div className="flex-1 overflow-y-auto px-2 py-4">
           <AnimatePresence mode="wait">
             {step === 'success' && (
               <motion.div
