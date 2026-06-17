@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
 import Image from 'next/image';
-import { Loader2, Plus, Pencil, Trash2, Package, Users, DollarSign, Bell, Shield, Upload, RefreshCw, FileSpreadsheet, Trash } from 'lucide-react';
+import { Loader2, Plus, Pencil, Trash2, Package, Users, DollarSign, Bell, Shield, Upload, RefreshCw, FileSpreadsheet, Trash, FileJson } from 'lucide-react';
 import { toast } from 'sonner';
 import Loader from '@/components/Loader';
 import { useProducts } from '@/hooks/useProducts';
@@ -24,8 +24,8 @@ import { useAdminUsers } from '@/hooks/useAdminUsers';
 const STATUS_OPTIONS = ['new', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
 const STATUS_LABELS = { new: 'Новый', confirmed: 'Подтверждён', processing: 'В обработке', shipped: 'Отправлен', delivered: 'Доставлен', cancelled: 'Отменён' };
 const STATUS_COLORS = { new: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200', confirmed: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200', processing: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200', shipped: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200', delivered: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200', cancelled: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' };
-const SOURCE_LABELS = { site: 'Сайт', '1c-xls': '1С' };
-const SOURCE_COLORS = { site: 'bg-gray-100 text-gray-700', '1c-xls': 'bg-blue-100 text-blue-700' };
+const SOURCE_LABELS = { site: 'Сайт', '1c-xls': '1С', import: 'Импорт' };
+const SOURCE_COLORS = { site: 'bg-gray-100 text-gray-700', '1c-xls': 'bg-blue-100 text-blue-700', import: 'bg-green-100 text-green-700' };
 
 export default function AdminContent() {
   const router = useRouter();
@@ -505,145 +505,109 @@ export default function AdminContent() {
 }
 
 function ImportTab() {
-  const [file, setFile] = useState(null);
-  const [mode, setMode] = useState('append');
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState(null);
-  const [history, setHistory] = useState([]);
-  const [historyLoading, setHistoryLoading] = useState(false);
-  const [cronLoading, setCronLoading] = useState(false);
-  const [activeSubTab, setActiveSubTab] = useState('upload');
+  const [priceFile, setPriceFile] = useState(null);
+  const [ordersFile, setOrdersFile] = useState(null);
+  const [priceMode, setPriceMode] = useState('append');
+  const [ordersMode, setOrdersMode] = useState('append');
+  const [priceLoading, setPriceLoading] = useState(false);
+  const [ordersLoading, setOrdersLoading] = useState(false);
+  const [priceResult, setPriceResult] = useState(null);
+  const [ordersResult, setOrdersResult] = useState(null);
+  const [activeSubTab, setActiveSubTab] = useState('prices');
 
-  useEffect(() => {
-    loadHistory();
-  }, []);
-
-  async function loadHistory() {
-    setHistoryLoading(true);
-    try {
-      const res = await fetch('/api/admin/import/history', { credentials: 'include' });
-      if (res.ok) {
-        const data = await res.json();
-        setHistory(data.files || []);
-      }
-    } catch (err) {
-      console.error('Failed to load history:', err);
-    }
-    setHistoryLoading(false);
-  }
-
-  async function handleUpload(e) {
+  async function handlePriceUpload(e) {
     e.preventDefault();
-    if (!file) {
+    if (!priceFile) {
       toast.error('Выберите файл');
       return;
     }
-    setLoading(true);
-    setResult(null);
+    setPriceLoading(true);
+    setPriceResult(null);
     try {
       const fd = new FormData();
-      fd.append('price_file', file);
-      const res = await fetch(`/api/admin/import?mode=${mode}`, {
+      fd.append('price_file', priceFile);
+      const res = await fetch(`/api/admin/import?mode=${priceMode}`, {
         method: 'POST',
         body: fd,
         credentials: 'include',
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Ошибка импорта');
-      setResult(data);
+      setPriceResult(data);
       toast.success(`Импортировано ${data.imported}, обновлено ${data.updated}`);
-      loadHistory();
-      setFile(null);
+      setPriceFile(null);
     } catch (err) {
       toast.error(err.message);
     }
-    setLoading(false);
+    setPriceLoading(false);
   }
 
-  async function handleDeleteFile(name) {
-    if (!confirm(`Удалить файл ${name}?`)) return;
-    try {
-      const res = await fetch(`/api/admin/import/history?name=${encodeURIComponent(name)}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
-      if (!res.ok) throw new Error('Ошибка удаления');
-      toast.success('Файл удалён');
-      loadHistory();
-    } catch (err) {
-      toast.error(err.message);
+  async function handleOrdersUpload(e) {
+    e.preventDefault();
+    if (!ordersFile) {
+      toast.error('Выберите файл');
+      return;
     }
-  }
-
-  async function handleCronTrigger() {
-    setCronLoading(true);
+    setOrdersLoading(true);
+    setOrdersResult(null);
     try {
-      const res = await fetch('/api/admin/import/cron/trigger', {
+      const fd = new FormData();
+      fd.append('orders_file', ordersFile);
+      const res = await fetch(`/api/admin/import/orders?mode=${ordersMode}`, {
         method: 'POST',
+        body: fd,
         credentials: 'include',
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Ошибка запуска');
-      toast.success(`Cron выполнен: импортировано ${data.imported || 0}, обновлено ${data.updated || 0}`);
-      loadHistory();
+      if (!res.ok) throw new Error(data.error || 'Ошибка импорта');
+      setOrdersResult(data);
+      toast.success(`Импортировано ${data.imported} заказов`);
+      setOrdersFile(null);
     } catch (err) {
       toast.error(err.message);
     }
-    setCronLoading(false);
-  }
-
-  function formatBytes(bytes) {
-    if (bytes === 0) return '0 Б';
-    const k = 1024;
-    const sizes = ['Б', 'КБ', 'МБ', 'ГБ'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    setOrdersLoading(false);
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold">Импорт прайсов</h2>
+        <h2 className="text-xl font-bold">Импорт</h2>
         <div className="flex rounded-lg border bg-card p-1 gap-1">
           <button
-            onClick={() => setActiveSubTab('upload')}
-            className={`px-3 py-1 text-sm rounded-md transition-colors ${activeSubTab === 'upload' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+            onClick={() => setActiveSubTab('prices')}
+            className={`px-3 py-1 text-sm rounded-md transition-colors ${activeSubTab === 'prices' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
           >
-            Загрузка
+            Прайсы
           </button>
           <button
-            onClick={() => setActiveSubTab('history')}
-            className={`px-3 py-1 text-sm rounded-md transition-colors ${activeSubTab === 'history' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+            onClick={() => setActiveSubTab('orders')}
+            className={`px-3 py-1 text-sm rounded-md transition-colors ${activeSubTab === 'orders' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
           >
-            История
-          </button>
-          <button
-            onClick={() => setActiveSubTab('cron')}
-            className={`px-3 py-1 text-sm rounded-md transition-colors ${activeSubTab === 'cron' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
-          >
-            Cron
+            Заказы
           </button>
         </div>
       </div>
 
-      {activeSubTab === 'upload' && (
+      {activeSubTab === 'prices' && (
         <Card>
           <CardContent className="p-6 space-y-4">
-            <form onSubmit={handleUpload} className="space-y-4">
+            <h3 className="text-lg font-semibold">Импорт прайсов</h3>
+            <form onSubmit={handlePriceUpload} className="space-y-4">
               <div className="space-y-2">
-                <Label>Файл прайса</Label>
+                <Label>Файл прайса (CSV, XLSX, XLS)</Label>
                 <div className="flex items-center gap-3">
                   <Label className="flex h-24 w-full cursor-pointer items-center justify-center rounded-lg border border-dashed hover:bg-accent">
                     <div className="flex flex-col items-center gap-1 text-muted-foreground">
-                      <Upload className="h-6 w-6" />
-                      <span className="text-sm">{file ? file.name : 'Нажмите или перетащите файл'}</span>
+                      <FileSpreadsheet className="h-6 w-6" />
+                      <span className="text-sm">{priceFile ? priceFile.name : 'Нажмите или перетащите файл'}</span>
                       <span className="text-xs">CSV, XLSX, XLS (до 100 МБ)</span>
                     </div>
                     <input
                       type="file"
                       accept=".csv,.xls,.xlsx"
                       className="hidden"
-                      onChange={(e) => setFile(e.target.files[0])}
+                      onChange={(e) => setPriceFile(e.target.files[0])}
                     />
                   </Label>
                 </div>
@@ -654,38 +618,38 @@ function ImportTab() {
                 <div className="flex gap-2">
                   <button
                     type="button"
-                    onClick={() => setMode('append')}
-                    className={`flex-1 px-3 py-2 text-sm rounded-md border transition-colors ${mode === 'append' ? 'bg-primary text-primary-foreground border-primary' : 'hover:bg-accent'}`}
+                    onClick={() => setPriceMode('append')}
+                    className={`flex-1 px-3 py-2 text-sm rounded-md border transition-colors ${priceMode === 'append' ? 'bg-primary text-primary-foreground border-primary' : 'hover:bg-accent'}`}
                   >
                     Добавить к существующему
                   </button>
                   <button
                     type="button"
-                    onClick={() => setMode('replace')}
-                    className={`flex-1 px-3 py-2 text-sm rounded-md border transition-colors ${mode === 'replace' ? 'bg-primary text-primary-foreground border-primary' : 'hover:bg-accent'}`}
+                    onClick={() => setPriceMode('replace')}
+                    className={`flex-1 px-3 py-2 text-sm rounded-md border transition-colors ${priceMode === 'replace' ? 'bg-primary text-primary-foreground border-primary' : 'hover:bg-accent'}`}
                   >
                     Заменить каталог
                   </button>
                 </div>
               </div>
 
-              <Button type="submit" disabled={loading || !file} className="gap-1">
-                {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Импортируем...</> : <><Upload className="h-4 w-4" /> Загрузить и импортировать</>}
+              <Button type="submit" disabled={priceLoading || !priceFile} className="gap-1">
+                {priceLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Импортируем...</> : <><Upload className="h-4 w-4" /> Загрузить и импортировать</>}
               </Button>
             </form>
 
-            {result && (
+            {priceResult && (
               <div className="rounded-lg bg-green-50 dark:bg-green-900/20 p-4 space-y-1">
                 <div className="font-medium text-green-800 dark:text-green-200">Импорт завершён</div>
                 <div className="text-sm text-green-700 dark:text-green-300">
-                  Импортировано: <strong>{result.imported}</strong>, Обновлено: <strong>{result.updated}</strong>, Пропущено: <strong>{result.skipped}</strong>
+                  Импортировано: <strong>{priceResult.imported}</strong>, Обновлено: <strong>{priceResult.updated}</strong>, Пропущено: <strong>{priceResult.skipped}</strong>
                 </div>
                 <div className="text-xs text-green-600 dark:text-green-400">
-                  Всего товаров в каталоге: {result.total}
+                  Всего товаров в каталоге: {priceResult.total}
                 </div>
-                {result.errors?.length > 0 && (
+                {priceResult.errors?.length > 0 && (
                   <div className="text-xs text-red-600 dark:text-red-400 mt-2">
-                    Ошибки: {result.errors.join(', ')}
+                    Ошибки: {priceResult.errors.join(', ')}
                   </div>
                 )}
               </div>
@@ -694,69 +658,74 @@ function ImportTab() {
         </Card>
       )}
 
-      {activeSubTab === 'history' && (
-        <Card>
-          <CardContent className="p-6">
-            <h3 className="text-lg font-semibold mb-4">История загрузок</h3>
-            {historyLoading ? (
-              <div className="space-y-2">
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <Skeleton key={i} className="h-12" />
-                ))}
-              </div>
-            ) : history.length === 0 ? (
-              <div className="text-center text-muted-foreground py-8">
-                <FileSpreadsheet className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                <p>Нет загруженных файлов</p>
-              </div>
-            ) : (
-              <div className="rounded-lg border overflow-hidden">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Файл</TableHead>
-                      <TableHead>Размер</TableHead>
-                      <TableHead>Дата</TableHead>
-                      <TableHead className="w-16"></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {history.map((f) => (
-                      <TableRow key={f.name}>
-                        <TableCell className="font-mono text-xs">{f.name}</TableCell>
-                        <TableCell className="text-sm">{formatBytes(f.size)}</TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
-                          {new Date(f.date).toLocaleString('ru-RU')}
-                        </TableCell>
-                        <TableCell>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive" onClick={() => handleDeleteFile(f.name)}>
-                            <Trash className="h-4 w-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      {activeSubTab === 'cron' && (
+      {activeSubTab === 'orders' && (
         <Card>
           <CardContent className="p-6 space-y-4">
-            <h3 className="text-lg font-semibold">Автоматическое обновление</h3>
+            <h3 className="text-lg font-semibold">Импорт заказов из JSON</h3>
             <p className="text-sm text-muted-foreground">
-              Настройте источники в коде (app/api/admin/import/cron/route.js) и запустите ручное обновление для проверки.
+              Загрузите JSON файл с заказами. Формат: массив объектов с полями name, phone, address, items (name, price, qty)
             </p>
-            <Button onClick={handleCronTrigger} disabled={cronLoading} className="gap-1">
-              {cronLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Выполняется...</> : <><RefreshCw className="h-4 w-4" /> Запустить cron-обновление</>}
-            </Button>
-            <div className="text-xs text-muted-foreground">
-              <p>Linux cron: <code className="bg-muted px-1 rounded">0 19 * * * curl -s &quot;https://tulpanomsk55.ru/api/admin/import/cron?key=CRON_SECRET_KEY&quot;</code></p>
-              <p className="mt-1">Windows: используйте Task Scheduler или setup-windows-task.bat</p>
-            </div>
+            <form onSubmit={handleOrdersUpload} className="space-y-4">
+              <div className="space-y-2">
+                <Label>Файл заказов (JSON)</Label>
+                <div className="flex items-center gap-3">
+                  <Label className="flex h-24 w-full cursor-pointer items-center justify-center rounded-lg border border-dashed hover:bg-accent">
+                    <div className="flex flex-col items-center gap-1 text-muted-foreground">
+                      <FileJson className="h-6 w-6" />
+                      <span className="text-sm">{ordersFile ? ordersFile.name : 'Нажмите или перетащите файл'}</span>
+                      <span className="text-xs">JSON (до 10 МБ)</span>
+                    </div>
+                    <input
+                      type="file"
+                      accept=".json"
+                      className="hidden"
+                      onChange={(e) => setOrdersFile(e.target.files[0])}
+                    />
+                  </Label>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Режим импорта</Label>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setOrdersMode('append')}
+                    className={`flex-1 px-3 py-2 text-sm rounded-md border transition-colors ${ordersMode === 'append' ? 'bg-primary text-primary-foreground border-primary' : 'hover:bg-accent'}`}
+                  >
+                    Добавить к существующим
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setOrdersMode('replace')}
+                    className={`flex-1 px-3 py-2 text-sm rounded-md border transition-colors ${ordersMode === 'replace' ? 'bg-primary text-primary-foreground border-primary' : 'hover:bg-accent'}`}
+                  >
+                    Заменить все заказы
+                  </button>
+                </div>
+              </div>
+
+              <Button type="submit" disabled={ordersLoading || !ordersFile} className="gap-1">
+                {ordersLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Импортируем...</> : <><Upload className="h-4 w-4" /> Загрузить и импортировать</>}
+              </Button>
+            </form>
+
+            {ordersResult && (
+              <div className="rounded-lg bg-green-50 dark:bg-green-900/20 p-4 space-y-1">
+                <div className="font-medium text-green-800 dark:text-green-200">Импорт завершён</div>
+                <div className="text-sm text-green-700 dark:text-green-300">
+                  Импортировано: <strong>{ordersResult.imported}</strong>, Пропущено: <strong>{ordersResult.skipped}</strong>
+                </div>
+                <div className="text-xs text-green-600 dark:text-green-400">
+                  Всего заказов: {ordersResult.total}
+                </div>
+                {ordersResult.errors?.length > 0 && (
+                  <div className="text-xs text-red-600 dark:text-red-400 mt-2">
+                    Ошибки: {ordersResult.errors.join(', ')}
+                  </div>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
       )}
