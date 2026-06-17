@@ -57,6 +57,7 @@ export default function AdminContent() {
         body: JSON.stringify({ status }),
       });
       if (!res.ok) throw new Error('Ошибка');
+      refetchOrders();
       toast.success('Статус обновлён');
     } catch { toast.error('Ошибка обновления статуса'); }
   }
