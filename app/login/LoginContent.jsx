@@ -17,7 +17,7 @@ export default function LoginContent() {
   const router = useRouter();
   const [method, setMethod] = useState('email'); // 'email' | 'phone'
   const [phoneStep, setPhoneStep] = useState(1); // 1: ввод телефона, 2: ввод кода
-  const [form, setForm] = useState({ email: '', password: '', phone: '' });
+  const [form, setForm] = useState({ email: '', password: '', phone: '+7' });
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);

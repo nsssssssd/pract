@@ -56,7 +56,7 @@ export default function Cart() {
   const [step, setStep] = useState('cart');
   const [loading, setLoading] = useState(false);
   const [lastOrderId, setLastOrderId] = useState(null);
-  const [form, setForm] = useState({ name: '', phone: '', address: '' });
+  const [form, setForm] = useState({ name: '', phone: '+7', address: '' });
   const [formErrors, setFormErrors] = useState({});
   const [paymentMethod, setPaymentMethod] = useState('cash');
   const [showPaymentMock, setShowPaymentMock] = useState(false);
@@ -426,7 +426,7 @@ export default function Cart() {
                       </div>
                     ) : (
                       <Button
-                        className={`w-full rounded-full text-base ${isMobile ? 'h-14 text-lg shadow-lg' : 'h-12'}`}
+                        className={`w-full rounded-full text-base ${isMobile ? 'h-12' : 'h-12'}`}
                         onClick={() => {
                           if (user) setStep('form');
                           else {
@@ -482,8 +482,8 @@ export default function Cart() {
                     <Label htmlFor="cart-phone" className="flex items-center gap-1.5">
                       <Phone className="h-3.5 w-3.5 text-muted-foreground" /> Телефон
                     </Label>
-                    <Input id="cart-phone" type="tel" placeholder="89991234567" value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} className={`rounded-xl ${formErrors.phone ? 'border-destructive' : ''}`} required />
-                    {formErrors.phone ? <p className="text-xs text-destructive">{formErrors.phone}</p> : <p className="text-xs text-muted-foreground">Формат: 89991234567</p>}
+                    <Input id="cart-phone" type="tel" placeholder="+7 (999) 123-45-67" value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} className={`rounded-xl ${formErrors.phone ? 'border-destructive' : ''}`} required />
+                    {formErrors.phone ? <p className="text-xs text-destructive">{formErrors.phone}</p> : <p className="text-xs text-muted-foreground">Формат: +7 (999) 123-45-67</p>}
                   </div>
 
                   <div className="space-y-2">
@@ -512,7 +512,7 @@ export default function Cart() {
                     </RadioGroup>
                   </div>
 
-                  <Button type="submit" disabled={loading} className={`w-full rounded-full text-base mt-1 ${isMobile ? 'h-14 text-lg shadow-lg' : 'h-12'}`}>
+                  <Button type="submit" disabled={loading} className={`w-full rounded-full text-base mt-1 ${isMobile ? 'h-12' : 'h-12'}`}>
                     {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Оформляем...</> : paymentMethod === 'card' ? `Перейти к оплате ${total} ₽` : `Заказать на ${total} ₽`}
                   </Button>
                 </form>

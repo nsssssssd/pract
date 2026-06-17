@@ -28,7 +28,7 @@ export default function RegisterContent() {
   const router = useRouter();
   const [method, setMethod] = useState(null); // null | 'email' | 'phone'
   const [step, setStep] = useState(1); // 1: форма, 2: код, 3: успех
-  const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
+  const [form, setForm] = useState({ name: '', email: '', phone: '+7', password: '', confirmPassword: '' });
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
