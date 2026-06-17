@@ -15,6 +15,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const STATUS_LABELS = { new: 'Новый', confirmed: 'Подтверждён', delivered: 'Доставлен', cancelled: 'Отменён' };
 const STATUS_COLORS = { new: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200', confirmed: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200', delivered: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200', cancelled: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' };
+const SOURCE_LABELS = { site: 'Сайт', '1c-xls': '1С' };
+const SOURCE_COLORS = { site: 'bg-gray-100 text-gray-700', '1c-xls': 'bg-blue-100 text-blue-700' };
 
 function EditProfileForm({ user, onSave, onCancel }) {
   const [form, setForm] = useState({ name: user.name, email: user.email, phone: user.phone || '' });
@@ -205,16 +207,26 @@ export default function ProfileContent({ initialUser }) {
                 <Card key={o.id}>
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="font-medium">Заказ #{String(o.id).slice(-6)}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">Заказ #{o.number || String(o.id).slice(-6)}</span>
+                        {o.source && (
+                          <Badge variant="outline" className={SOURCE_COLORS[o.source] || 'bg-gray-100'}>
+                            {SOURCE_LABELS[o.source] || o.source}
+                          </Badge>
+                        )}
+                      </div>
                       <Badge variant="outline" className={STATUS_COLORS[o.status]}>{STATUS_LABELS[o.status] || o.status}</Badge>
                     </div>
                     <div className="flex flex-wrap gap-2 text-xs text-muted-foreground mb-2">
-                      {o.items.map((i) => (<span key={i.id} className="rounded-full bg-muted px-2 py-0.5">{i.name} × {i.qty}</span>))}
+                      {o.items.map((i, idx) => (<span key={idx} className="rounded-full bg-muted px-2 py-0.5">{i.name} × {i.quantity || i.qty}</span>))}
                     </div>
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">{new Date(o.createdAt).toLocaleDateString('ru-RU')}</span>
+                      <span className="text-muted-foreground">{o.date ? new Date(o.date).toLocaleDateString('ru-RU') : new Date(o.createdAt).toLocaleDateString('ru-RU')}</span>
                       <span className="font-semibold">{o.total} ₽</span>
                     </div>
+                    {o.address && o.address !== '—' && (
+                      <div className="text-xs text-muted-foreground mt-1">📍 {o.address}</div>
+                    )}
                   </CardContent>
                 </Card>
               ))}
