@@ -306,20 +306,14 @@ export default function AdminContent() {
                         </TableCell>
                         <TableCell className="font-medium">{o.total.toLocaleString('ru-RU')} ₽</TableCell>
                         <TableCell>
-                          {o.source === '1c-xls' ? (
-                            <Badge variant="outline" className={STATUS_COLORS[o.status] || 'bg-gray-100'}>
-                              {STATUS_LABELS[o.status] || o.status}
-                            </Badge>
-                          ) : (
-                            <Select value={o.status} onValueChange={(v) => updateOrderStatus(o.id, v)}>
-                              <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
-                              <SelectContent>
-                                {STATUS_OPTIONS.map((s) => (
-                                  <SelectItem key={s} value={s}>{STATUS_LABELS[s]}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          )}
+                          <Select value={o.status} onValueChange={(v) => updateOrderStatus(o.id, v)}>
+                            <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              {STATUS_OPTIONS.map((s) => (
+                                <SelectItem key={s} value={s}>{STATUS_LABELS[s]}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </TableCell>
                         <TableCell className="text-muted-foreground text-xs">
                           {o.date ? new Date(o.date).toLocaleDateString('ru-RU') : o.createdAt ? new Date(o.createdAt).toLocaleDateString('ru-RU') : '—'}
@@ -353,20 +347,14 @@ export default function AdminContent() {
                         ))}
                       </div>
                       <div className="flex justify-between items-center pt-1">
-                        {o.source === '1c-xls' ? (
-                          <Badge variant="outline" className={STATUS_COLORS[o.status] || 'bg-gray-100'}>
-                            {STATUS_LABELS[o.status] || o.status}
-                          </Badge>
-                        ) : (
-                          <Select value={o.status} onValueChange={(v) => updateOrderStatus(o.id, v)}>
-                            <SelectTrigger className="w-32 h-8"><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                              {STATUS_OPTIONS.map((s) => (
-                                <SelectItem key={s} value={s}>{STATUS_LABELS[s]}</SelectItem>
-                              ))}
-                              </SelectContent>
-                          </Select>
-                        )}
+                        <Select value={o.status} onValueChange={(v) => updateOrderStatus(o.id, v)}>
+                          <SelectTrigger className="w-32 h-8"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {STATUS_OPTIONS.map((s) => (
+                              <SelectItem key={s} value={s}>{STATUS_LABELS[s]}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                         <span className="font-semibold">{o.total.toLocaleString('ru-RU')} ₽</span>
                       </div>
                       <div className="text-xs text-muted-foreground">
