@@ -34,7 +34,7 @@ export async function PUT(request, { params }) {
     const allowed = ['name', 'description', 'price', 'unit', 'emoji', 'color', 'image', 'available'];
     const update = {};
     for (const key of allowed) {
-      if (key in body) update[key] = body[key];
+      if (body[key] !== undefined) update[key] = body[key];
     }
     if (update.price !== undefined) {
       update.price = Number(update.price);

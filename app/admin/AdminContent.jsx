@@ -112,7 +112,7 @@ export default function AdminContent() {
     e.preventDefault();
     setSavingProduct(true);
     try {
-      let imageUrl = productForm.image;
+      let imageUrl = productForm.image ?? null;
       if (imageFile) {
         const fd = new FormData();
         fd.append('image', imageFile);
@@ -509,7 +509,7 @@ export default function AdminContent() {
                     <div className="flex items-center gap-3">
                       {imagePreview ? (
                         <div className="relative">
-                          <Image src={imagePreview} alt="preview" width={80} height={80} className="rounded-lg object-cover" loading="lazy" placeholder="blur" blurDataURL="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" />
+                          <Image src={imagePreview} alt="preview" width={80} height={80} className="rounded-lg object-cover" loading="lazy" />
                           <Button type="button" variant="destructive" size="sm" className="absolute -top-2 -right-2 h-6 w-6 p-0 rounded-full" onClick={() => { setImageFile(null); setImagePreview(null); setProductForm((f) => ({ ...f, image: null })); }}>
                             <Trash2 className="h-3 w-3" />
                           </Button>
@@ -538,7 +538,7 @@ export default function AdminContent() {
               <Card key={p.id} className="overflow-hidden">
                 <div className="aspect-square relative flex items-center justify-center" style={{ background: p.color + '22' }}>
                   {p.image ? (
-                    <Image src={p.image} alt={p.name} fill className="object-cover" loading="lazy" placeholder="blur" blurDataURL="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" />
+                    <Image src={p.image} alt={p.name} fill className="object-cover" loading="lazy" />
                   ) : (
                     <span className="text-5xl">{p.emoji}</span>
                   )}
