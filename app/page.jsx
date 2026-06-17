@@ -17,6 +17,10 @@ export const metadata = {
   },
 };
 
+// Делаем страницу динамической, чтобы товары обновлялись без пересборки
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 const faqJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',

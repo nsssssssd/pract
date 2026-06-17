@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -22,10 +21,10 @@ import { useAdminStats } from '@/hooks/useAdminStats';
 import { useAdminUsers } from '@/hooks/useAdminUsers';
 
 const STATUS_OPTIONS = ['new', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
-const SOURCE_LABELS = { site: 'Сайт', '1c-xls': '1С' };
-const SOURCE_COLORS = { site: 'bg-gray-100 text-gray-700', '1c-xls': 'bg-blue-100 text-blue-700' };
 const STATUS_LABELS = { new: 'Новый', confirmed: 'Подтверждён', processing: 'В обработке', shipped: 'Отправлен', delivered: 'Доставлен', cancelled: 'Отменён' };
 const STATUS_COLORS = { new: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200', confirmed: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200', processing: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200', shipped: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200', delivered: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200', cancelled: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' };
+const SOURCE_LABELS = { site: 'Сайт', '1c-xls': '1С' };
+const SOURCE_COLORS = { site: 'bg-gray-100 text-gray-700', '1c-xls': 'bg-blue-100 text-blue-700' };
 
 export default function AdminContent() {
   const router = useRouter();
@@ -36,7 +35,6 @@ export default function AdminContent() {
   const [editingProduct, setEditingProduct] = useState(null);
   const [showProductForm, setShowProductForm] = useState(false);
   const [savingProduct, setSavingProduct] = useState(false);
-  const [importTab, setImportTab] = useState('upload'); // 'upload' | 'history' | 'cron'
 
   const { data: products, isLoading: productsLoading, refetch: refetchProducts } = useProducts();
   const { data: orders, isLoading: ordersLoading, refetch: refetchOrders } = useOrders();
@@ -57,7 +55,7 @@ export default function AdminContent() {
         body: JSON.stringify({ status }),
       });
       if (!res.ok) throw new Error('Ошибка');
-      refetchOrders();
+      await refetchOrders();
       toast.success('Статус обновлён');
     } catch { toast.error('Ошибка обновления статуса'); }
   }
@@ -67,7 +65,7 @@ export default function AdminContent() {
     try {
       const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Ошибка');
-      refetchProducts();
+      await refetchProducts();
       toast.success('Товар удалён');
     } catch { toast.error('Ошибка удаления'); }
   }
@@ -77,21 +75,9 @@ export default function AdminContent() {
     try {
       const res = await fetch(`/api/auth/users/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Ошибка');
-      refetchUsers();
+      await refetchUsers();
       toast.success('Пользователь удалён');
     } catch { toast.error('Ошибка удаления'); }
-  }
-
-  async function sync1CStatus() {
-    try {
-      const res = await fetch('/api/orders/1c/sync', { method: 'POST', credentials: 'include' });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      toast.success(data.message);
-      refetchOrders();
-    } catch (err) {
-      toast.error(err.message || 'Ошибка синхронизации');
-    }
   }
 
   async function updateUserRole(id, role) {
@@ -102,7 +88,7 @@ export default function AdminContent() {
         body: JSON.stringify({ role }),
       });
       if (!res.ok) throw new Error('Ошибка');
-      refetchUsers();
+      await refetchUsers();
       toast.success(role === 'admin' ? 'Роль повышена до админа' : 'Роль понижена до клиента');
     } catch { toast.error('Ошибка изменения роли'); }
   }
@@ -224,31 +210,14 @@ export default function AdminContent() {
                     {(orders || []).slice(0, 5).map((o) => (
                       <TableRow key={o.id}>
                         <TableCell className="font-mono text-xs">#{String(o.id).slice(-6)}</TableCell>
-                        <TableCell>{o.name}</TableCell>
+                        <TableCell>{o.clientName || o.name}</TableCell>
                         <TableCell className="font-medium">{o.total} ₽</TableCell>
                         <TableCell><Badge variant="outline" className={STATUS_COLORS[o.status]}>{STATUS_LABELS[o.status]}</Badge></TableCell>
-                        <TableCell className="text-muted-foreground text-xs">{new Date(o.createdAt).toLocaleDateString('ru-RU')}</TableCell>
+                        <TableCell className="text-muted-foreground text-xs">{o.date ? new Date(o.date).toLocaleDateString('ru-RU') : o.createdAt ? new Date(o.createdAt).toLocaleDateString('ru-RU') : '—'}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
-              </div>
-              <div className="md:hidden space-y-3">
-                {(orders || []).slice(0, 5).map((o) => (
-                  <Card key={o.id}>
-                    <CardContent className="p-4">
-                      <div className="flex justify-between mb-1">
-                        <span className="font-mono text-xs">#{String(o.id).slice(-6)}</span>
-                        <Badge variant="outline" className={STATUS_COLORS[o.status]}>{STATUS_LABELS[o.status]}</Badge>
-                      </div>
-                      <div className="font-medium">{o.name}</div>
-                      <div className="flex justify-between mt-1 text-sm">
-                        <span className="text-muted-foreground">{new Date(o.createdAt).toLocaleDateString('ru-RU')}</span>
-                        <span className="font-semibold">{o.total} ₽</span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
               </div>
             </>
           )}
@@ -524,43 +493,17 @@ export default function AdminContent() {
               </TableBody>
             </Table>
           </div>
-          <div className="md:hidden space-y-3">
-            {(users || []).map((u) => (
-              <Card key={u.id}>
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">{(u.name || '?')[0]?.toUpperCase()}</span>
-                    <div className="flex-1">
-                      <div className="font-medium">{u.name}</div>
-                      <div className="text-xs text-muted-foreground">{u.email || u.phone || '—'}</div>
-                      <div className="text-xs text-muted-foreground">{new Date(u.createdAt).toLocaleDateString('ru-RU')}</div>
-                    </div>
-                    <Badge variant={u.role === 'admin' ? 'default' : 'secondary'}>{u.role === 'admin' ? '👑' : '🌷'}</Badge>
-                  </div>
-                  <div className="flex gap-2 pt-2 border-t">
-                    <Button variant="outline" size="sm" className="flex-1 gap-1" onClick={() => updateUserRole(u.id, u.role === 'admin' ? 'user' : 'admin')}>
-                      <Shield className="h-3 w-3" />
-                      {u.role === 'admin' ? 'Понизить' : 'Админ'}
-                    </Button>
-                    <Button variant="destructive" size="sm" className="flex-1 gap-1" onClick={() => deleteUser(u.id)}>
-                      <Trash2 className="h-3 w-3" /> Удалить
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
         </TabsContent>
 
         <TabsContent value="import" className="space-y-4">
-          <ImportTab products={products} refetchProducts={refetchProducts} />
+          <ImportTab />
         </TabsContent>
       </Tabs>
     </div>
   );
 }
 
-function ImportTab({ products, refetchProducts }) {
+function ImportTab() {
   const [file, setFile] = useState(null);
   const [mode, setMode] = useState('append');
   const [loading, setLoading] = useState(false);
@@ -608,7 +551,6 @@ function ImportTab({ products, refetchProducts }) {
       if (!res.ok) throw new Error(data.error || 'Ошибка импорта');
       setResult(data);
       toast.success(`Импортировано ${data.imported}, обновлено ${data.updated}`);
-      refetchProducts();
       loadHistory();
       setFile(null);
     } catch (err) {
@@ -642,7 +584,6 @@ function ImportTab({ products, refetchProducts }) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Ошибка запуска');
       toast.success(`Cron выполнен: импортировано ${data.imported || 0}, обновлено ${data.updated || 0}`);
-      refetchProducts();
       loadHistory();
     } catch (err) {
       toast.error(err.message);
