@@ -24,6 +24,16 @@ const STATUS_MAP = {
   'Отменен': 'cancelled',
 };
 
+// Обратный маппинг
+const REVERSE_STATUS_MAP = {
+  new: 'Новый',
+  confirmed: 'Подтверждён',
+  processing: 'В работе',
+  shipped: 'Отправлен',
+  delivered: 'Выполнен',
+  cancelled: 'Отменён',
+};
+
 export async function PUT(request, { params }) {
   try {
     const user = await getCurrentUser();
@@ -53,16 +63,17 @@ export async function PUT(request, { params }) {
       }
       
       const xlsOrders = JSON.parse(fs.readFileSync(JSON_FILE, 'utf-8'));
-      const order = xlsOrders.find((o) => o.id === id);
+      const orderIndex = xlsOrders.findIndex((o) => o.id === id);
       
-      if (!order) {
+      if (orderIndex === -1) {
         return NextResponse.json({ error: 'Заказ не найден' }, { status: 404 });
       }
 
-      order.status = status;
+      xlsOrders[orderIndex].status = status;
+      xlsOrders[orderIndex].statusLabel = REVERSE_STATUS_MAP[status] || status;
       fs.writeFileSync(JSON_FILE, JSON.stringify(xlsOrders, null, 2));
       
-      return NextResponse.json(order);
+      return NextResponse.json(xlsOrders[orderIndex]);
     }
 
     // Обычный заказ из data.json
