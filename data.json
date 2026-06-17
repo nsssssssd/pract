@@ -67,7 +67,32 @@
       "available": true
     }
   ],
-  "orders": [],
+  "orders": [
+    {
+      "id": 1781731115320,
+      "userId": null,
+      "name": "Исупов Константин",
+      "phone": "+79081074145",
+      "address": "ул. Примерная, д. 1",
+      "items": [
+        {
+          "id": 1,
+          "name": "Красные тюльпаны",
+          "price": 150,
+          "qty": 10
+        },
+        {
+          "id": 5,
+          "name": "Букет «Весна»",
+          "price": 1490,
+          "qty": 2
+        }
+      ],
+      "total": 4480,
+      "status": "new",
+      "createdAt": "2026-06-17T21:18:35.320Z"
+    }
+  ],
   "users": [
     {
       "id": 1,
@@ -79,6 +104,17 @@
       "emailVerified": true,
       "phoneVerified": false,
       "phone": null
+    },
+    {
+      "id": 999,
+      "name": "Петрова Анна",
+      "email": "anna@test.ru",
+      "password": "$2b$10$XQWqrV51brzse7X.7I0lT.djXmvWBy6ytRyzrJIvxS.J4T8DnSC3K",
+      "role": "user",
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "emailVerified": true,
+      "phoneVerified": true,
+      "phone": "79131234567"
     }
   ],
   "verificationCodes": []

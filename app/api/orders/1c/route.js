@@ -3,12 +3,14 @@ import { getCurrentUser } from '@/lib/auth';
 import { getOrdersByPhone, isCommerceMLConfigured, isDemoMode } from '@/lib/commerceml';
 import { is1CConfigured, fetch1COrders } from '@/lib/1c';
 import { readData } from '@/lib/db';
-import xlsx from 'xlsx';
+import * as XLSX from 'xlsx';
 import fs from 'fs';
 import path from 'path';
 
 const EXCHANGE_DIR = process.env.ONE_C_EXCHANGE_DIR || 'C:\\1C\\Exchange';
 const XLS_FILE = path.join(EXCHANGE_DIR, 'orders.xls');
+// Также ищем в папке проекта (для тестирования)
+const XLS_FILE_LOCAL = path.join(process.cwd(), '1c', 'orders.xls');
 
 export async function GET() {
   try {
@@ -52,9 +54,17 @@ export async function GET() {
     }
 
     // Режим 2: XLS файловый обмен (локальный)
-    if (fs.existsSync(XLS_FILE)) {
+    // Ищем сначала в папке проекта, потом в ONE_C_EXCHANGE_DIR
+    let xlsPath = null;
+    if (fs.existsSync(XLS_FILE_LOCAL)) {
+      xlsPath = XLS_FILE_LOCAL;
+    } else if (fs.existsSync(XLS_FILE)) {
+      xlsPath = XLS_FILE;
+    }
+
+    if (xlsPath) {
       try {
-        const workbook = xlsx.readFile(XLS_FILE);
+        const workbook = XLSX.readFile(xlsPath);
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
         const rows = xlsx.utils.sheet_to_json(worksheet, { header: 1 });
@@ -70,7 +80,8 @@ export async function GET() {
           total: Number(row[3] || 0),
           clientName: String(row[4] || '—'),
           clientPhone: normalizePhone(String(row[5] || '')),
-          items: parseItems(String(row[6] || '')),
+          address: String(row[6] || '—'),
+          items: parseItems(String(row[7] || '')),
           source: '1c-xls',
         }));
 
