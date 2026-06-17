@@ -11,78 +11,18 @@ const EXCHANGE_DIR = process.env.ONE_C_EXCHANGE_DIR || 'C:\\1C\\Exchange';
 const XLS_FILE = path.join(EXCHANGE_DIR, 'orders.xls');
 const JSON_FILE = path.join(process.cwd(), '1c', 'orders.json');
 
-function normalizePhone(phone) {
-  if (!phone) return '';
-  return String(phone).replace(/\D/g, '');
-}
-
-function parseItems(itemsString) {
-  if (!itemsString) return [];
-  const items = [];
-  const parts = itemsString.split(';');
-  for (const part of parts) {
-    const match = part.trim().match(/^(.+?):\s*(\d+)\s*шт\s*x\s*(\d+)\s*=\s*(\d+)$/);
-    if (match) {
-      items.push({
-        name: match[1].trim(),
-        quantity: Number(match[2]),
-        price: Number(match[3]),
-        sum: Number(match[4]),
-      });
-    }
-  }
-  return items;
-}
-
-function readXLSOrders() {
-  let xlsPath = null;
-  if (fs.existsSync(XLS_FILE_LOCAL)) {
-    xlsPath = XLS_FILE_LOCAL;
-  } else if (fs.existsSync(XLS_FILE)) {
-    xlsPath = XLS_FILE;
-  }
-  if (!xlsPath) return [];
-
-  try {
-    const workbook = XLSX.readFile(xlsPath);
-    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-    const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-    const dataRows = rows.slice(1);
-
-    const orders = dataRows.map((row, index) => ({
-      id: `1c-xls-${index}`,
-      number: String(row[0] || '—'),
-      date: row[1] ? String(row[1]) : null,
-      status: String(row[2] || 'Новый'),
-      total: Number(row[3] || 0),
-      clientName: String(row[4] || '—'),
-      clientPhone: normalizePhone(String(row[5] || '')),
-      address: String(row[6] || '—'),
-      items: parseItems(String(row[7] || '')),
-      source: '1c-xls',
-    }));
-
-    // Сохраняем в JSON для удобства
-    try {
-      fs.writeFileSync(JSON_FILE, JSON.stringify(orders, null, 2));
-    } catch (e) {
-      console.error('Failed to write JSON cache:', e);
-    }
-
-    return orders;
-  } catch (err) {
-    console.error('XLS read error:', err);
-    // Если XLS не читается, пробуем JSON
-    if (fs.existsSync(JSON_FILE)) {
-      try {
-        return JSON.parse(fs.readFileSync(JSON_FILE, 'utf-8'));
-      } catch (e) {
-        return [];
-      }
-    }
-    return [];
-  }
-}
+// Маппинг русских статусов в английские
+const STATUS_MAP = {
+  'Новый': 'new',
+  'В работе': 'processing',
+  'В обработке': 'processing',
+  'Подтверждён': 'confirmed',
+  'Отправлен': 'shipped',
+  'Выполнен': 'delivered',
+  'Доставлен': 'delivered',
+  'Отменён': 'cancelled',
+  'Отменен': 'cancelled',
+};
 
 export async function PUT(request, { params }) {
   try {
@@ -92,7 +32,12 @@ export async function PUT(request, { params }) {
     }
 
     const { id } = await params;
-    const { status } = await request.json();
+    let { status } = await request.json();
+
+    // Конвертируем русский статус в английский если нужно
+    if (STATUS_MAP[status]) {
+      status = STATUS_MAP[status];
+    }
 
     if (!ALLOWED_STATUSES.includes(status)) {
       return NextResponse.json(

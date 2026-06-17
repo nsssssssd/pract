@@ -10,6 +10,30 @@ import path from 'path';
 const XLS_FILE_LOCAL = path.join(process.cwd(), '1c', 'orders.xls');
 const EXCHANGE_DIR = process.env.ONE_C_EXCHANGE_DIR || 'C:\\1C\\Exchange';
 const XLS_FILE = path.join(EXCHANGE_DIR, 'orders.xls');
+const JSON_FILE = path.join(process.cwd(), '1c', 'orders.json');
+
+// Маппинг русских статусов в английские
+const STATUS_MAP = {
+  'Новый': 'new',
+  'В работе': 'processing',
+  'В обработке': 'processing',
+  'Подтверждён': 'confirmed',
+  'Отправлен': 'shipped',
+  'Выполнен': 'delivered',
+  'Доставлен': 'delivered',
+  'Отменён': 'cancelled',
+  'Отменен': 'cancelled',
+};
+
+// Обратный маппинг для отображения
+const REVERSE_STATUS_MAP = {
+  new: 'Новый',
+  confirmed: 'Подтверждён',
+  processing: 'В работе',
+  shipped: 'Отправлен',
+  delivered: 'Выполнен',
+  cancelled: 'Отменён',
+};
 
 function normalizePhone(phone) {
   if (!phone) return '';
@@ -49,20 +73,43 @@ function readXLSOrders() {
     const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
     const dataRows = rows.slice(1);
 
-    return dataRows.map((row, index) => ({
-      id: `1c-xls-${index}`,
-      number: String(row[0] || '—'),
-      date: row[1] ? String(row[1]) : null,
-      status: String(row[2] || 'Новый'),
-      total: Number(row[3] || 0),
-      clientName: String(row[4] || '—'),
-      clientPhone: normalizePhone(String(row[5] || '')),
-      address: String(row[6] || '—'),
-      items: parseItems(String(row[7] || '')),
-      source: '1c-xls',
-    }));
+    const orders = dataRows.map((row, index) => {
+      const rawStatus = String(row[2] || 'Новый');
+      const englishStatus = STATUS_MAP[rawStatus] || 'new';
+      
+      return {
+        id: `1c-xls-${index}`,
+        number: String(row[0] || '—'),
+        date: row[1] ? String(row[1]) : null,
+        status: englishStatus,
+        statusLabel: rawStatus,
+        total: Number(row[3] || 0),
+        clientName: String(row[4] || '—'),
+        clientPhone: normalizePhone(String(row[5] || '')),
+        address: String(row[6] || '—'),
+        items: parseItems(String(row[7] || '')),
+        source: '1c-xls',
+      };
+    });
+
+    // Сохраняем в JSON для удобства
+    try {
+      fs.writeFileSync(JSON_FILE, JSON.stringify(orders, null, 2));
+    } catch (e) {
+      console.error('Failed to write JSON cache:', e);
+    }
+
+    return orders;
   } catch (err) {
     console.error('XLS read error:', err);
+    // Если XLS не читается, пробуем JSON
+    if (fs.existsSync(JSON_FILE)) {
+      try {
+        return JSON.parse(fs.readFileSync(JSON_FILE, 'utf-8'));
+      } catch (e) {
+        return [];
+      }
+    }
     return [];
   }
 }
@@ -88,6 +135,7 @@ export async function GET() {
       number: `WEB-${String(o.id).slice(-6)}`,
       date: o.createdAt?.split('T')[0],
       status: o.status,
+      statusLabel: REVERSE_STATUS_MAP[o.status] || o.status,
       total: o.total,
       clientName: o.name,
       clientPhone: normalizePhone(o.phone),
