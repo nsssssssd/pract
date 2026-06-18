@@ -38,6 +38,7 @@ export default function HomePage({ initialProducts }) {
   const [priceMin, setPriceMin] = useState('');
   const [priceMax, setPriceMax] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
 
   const filtered = useMemo(() => {
     let result = (displayProducts || []).filter((p) => {

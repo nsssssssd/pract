@@ -1,11 +1,13 @@
 import { NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 
-const secret = process.env.JWT_SECRET;
-if (!secret) {
-  throw new Error('JWT_SECRET environment variable is required');
+function getJwtSecret() {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET environment variable is required');
+  }
+  return new TextEncoder().encode(secret);
 }
-const JWT_SECRET = new TextEncoder().encode(secret);
 
 const SECURITY_HEADERS = {
   'X-DNS-Prefetch-Control': 'on',
@@ -43,7 +45,7 @@ export async function proxy(request) {
   }
 
   try {
-    const { payload } = await jwtVerify(token, JWT_SECRET);
+    const { payload } = await jwtVerify(token, getJwtSecret());
     if (isAdmin && payload.role !== 'admin') {
       return NextResponse.redirect(new URL('/', request.url));
     }
