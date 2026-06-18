@@ -56,7 +56,7 @@ export default function HomePage({ initialProducts }) {
     if (sort === 'name_asc') result.sort((a, b) => a.name.localeCompare(b.name));
 
     return result;
-  }, [displayProducts, search, sort, colorFilter, priceMin, priceMax]);
+  }, [displayProducts, search, sort, colorFilter, priceMin, priceMax, categoryFilter]);
 
   const hasActiveFilters = search || colorFilter || priceMin || priceMax || categoryFilter;
 
