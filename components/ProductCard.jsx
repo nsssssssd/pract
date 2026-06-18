@@ -11,6 +11,7 @@ import Image from 'next/image';
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { hapticLight } from '@/lib/haptics';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
 import QuickViewModal from './QuickViewModal';
 
 export default function ProductCard({ product, index }) {
@@ -20,8 +21,10 @@ export default function ProductCard({ product, index }) {
   const isInWishlist = useWishlistStore(useCallback((s) => s.isInWishlist(product.id), [product.id]));
   const [added, setAdded] = useState(false);
   const [quickOpen, setQuickOpen] = useState(false);
+  const requireAuth = useRequireAuth();
 
   function handleAdd() {
+    if (!requireAuth('добавить товар в корзину')) return;
     addItem(product);
     hapticLight();
     setAdded(true);
@@ -84,7 +87,10 @@ export default function ProductCard({ product, index }) {
           )}
           <button
             type="button"
-            onClick={() => toggleItem(product)}
+            onClick={() => {
+              if (!requireAuth('добавить товар в избранное')) return;
+              toggleItem(product);
+            }}
             aria-label={isInWishlist ? 'Удалить из избранного' : 'Добавить в избранное'}
             className="absolute top-3 left-3 flex h-8 w-8 md:h-7 md:w-7 items-center justify-center rounded-full bg-white/80 backdrop-blur-sm shadow-sm transition-transform hover:scale-110"
           >

@@ -27,6 +27,7 @@ import Image from 'next/image';
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { hapticLight } from '@/lib/haptics';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
 
 export default function ProductPageClient({ product, relatedProducts = [] }) {
   const addItem = useCartStore((s) => s.addItem);
@@ -37,8 +38,10 @@ export default function ProductPageClient({ product, relatedProducts = [] }) {
   );
   const [added, setAdded] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const requireAuth = useRequireAuth();
 
   function handleAdd() {
+    if (!requireAuth('добавить товар в корзину')) return;
     addItem(product);
     hapticLight();
     setAdded(true);
@@ -206,7 +209,10 @@ export default function ProductPageClient({ product, relatedProducts = [] }) {
                 size="lg"
                 variant="outline"
                 className="rounded-full gap-2 h-12 md:h-11 text-base"
-                onClick={() => toggleItem(product)}
+                onClick={() => {
+                  if (!requireAuth('добавить товар в избранное')) return;
+                  toggleItem(product);
+                }}
                 aria-label={
                   isInWishlist
                     ? 'Удалить из избранного'
@@ -283,7 +289,10 @@ export default function ProductPageClient({ product, relatedProducts = [] }) {
           variant="outline"
           size="icon"
           className="rounded-full h-11 w-11"
-          onClick={() => toggleItem(product)}
+          onClick={() => {
+            if (!requireAuth('добавить товар в избранное')) return;
+            toggleItem(product);
+          }}
           aria-label={
             isInWishlist
               ? 'Удалить из избранного'

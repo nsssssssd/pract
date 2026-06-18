@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Check, Heart, ShoppingCart, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { hapticLight } from '@/lib/haptics';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -24,10 +25,12 @@ export default function QuickViewModal({ product, open, onClose }) {
   const toggleItem = useWishlistStore((s) => s.toggleItem);
   const isInWishlist = useWishlistStore((s) => s.isInWishlist(product?.id));
   const [added, setAdded] = useState(false);
+  const requireAuth = useRequireAuth();
 
   if (!product) return null;
 
   function handleAdd() {
+    if (!requireAuth('добавить товар в корзину')) return;
     addItem(product);
     hapticLight();
     setAdded(true);
@@ -109,7 +112,10 @@ export default function QuickViewModal({ product, open, onClose }) {
                 variant="outline"
                 size="icon"
                 className="rounded-full"
-                onClick={() => toggleItem(product)}
+                onClick={() => {
+                  if (!requireAuth('добавить товар в избранное')) return;
+                  toggleItem(product);
+                }}
                 aria-label={isInWishlist ? 'Удалить из избранного' : 'Добавить в избранное'}
               >
                 <Heart className={`h-4 w-4 ${isInWishlist ? 'fill-red-500 text-red-500' : ''}`} />

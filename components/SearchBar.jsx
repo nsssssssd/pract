@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Search, X, ArrowRight } from 'lucide-react';
 import { useCartStore } from '@/store/cart';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function SearchBar({ open, onClose }) {
@@ -20,6 +21,7 @@ export default function SearchBar({ open, onClose }) {
   const router = useRouter();
   const addToCart = useCartStore((s) => s.addItem);
   const openCart = useCartStore((s) => s.openCart);
+  const requireAuth = useRequireAuth();
 
   useEffect(() => {
     if (!open) return;
@@ -189,6 +191,7 @@ export default function SearchBar({ open, onClose }) {
                         variant="ghost"
                         className="rounded-full h-9 w-9 p-0"
                         onClick={() => {
+                          if (!requireAuth('добавить товар в корзину')) return;
                           addToCart(p);
                           openCart();
                         }}

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
 const VK_APP_ID = process.env.NEXT_PUBLIC_VK_APP_ID;
+const VK_REDIRECT_URI = process.env.NEXT_PUBLIC_VK_REDIRECT_URI;
 
 export default function VKLoginButton({ mode = 'login' }) {
   const router = useRouter();
@@ -100,7 +101,8 @@ export default function VKLoginButton({ mode = 'login' }) {
 
       const authUrl = new URL('https://id.vk.com/authorize');
       authUrl.searchParams.set('client_id', VK_APP_ID);
-      authUrl.searchParams.set('redirect_uri', `${window.location.origin}/login`);
+      const redirectUri = VK_REDIRECT_URI || `${window.location.origin}/login`;
+      authUrl.searchParams.set('redirect_uri', redirectUri);
       authUrl.searchParams.set('response_type', 'code');
       authUrl.searchParams.set('scope', 'profile');
       authUrl.searchParams.set('state', state);

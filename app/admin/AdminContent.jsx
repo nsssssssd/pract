@@ -179,18 +179,18 @@ export default function AdminContent() {
   return (
     <div className="container mx-auto px-4 py-8">
       <Tabs defaultValue="stats" className="space-y-6">
-        <TabsList className="w-full flex flex-wrap justify-start gap-1 h-auto p-1 bg-muted/50 rounded-xl max-sm:grid max-sm:grid-cols-5 max-sm:gap-1 max-sm:p-1">
+        <TabsList className="w-full flex flex-wrap justify-start gap-1 h-auto p-1 bg-muted/50 rounded-xl max-sm:grid max-sm:grid-cols-3 max-sm:gap-1 max-sm:p-1">
           {TAB_ITEMS.map((tab) => {
             const Icon = tab.icon;
             return (
               <TabsTrigger
                 key={tab.value}
                 value={tab.value}
-                className="flex items-center gap-1.5 px-3 py-2.5 text-xs sm:text-sm font-medium rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary transition-all max-sm:flex-col max-sm:gap-0.5 max-sm:px-1 max-sm:py-1.5 max-sm:text-[10px] max-sm:leading-tight max-sm:rounded-md"
+                className="flex items-center gap-1.5 px-3 py-2.5 text-xs sm:text-sm font-medium rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary transition-all max-sm:flex-col max-sm:gap-0.5 max-sm:px-1 max-sm:py-2 max-sm:text-[11px] max-sm:leading-tight max-sm:rounded-md text-center"
               >
                 <Icon className="h-4 w-4 max-sm:h-5 max-sm:w-5" />
                 <span className="hidden sm:inline">{tab.label}</span>
-                <span className="sm:hidden">{tab.label.slice(0, 4)}</span>
+                <span className="sm:hidden">{tab.label}</span>
               </TabsTrigger>
             );
           })}
@@ -535,6 +535,40 @@ export default function AdminContent() {
                 ))}
               </TableBody>
             </Table>
+          </div>
+
+          {/* Mobile users cards */}
+          <div className="md:hidden space-y-3">
+            {(users || []).map((u) => (
+              <Card key={u.id}>
+                <CardContent className="p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">{(u.name || '?')[0]?.toUpperCase()}</span>
+                      <div>
+                        <div className="font-medium">{u.name}</div>
+                        <div className="text-xs text-muted-foreground">{u.email || u.phone || '—'}</div>
+                      </div>
+                    </div>
+                    <Badge variant={u.role === 'admin' ? 'default' : 'secondary'}>
+                      {u.role === 'admin' ? '👑 Админ' : '🌷 Клиент'}
+                    </Badge>
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    Зарегистрирован: {new Date(u.createdAt).toLocaleDateString('ru-RU')}
+                  </div>
+                  <div className="flex gap-2 pt-1">
+                    <Button variant="outline" size="sm" className="flex-1 gap-1" onClick={() => updateUserRole(u.id, u.role === 'admin' ? 'user' : 'admin')}>
+                      <Shield className="h-4 w-4" />
+                      {u.role === 'admin' ? 'Сделать клиентом' : 'Сделать админом'}
+                    </Button>
+                    <Button variant="destructive" size="sm" className="gap-1" onClick={() => deleteUser(u.id)}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </TabsContent>
 
