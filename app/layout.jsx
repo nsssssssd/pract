@@ -5,6 +5,7 @@ import Providers from '@/components/Providers';
 import { Toaster } from '@/components/ui/sonner';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import CookieConsent from '@/components/CookieConsent';
 import YandexMetrika from '@/components/YandexMetrika';
 import RecaptchaProvider from '@/components/RecaptchaProvider';
 import Breadcrumbs from '@/components/Breadcrumbs';
@@ -126,6 +127,7 @@ export default function RootLayout({ children }) {
             <MobileCartFAB />
             <MobileBottomNav />
             <Footer />
+            <CookieConsent />
             <Toaster position="top-right" />
           </ThemeProvider>
         </Providers>

@@ -55,6 +55,8 @@ export default function Header() {
 
   async function handleLogout() {
     await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+    useCartStore.getState().clearCart();
+    useWishlistStore.getState().clearItems();
     setUser(null);
     window.dispatchEvent(new Event('auth-change'));
     router.push('/');
