@@ -9,7 +9,7 @@ export async function DELETE(request, { params }) {
       return NextResponse.json({ error: 'Доступ запрещён' }, { status: 403 });
     }
 
-    const { id } = params;
+    const { id } = await params;
     const data = readData();
     const idx = data.users.findIndex((u) => u.id === Number(id));
     if (idx === -1) {
@@ -35,7 +35,7 @@ export async function PUT(request, { params }) {
       return NextResponse.json({ error: 'Доступ запрещён' }, { status: 403 });
     }
 
-    const { id } = params;
+    const { id } = await params;
     const { role } = await request.json();
 
     if (!role || !['user', 'admin'].includes(role)) {

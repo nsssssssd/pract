@@ -90,6 +90,10 @@ export default function AdminContent() {
   }
 
   async function updateUserRole(id, role) {
+    if (user && user.id === id) {
+      toast.error('Нельзя изменить роль самому себе');
+      return;
+    }
     try {
       const res = await fetch(`/api/auth/users/${id}`, {
         method: 'PUT',
@@ -97,10 +101,13 @@ export default function AdminContent() {
         body: JSON.stringify({ role }),
         credentials: 'include',
       });
-      if (!res.ok) throw new Error('Ошибка');
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Ошибка');
       await refetchUsers();
       toast.success(role === 'admin' ? 'Роль повышена до админа' : 'Роль понижена до клиента');
-    } catch { toast.error('Ошибка изменения роли'); }
+    } catch (err) {
+      toast.error(err.message || 'Ошибка изменения роли');
+    }
   }
 
   async function saveProduct(e) {
