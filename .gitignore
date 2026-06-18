@@ -39,6 +39,10 @@ yarn-error.log*
 # vercel
 .vercel
 
+# deploy artifacts
+deploy_output.txt
+.playwright-mcp/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
