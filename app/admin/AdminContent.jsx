@@ -179,17 +179,17 @@ export default function AdminContent() {
   return (
     <div className="container mx-auto px-4 py-8">
       <Tabs defaultValue="stats" className="space-y-6">
-        <TabsList className="w-full grid grid-cols-3 sm:grid-cols-5 gap-1.5 p-1.5 bg-muted rounded-xl">
+        <TabsList className="w-full flex flex-wrap justify-start gap-2 h-auto p-2 bg-muted rounded-xl mb-2">
           {TAB_ITEMS.map((tab) => {
             const Icon = tab.icon;
             return (
               <TabsTrigger
                 key={tab.value}
                 value={tab.value}
-                className="flex items-center justify-center gap-1.5 px-2 py-2.5 text-xs sm:text-sm font-medium rounded-lg bg-card text-muted-foreground hover:bg-background/80 data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary transition-all flex-col sm:flex-row sm:gap-1.5 gap-0.5 text-center"
+                className="flex items-center gap-1.5 px-3 py-2.5 text-xs sm:text-sm font-medium rounded-lg bg-card text-muted-foreground hover:bg-background/80 data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary transition-all"
               >
-                <Icon className="h-4 w-4 sm:h-4 sm:w-4" />
-                <span className="text-[11px] sm:text-xs leading-tight">{tab.label}</span>
+                <Icon className="h-4 w-4" />
+                <span>{tab.label}</span>
               </TabsTrigger>
             );
           })}
