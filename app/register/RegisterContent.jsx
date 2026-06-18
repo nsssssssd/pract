@@ -332,7 +332,7 @@ export default function RegisterContent() {
                   />
                   <Button
                     type="submit"
-                    className="w-full"
+                    className="w-full h-12 text-sm sm:text-base whitespace-normal break-words py-2 px-4 leading-tight"
                     disabled={loading || !recaptchaToken}
                   >
                     {loading ? (
@@ -384,7 +384,7 @@ export default function RegisterContent() {
 
                   <Button
                     type="submit"
-                    className="w-full"
+                    className="w-full h-12 text-sm sm:text-base whitespace-normal break-words py-2 px-4 leading-tight"
                     disabled={loading || code.length !== 6}
                   >
                     {loading ? (

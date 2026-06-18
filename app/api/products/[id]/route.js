@@ -31,7 +31,7 @@ export async function PUT(request, { params }) {
     }
 
     const body = await request.json();
-    const allowed = ['name', 'description', 'price', 'unit', 'emoji', 'color', 'image', 'available'];
+    const allowed = ['name', 'description', 'price', 'unit', 'emoji', 'color', 'image', 'available', 'category'];
     const update = {};
     for (const key of allowed) {
       if (body[key] !== undefined) update[key] = body[key];

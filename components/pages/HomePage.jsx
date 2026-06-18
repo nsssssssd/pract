@@ -7,6 +7,13 @@ import { Input } from '@/components/ui/input';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
 import FAQSection from '@/components/FAQSection';
 
+const CATEGORIES = [
+  { value: '', label: 'Все', icon: '🌷' },
+  { value: 'flower', label: 'Цветы', icon: '🌷' },
+  { value: 'card', label: 'Открытки', icon: '💌' },
+  { value: 'toy', label: 'Игрушки', icon: '🧸' },
+];
+
 const SORT_OPTIONS = [
   { value: 'default', label: 'По умолчанию' },
   { value: 'price_asc', label: 'Цена ↑' },
@@ -30,7 +37,7 @@ export default function HomePage({ initialProducts }) {
   const [colorFilter, setColorFilter] = useState('');
   const [priceMin, setPriceMin] = useState('');
   const [priceMax, setPriceMax] = useState('');
-  const [showFilters, setShowFilters] = useState(false);
+  const [categoryFilter, setCategoryFilter] = useState('');
 
   const filtered = useMemo(() => {
     let result = (displayProducts || []).filter((p) => {
@@ -39,7 +46,8 @@ export default function HomePage({ initialProducts }) {
       const matchColor = !colorFilter || p.color === colorFilter;
       const matchPriceMin = !priceMin || p.price >= Number(priceMin);
       const matchPriceMax = !priceMax || p.price <= Number(priceMax);
-      return matchSearch && matchColor && matchPriceMin && matchPriceMax;
+      const matchCategory = !categoryFilter || p.category === categoryFilter || (!p.category && categoryFilter === 'flower');
+      return matchSearch && matchColor && matchPriceMin && matchPriceMax && matchCategory;
     });
 
     if (sort === 'price_asc') result.sort((a, b) => a.price - b.price);
@@ -49,7 +57,7 @@ export default function HomePage({ initialProducts }) {
     return result;
   }, [displayProducts, search, sort, colorFilter, priceMin, priceMax]);
 
-  const hasActiveFilters = search || colorFilter || priceMin || priceMax;
+  const hasActiveFilters = search || colorFilter || priceMin || priceMax || categoryFilter;
 
   function clearFilters() {
     setSearch('');
@@ -57,6 +65,7 @@ export default function HomePage({ initialProducts }) {
     setPriceMin('');
     setPriceMax('');
     setSort('default');
+    setCategoryFilter('');
   }
 
   return (
@@ -141,6 +150,24 @@ export default function HomePage({ initialProducts }) {
             </div>
           </div>
 
+          {/* Category tabs */}
+          <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-hide">
+            {CATEGORIES.map((cat) => (
+              <button
+                key={cat.value}
+                onClick={() => setCategoryFilter(cat.value === categoryFilter ? '' : cat.value)}
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                  categoryFilter === cat.value
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted hover:bg-accent'
+                }`}
+              >
+                <span>{cat.icon}</span>
+                {cat.label}
+              </button>
+            ))}
+          </div>
+
           {/* Search */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -207,7 +234,7 @@ export default function HomePage({ initialProducts }) {
           )}
 
           <div className="text-sm text-muted-foreground">
-            Найдено: {filtered.length} товаров
+            Найдено: {filtered.length} {categoryFilter === 'card' ? 'открыток' : categoryFilter === 'toy' ? 'игрушек' : 'товаров'}
           </div>
         </div>
 

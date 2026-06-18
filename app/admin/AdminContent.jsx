@@ -38,7 +38,7 @@ const TAB_ITEMS = [
 export default function AdminContent() {
   const router = useRouter();
   const [user, setUser] = useState(null);
-  const [productForm, setProductForm] = useState({ name: '', description: '', price: '', unit: 'шт', emoji: '🌷', color: '#F4A7B9', image: null });
+  const [productForm, setProductForm] = useState({ name: '', description: '', price: '', unit: 'шт', emoji: '🌷', color: '#F4A7B9', image: null, category: 'flower' });
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [editingProduct, setEditingProduct] = useState(null);
@@ -139,7 +139,7 @@ export default function AdminContent() {
       }
       setShowProductForm(false);
       setEditingProduct(null);
-      setProductForm({ name: '', description: '', price: '', unit: 'шт', emoji: '🌷', color: '#F4A7B9', image: null });
+      setProductForm({ name: '', description: '', price: '', unit: 'шт', emoji: '🌷', color: '#F4A7B9', image: null, category: 'flower' });
       setImageFile(null);
       setImagePreview(null);
     } catch (err) {
@@ -157,7 +157,7 @@ export default function AdminContent() {
 
   function startEdit(p) {
     setEditingProduct(p);
-    setProductForm({ name: p.name, description: p.description, price: p.price, unit: p.unit, emoji: p.emoji, color: p.color, image: p.image || null });
+    setProductForm({ name: p.name, description: p.description, price: p.price, unit: p.unit, emoji: p.emoji, color: p.color, image: p.image || null, category: p.category || 'flower' });
     setImageFile(null);
     setImagePreview(p.image || null);
     setShowProductForm(true);
@@ -363,7 +363,7 @@ export default function AdminContent() {
               <DialogTrigger asChild>
                 <Button size="sm" className="gap-1" onClick={() => {
                   setEditingProduct(null);
-                  setProductForm({ name: '', description: '', price: '', unit: 'шт', emoji: '🌷', color: '#F4A7B9', image: null });
+                  setProductForm({ name: '', description: '', price: '', unit: 'шт', emoji: '🌷', color: '#F4A7B9', image: null, category: 'flower' });
                   setImageFile(null); setImagePreview(null);
                 }}>
                   <Plus className="h-4 w-4" /> Добавить
@@ -390,6 +390,17 @@ export default function AdminContent() {
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div className="space-y-2">
+                      <Label>Категория</Label>
+                      <Select value={productForm.category} onValueChange={(v) => setProductForm((f) => ({ ...f, category: v }))}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="flower">Цветы</SelectItem>
+                          <SelectItem value="card">Открытки</SelectItem>
+                          <SelectItem value="toy">Мягкие игрушки</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
                       <Label>Единица</Label>
                       <Select value={productForm.unit} onValueChange={(v) => setProductForm((f) => ({ ...f, unit: v }))}>
                         <SelectTrigger><SelectValue /></SelectTrigger>
@@ -403,12 +414,12 @@ export default function AdminContent() {
                       <Label>Эмодзи</Label>
                       <Input value={productForm.emoji} onChange={(e) => setProductForm((f) => ({ ...f, emoji: e.target.value }))} />
                     </div>
-                    <div className="space-y-2">
-                      <Label>Цвет</Label>
-                      <div className="flex items-center gap-2">
-                        <input type="color" value={productForm.color} onChange={(e) => setProductForm((f) => ({ ...f, color: e.target.value }))} className="h-9 w-9 rounded border" />
-                        <span className="text-xs text-muted-foreground">{productForm.color}</span>
-                      </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Цвет фона</Label>
+                    <div className="flex items-center gap-2">
+                      <input type="color" value={productForm.color} onChange={(e) => setProductForm((f) => ({ ...f, color: e.target.value }))} className="h-9 w-9 rounded border" />
+                      <span className="text-xs text-muted-foreground">{productForm.color}</span>
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -453,6 +464,9 @@ export default function AdminContent() {
                 <CardContent className="p-4">
                   <div className="font-medium">{p.name}</div>
                   <div className="text-sm text-muted-foreground">{p.price} ₽ / {p.unit}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">
+                    {p.category === 'card' ? 'Открытка' : p.category === 'toy' ? 'Игрушка' : 'Цветы'}
+                  </div>
                   <div className="flex gap-2 mt-3">
                     <Button variant="outline" size="sm" className="gap-1" onClick={() => startEdit(p)}>
                       <Pencil className="h-3 w-3" /> Изменить

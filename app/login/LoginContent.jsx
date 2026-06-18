@@ -256,7 +256,7 @@ export default function LoginContent() {
                   />
                   <Button
                     type="submit"
-                    className="w-full"
+                    className="w-full h-12 text-sm sm:text-base whitespace-normal break-words py-2 px-4 leading-tight"
                     disabled={loading || !recaptchaToken}
                   >
                     {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Отправляем...</> : 'Получить код'}
@@ -305,7 +305,7 @@ export default function LoginContent() {
                   />
                   <Button
                     type="submit"
-                    className="w-full"
+                    className="w-full h-12 text-sm sm:text-base whitespace-normal break-words py-2 px-4 leading-tight"
                     disabled={loading || code.length !== 6 || !recaptchaToken}
                   >
                     {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Входим...</> : 'Войти'}

@@ -18,7 +18,7 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Нет доступа' }, { status: 403 });
     }
 
-    const { name, description, price, unit, emoji, color, image } = await request.json();
+    const { name, description, price, unit, emoji, color, image, category } = await request.json();
     if (!name || !price) {
       return NextResponse.json({ error: 'Название и цена обязательны' }, { status: 400 });
     }
@@ -33,6 +33,7 @@ export async function POST(request) {
       emoji: emoji || '🌷',
       color: color || '#F4A7B9',
       image: image || null,
+      category: category || 'flower',
       available: true,
     };
     data.products.push(product);

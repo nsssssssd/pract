@@ -149,6 +149,7 @@ export default function Cart() {
     <Sheet open={isOpen} onOpenChange={closeCart}>
       <SheetContent
         side={sheetSide}
+        showCloseButton={false}
         className={`w-full flex flex-col ${
           sheetSide === 'bottom' ? 'h-[92vh] rounded-t-3xl px-0 py-0' : 'sm:max-w-lg px-6 py-6'
         }`}
