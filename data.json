@@ -9,6 +9,7 @@
       "emoji": "🌷",
       "color": "#E8506A",
       "image": "/uploads/product_1779132310423.jpg",
+      "category": "flower",
       "available": true
     },
     {
@@ -20,6 +21,7 @@
       "emoji": "🌸",
       "color": "#F4A7B9",
       "image": "/uploads/product_1779197845841.png",
+      "category": "flower",
       "available": true
     },
     {
@@ -31,6 +33,7 @@
       "emoji": "🤍",
       "color": "#F5F0EB",
       "image": "/uploads/product_1779197850741.png",
+      "category": "flower",
       "available": true
     },
     {
@@ -42,6 +45,7 @@
       "emoji": "💛",
       "color": "#F9D56E",
       "image": "/uploads/product_1779197855556.png",
+      "category": "flower",
       "available": true
     },
     {
@@ -53,6 +57,7 @@
       "emoji": "💐",
       "color": "#C8E6C9",
       "image": "/uploads/product_1779197862074.png",
+      "category": "flower",
       "available": true
     },
     {
@@ -64,6 +69,55 @@
       "emoji": "🌺",
       "color": "#F8BBD0",
       "image": "/uploads/product_1779197866187.png",
+      "category": "flower",
+      "available": true
+    },
+    {
+      "id": 7,
+      "name": "Открытка «С любовью»",
+      "description": "Авторская открытка с тиснением и конвертом",
+      "price": 190,
+      "unit": "шт",
+      "emoji": "💌",
+      "color": "#FCE4EC",
+      "image": null,
+      "category": "card",
+      "available": true
+    },
+    {
+      "id": 8,
+      "name": "Открытка «Спасибо»",
+      "description": "Нежная открытка с золотым текстом",
+      "price": 170,
+      "unit": "шт",
+      "emoji": "💐",
+      "color": "#FFF8E1",
+      "image": null,
+      "category": "card",
+      "available": true
+    },
+    {
+      "id": 9,
+      "name": "Мишка Тедди",
+      "description": "Мягкий плюшевый мишка 30 см",
+      "price": 1290,
+      "unit": "шт",
+      "emoji": "🧸",
+      "color": "#D7CCC8",
+      "image": null,
+      "category": "toy",
+      "available": true
+    },
+    {
+      "id": 10,
+      "name": "Кролик Бонни",
+      "description": "Пушистый кролик с бантиком 25 см",
+      "price": 990,
+      "unit": "шт",
+      "emoji": "🐰",
+      "color": "#F8BBD0",
+      "image": null,
+      "category": "toy",
       "available": true
     }
   ],

@@ -60,29 +60,56 @@ git reset --hard origin/{BRANCH}
 git status
 """, f'Pull latest origin/{BRANCH}')
 
-        # 3. Restore runtime data.json (contains live orders/users)
+        # 3. Merge runtime data.json with repository defaults
         sftp = client.open_sftp()
         backup_path = '/tmp/pract-deploy-backup/data.json.runtime'
         try:
+            # Read runtime backup
             with sftp.file(backup_path, 'r') as f:
-                runtime_data = f.read().decode('utf-8', errors='replace')
+                runtime_raw = f.read().decode('utf-8', errors='replace')
 
             # Resolve possible leftover git stash conflict markers by keeping the
             # "Stashed changes" section (the live runtime version).
-            resolved = re.sub(
+            runtime_raw = re.sub(
                 r'<<<<<<< Updated upstream\n.*?=======\n(.*?)>>>>>>> Stashed changes',
                 r'\1',
-                runtime_data,
+                runtime_raw,
                 flags=re.DOTALL
             )
+            runtime = json.loads(runtime_raw)
 
-            json.loads(resolved)  # validate
+            # Read repository data.json (just reset to origin branch)
+            with sftp.file(f'{REMOTE_DIR}/data.json', 'r') as f:
+                repo = json.loads(f.read().decode('utf-8', errors='replace'))
+
+            # Merge products:
+            # - keep runtime products as-is (preserves live edits)
+            # - add products from repo that don't exist in runtime (new demo items)
+            # - assign default category='flower' to old runtime products without category
+            runtime_products = {p['id']: p for p in runtime.get('products', [])}
+            repo_products = {p['id']: p for p in repo.get('products', [])}
+
+            for p in runtime_products.values():
+                if not p.get('category'):
+                    p['category'] = 'flower'
+
+            for pid, p in repo_products.items():
+                if pid not in runtime_products:
+                    runtime_products[pid] = p
+
+            runtime['products'] = list(runtime_products.values())
+
+            # Ensure top-level sections exist
+            for key in ['orders', 'users', 'verificationCodes']:
+                if key not in runtime:
+                    runtime[key] = []
 
             with sftp.file(f'{REMOTE_DIR}/data.json', 'w') as f:
-                f.write(resolved.encode('utf-8'))
-            log('Restored runtime data.json (conflict markers resolved if any)')
+                f.write(json.dumps(runtime, ensure_ascii=False, indent=2).encode('utf-8'))
+
+            log(f'Merged data.json: {len(runtime["products"])} products, {len(runtime["orders"])} orders, {len(runtime["users"])} users')
         except Exception as e:
-            log(f'WARNING: could not restore runtime data.json: {e}')
+            log(f'WARNING: could not merge runtime data.json: {e}')
             log('Using repository data.json')
         finally:
             sftp.close()
