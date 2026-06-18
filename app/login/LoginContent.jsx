@@ -67,17 +67,17 @@ export default function LoginContent() {
       if (!res.ok) throw new Error(data.error);
       toast.success('Добро пожаловать!');
       window.dispatchEvent(new Event('auth-change'));
-      // На мобильных редиректим в профиль, на десктопе — на главную
+      // На мобильных принудительно перезагружаем страницу, чтобы форма логина не зависала
       const isMobile = window.innerWidth < 768;
       if (isMobile && data.user.role !== 'admin') {
         window.location.href = '/profile';
-      } else {
-        router.push(data.user.role === 'admin' ? '/admin' : '/');
+        return;
       }
+      router.push(data.user.role === 'admin' ? '/admin' : '/');
     } catch (err) {
       setError(err.message);
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   async function handleSendPhoneCode() {
@@ -138,17 +138,17 @@ export default function LoginContent() {
 
       toast.success('Добро пожаловать!');
       window.dispatchEvent(new Event('auth-change'));
-      // На мобильных редиректим в профиль, на десктопе — на главную
+      // На мобильных принудительно перезагружаем страницу, чтобы форма логина не зависала
       const isMobile = window.innerWidth < 768;
       if (isMobile && data.user.role !== 'admin') {
         window.location.href = '/profile';
-      } else {
-        router.push(data.user.role === 'admin' ? '/admin' : '/');
+        return;
       }
+      router.push(data.user.role === 'admin' ? '/admin' : '/');
     } catch (err) {
       setError(err.message);
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   return (

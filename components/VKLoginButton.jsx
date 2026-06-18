@@ -58,7 +58,13 @@ export default function VKLoginButton({ mode = 'login' }) {
 
       toast.success(mode === 'register' ? 'Аккаунт создан!' : 'Добро пожаловать!');
       window.dispatchEvent(new Event('auth-change'));
-      router.push(data.user.role === 'admin' ? '/admin' : '/');
+      const isMobile = window.innerWidth < 768;
+      const target = data.user.role === 'admin' ? '/admin' : '/';
+      if (isMobile && data.user.role !== 'admin') {
+        window.location.href = '/profile';
+      } else {
+        router.push(target);
+      }
     } catch (err) {
       toast.error(err.message || 'Ошибка входа через VK');
     }
