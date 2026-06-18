@@ -29,10 +29,17 @@ function loadRecaptchaScript() {
   return scriptPromise;
 }
 
-export default function RecaptchaCheckbox({ onVerify, onExpire, theme = 'light', size = 'normal' }) {
+function getRecaptchaSize() {
+  if (typeof window === 'undefined') return 'normal';
+  // Compact checkbox fits screens down to ~320px
+  return window.innerWidth < 360 ? 'compact' : 'normal';
+}
+
+export default function RecaptchaCheckbox({ onVerify, onExpire, theme = 'light' }) {
   const containerRef = useRef(null);
   const widgetIdRef = useRef(null);
   const [error, setError] = useState('');
+  const [size, setSize] = useState(getRecaptchaSize);
 
   // Stabilize callbacks with refs to avoid effect re-runs
   const onVerifyRef = useRef(onVerify);
@@ -41,6 +48,15 @@ export default function RecaptchaCheckbox({ onVerify, onExpire, theme = 'light',
     onVerifyRef.current = onVerify;
     onExpireRef.current = onExpire;
   });
+
+  // Track viewport size to switch between normal/compact reCAPTCHA
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const handleResize = () => setSize(getRecaptchaSize());
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     if (!SITE_KEY) {
@@ -113,15 +129,24 @@ export default function RecaptchaCheckbox({ onVerify, onExpire, theme = 'light',
       }
       widgetIdRef.current = null;
     };
-  }, [theme, size]); // Only re-run when theme/size changes
+  }, [theme, size]); // Re-render widget when theme or size changes
 
   if (!SITE_KEY) {
     return null;
   }
 
   return (
-    <div className="flex flex-col items-center gap-2">
-      <div ref={containerRef} className="min-h-[78px]" />
+    <div className="flex flex-col items-center gap-2 w-full">
+      <div className="w-full flex justify-center overflow-hidden">
+        <div
+          ref={containerRef}
+          className="min-h-[78px] flex justify-center"
+          style={{
+            transform: size === 'compact' && typeof window !== 'undefined' && window.innerWidth < 340 ? 'scale(0.92)' : undefined,
+            transformOrigin: 'center top',
+          }}
+        />
+      </div>
       {error && (
         <p className="text-xs text-destructive text-center">{error}</p>
       )}
