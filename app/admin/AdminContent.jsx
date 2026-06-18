@@ -72,7 +72,7 @@ export default function AdminContent() {
   async function deleteProduct(id) {
     if (!confirm('Удалить товар?')) return;
     try {
-      const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/products/${id}`, { method: 'DELETE', credentials: 'include' });
       if (!res.ok) throw new Error('Ошибка');
       await refetchProducts();
       toast.success('Товар удалён');
@@ -82,7 +82,7 @@ export default function AdminContent() {
   async function deleteUser(id) {
     if (!confirm('Удалить пользователя?')) return;
     try {
-      const res = await fetch(`/api/auth/users/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/auth/users/${id}`, { method: 'DELETE', credentials: 'include' });
       if (!res.ok) throw new Error('Ошибка');
       await refetchUsers();
       toast.success('Пользователь удалён');
@@ -95,6 +95,7 @@ export default function AdminContent() {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ role }),
+        credentials: 'include',
       });
       if (!res.ok) throw new Error('Ошибка');
       await refetchUsers();
@@ -110,7 +111,8 @@ export default function AdminContent() {
       if (imageFile) {
         const fd = new FormData();
         fd.append('image', imageFile);
-        const res = await fetch('/api/upload', { method: 'POST', body: fd });
+        const res = await fetch('/api/upload', { method: 'POST', body: fd, credentials: 'include' });
+        if (res.status === 413) throw new Error('Файл слишком большой. Максимум 20 МБ');
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Ошибка загрузки фото');
         imageUrl = data.url;
@@ -121,6 +123,7 @@ export default function AdminContent() {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
+          credentials: 'include',
         });
         const updated = await res.json();
         if (!res.ok) throw new Error(updated.error);
@@ -131,6 +134,7 @@ export default function AdminContent() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
+          credentials: 'include',
         });
         const created = await res.json();
         if (!res.ok) throw new Error(created.error);
