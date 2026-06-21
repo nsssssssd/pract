@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth';
-import { readData, writeData } from '@/lib/db';
+import { readData, writeData, clearDataCache } from '@/lib/db';
 import { writeFile, mkdir, readdir, unlink, stat } from 'fs/promises';
 import path from 'path';
 
@@ -227,6 +227,7 @@ export async function POST(request) {
     }
 
     await writeData(data);
+    clearDataCache();
 
     return NextResponse.json({
       success: true,

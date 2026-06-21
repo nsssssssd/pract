@@ -1,4 +1,4 @@
-import { readData, writeData } from '@/lib/db';
+import { readData, writeData, clearDataCache } from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth';
 import { NextResponse } from 'next/server';
 import * as XLSX from 'xlsx';
@@ -90,6 +90,7 @@ export async function PUT(request, { params }) {
 
     order.status = status;
     await writeData(data);
+    clearDataCache();
     return NextResponse.json(order);
   } catch (err) {
     console.error('Status update error:', err);

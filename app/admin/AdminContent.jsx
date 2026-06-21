@@ -65,6 +65,7 @@ export default function AdminContent() {
       });
       if (!res.ok) throw new Error('Ошибка');
       await refetchOrders();
+      await refetchStats();
       toast.success('Статус обновлён');
     } catch { toast.error('Ошибка обновления статуса'); }
   }
@@ -95,6 +96,7 @@ export default function AdminContent() {
       const res = await fetch(`/api/orders/${id}`, { method: 'DELETE', credentials: 'include' });
       if (!res.ok) throw new Error('Ошибка');
       await refetchOrders();
+      await refetchStats();
       toast.success('Заказ удалён');
     } catch { toast.error('Ошибка удаления заказа'); }
   }
@@ -637,6 +639,8 @@ function ImportTab() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Ошибка импорта');
       setOrdersResult(data);
+      await refetchOrders();
+      await refetchStats();
       toast.success(`Импортировано ${data.imported} заказов`);
       setOrdersFile(null);
     } catch (err) {

@@ -1,4 +1,4 @@
-import { readData, writeData } from '@/lib/db';
+import { readData, writeData, clearDataCache } from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth';
 import { NextResponse } from 'next/server';
 import fs from 'fs';
@@ -48,6 +48,7 @@ export async function DELETE(request, { params }) {
 
     data.orders.splice(orderIndex, 1);
     await writeData(data);
+    clearDataCache();
 
     return NextResponse.json({ success: true });
   } catch (err) {
