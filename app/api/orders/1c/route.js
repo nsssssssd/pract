@@ -67,7 +67,7 @@ export async function GET() {
     if (jsonPath) {
       try {
         const raw = fs.readFileSync(jsonPath, 'utf-8');
-        const parsed = JSON.parse(raw);
+        const parsed = JSON.parse(stripBOM(raw));
         const allOrders = (parsed.orders || []).map((order, index) => ({
           id: `1c-json-${index}`,
           number: String(order.number || '—'),
@@ -187,6 +187,10 @@ export async function GET() {
 function normalizePhone(phone) {
   if (!phone) return '';
   return String(phone).replace(/\D/g, '');
+}
+
+function stripBOM(str) {
+  return str.replace(/^\uFEFF/, '');
 }
 
 function formatExcelDate(value) {

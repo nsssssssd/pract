@@ -89,6 +89,16 @@ export default function AdminContent() {
     } catch { toast.error('Ошибка удаления'); }
   }
 
+  async function deleteOrder(id) {
+    if (!confirm('Удалить заказ?')) return;
+    try {
+      const res = await fetch(`/api/orders/${id}`, { method: 'DELETE', credentials: 'include' });
+      if (!res.ok) throw new Error('Ошибка');
+      await refetchOrders();
+      toast.success('Заказ удалён');
+    } catch { toast.error('Ошибка удаления заказа'); }
+  }
+
   async function updateUserRole(id, role) {
     if (user && user.id === id) {
       toast.error('Нельзя изменить роль самому себе');
@@ -282,6 +292,7 @@ export default function AdminContent() {
                       <TableHead>Статус</TableHead>
                       <TableHead>Дата</TableHead>
                       <TableHead>Источник</TableHead>
+                      <TableHead className="w-16">Действия</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -321,6 +332,17 @@ export default function AdminContent() {
                             {SOURCE_LABELS[o.source] || o.source}
                           </Badge>
                         </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                            onClick={() => deleteOrder(o.id)}
+                            title="Удалить заказ"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -355,8 +377,19 @@ export default function AdminContent() {
                         </Select>
                         <span className="font-semibold">{o.total.toLocaleString('ru-RU')} ₽</span>
                       </div>
-                      <div className="text-xs text-muted-foreground">
-                        {o.date ? new Date(o.date).toLocaleDateString('ru-RU') : o.createdAt ? new Date(o.createdAt).toLocaleDateString('ru-RU') : '—'}
+                      <div className="flex justify-between items-center pt-1">
+                        <div className="text-xs text-muted-foreground">
+                          {o.date ? new Date(o.date).toLocaleDateString('ru-RU') : o.createdAt ? new Date(o.createdAt).toLocaleDateString('ru-RU') : '—'}
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                          onClick={() => deleteOrder(o.id)}
+                          title="Удалить заказ"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>

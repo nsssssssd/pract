@@ -42,6 +42,10 @@ function normalizePhone(phone) {
   return String(phone).replace(/\D/g, '');
 }
 
+function stripBOM(str) {
+  return str.replace(/^\uFEFF/, '');
+}
+
 function parseItems(itemsString) {
   if (!itemsString) return [];
   const items = [];
@@ -71,7 +75,7 @@ function readJSONOrders() {
 
   try {
     const raw = fs.readFileSync(jsonPath, 'utf-8');
-    const parsed = JSON.parse(raw);
+    const parsed = JSON.parse(stripBOM(raw));
     const orders = (parsed.orders || []).map((order, index) => {
       const rawStatus = String(order.status || 'Новый');
       const englishStatus = STATUS_MAP[rawStatus] || 'new';
