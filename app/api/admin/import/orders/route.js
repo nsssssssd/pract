@@ -8,6 +8,41 @@ const ALLOWED_EXTS = ['.json'];
 const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
 const MAX_FILES = 10;
 
+const STATUS_MAP = {
+  'Новый': 'new',
+  'В работе': 'processing',
+  'В обработке': 'processing',
+  'Подтверждён': 'confirmed',
+  'Отправлен': 'shipped',
+  'Выполнен': 'delivered',
+  'Доставлен': 'delivered',
+  'Отменён': 'cancelled',
+  'Отменен': 'cancelled',
+};
+
+function normalizeOrder(raw) {
+  const order = { ...raw };
+
+  // Поддерживаем имена полей из 1С (clientName/clientPhone) и сайта (name/phone)
+  order.name = order.name || order.clientName;
+  order.phone = order.phone || order.clientPhone;
+
+  // Нормализуем товары: qty / quantity
+  if (Array.isArray(order.items)) {
+    order.items = order.items.map((item) => ({
+      ...item,
+      name: item.name,
+      price: item.price,
+      qty: item.qty ?? item.quantity,
+    }));
+  }
+
+  // Переводим русский статус в английский
+  order.status = STATUS_MAP[order.status] || order.status || 'new';
+
+  return order;
+}
+
 function sanitizeFilename(name) {
   return name.replace(/[^a-zA-Z0-9а-яА-Я._-]/g, '_').replace(/_{2,}/g, '_');
 }
@@ -127,8 +162,13 @@ export async function POST(request) {
       );
     }
 
-    // Normalize to array
-    const orders = Array.isArray(ordersData) ? ordersData : [ordersData];
+    // Normalize to array (support both plain array and { orders: [...] } wrapper)
+    const rawOrders = Array.isArray(ordersData)
+      ? ordersData
+      : ordersData?.orders && Array.isArray(ordersData.orders)
+        ? ordersData.orders
+        : [ordersData];
+    const orders = rawOrders.map(normalizeOrder);
 
     if (orders.length === 0) {
       return NextResponse.json(

@@ -7,9 +7,11 @@ import path from 'path';
 
 const ALLOWED_STATUSES = ['new', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
 const XLS_FILE_LOCAL = path.join(process.cwd(), '1c', 'orders.xls');
+const JSON_FILE_LOCAL = path.join(process.cwd(), '1c', 'orders.json');
 const EXCHANGE_DIR = process.env.ONE_C_EXCHANGE_DIR || 'C:\\1C\\Exchange';
 const XLS_FILE = path.join(EXCHANGE_DIR, 'orders.xls');
-const JSON_FILE = path.join(process.cwd(), '1c', 'orders.json');
+const JSON_FILE = path.join(EXCHANGE_DIR, 'orders.json');
+const JSON_CACHE_FILE = path.join(process.cwd(), '1c', 'orders.cache.json');
 
 // Маппинг русских статусов в английские
 const STATUS_MAP = {
@@ -56,24 +58,27 @@ export async function PUT(request, { params }) {
       );
     }
 
-    // Если ID строковый (1С заказ), обновляем в JSON файле
-    if (String(id).startsWith('1c-xls-')) {
-      if (!fs.existsSync(JSON_FILE)) {
+    // Если ID строковый (1С заказ), обновляем в кеше JSON
+    if (String(id).startsWith('1c-xls-') || String(id).startsWith('1c-json-')) {
+      if (!fs.existsSync(JSON_CACHE_FILE)) {
         return NextResponse.json({ error: 'Заказ 1С не найден' }, { status: 404 });
       }
-      
-      const xlsOrders = JSON.parse(fs.readFileSync(JSON_FILE, 'utf-8'));
-      const orderIndex = xlsOrders.findIndex((o) => o.id === id);
-      
+
+      const externalOrders = JSON.parse(fs.readFileSync(JSON_CACHE_FILE, 'utf-8'));
+      if (!Array.isArray(externalOrders)) {
+        return NextResponse.json({ error: 'Кеш 1С повреждён' }, { status: 500 });
+      }
+
+      const orderIndex = externalOrders.findIndex((o) => o.id === id);
       if (orderIndex === -1) {
         return NextResponse.json({ error: 'Заказ не найден' }, { status: 404 });
       }
 
-      xlsOrders[orderIndex].status = status;
-      xlsOrders[orderIndex].statusLabel = REVERSE_STATUS_MAP[status] || status;
-      fs.writeFileSync(JSON_FILE, JSON.stringify(xlsOrders, null, 2));
-      
-      return NextResponse.json(xlsOrders[orderIndex]);
+      externalOrders[orderIndex].status = status;
+      externalOrders[orderIndex].statusLabel = REVERSE_STATUS_MAP[status] || status;
+      fs.writeFileSync(JSON_CACHE_FILE, JSON.stringify(externalOrders, null, 2));
+
+      return NextResponse.json(externalOrders[orderIndex]);
     }
 
     // Обычный заказ из data.json

@@ -6,9 +6,22 @@ import fs from 'fs';
 import path from 'path';
 
 const XLS_FILE_LOCAL = path.join(process.cwd(), '1c', 'orders.xls');
+const JSON_FILE_LOCAL = path.join(process.cwd(), '1c', 'orders.json');
 const EXCHANGE_DIR = process.env.ONE_C_EXCHANGE_DIR || 'C:\\1C\\Exchange';
 const XLS_FILE = path.join(EXCHANGE_DIR, 'orders.xls');
-const JSON_FILE = path.join(process.cwd(), '1c', 'orders.json');
+const JSON_FILE = path.join(EXCHANGE_DIR, 'orders.json');
+
+const STATUS_MAP = {
+  'Новый': 'new',
+  'В работе': 'processing',
+  'В обработке': 'processing',
+  'Подтверждён': 'confirmed',
+  'Отправлен': 'shipped',
+  'Выполнен': 'delivered',
+  'Доставлен': 'delivered',
+  'Отменён': 'cancelled',
+  'Отменен': 'cancelled',
+};
 
 function normalizePhone(phone) {
   if (!phone) return '';
@@ -52,7 +65,7 @@ function readXLSOrders() {
       id: `1c-xls-${index}`,
       number: String(row[0] || '—'),
       date: row[1] ? String(row[1]) : null,
-      status: String(row[2] || 'Новый'),
+      status: STATUS_MAP[String(row[2] || 'Новый')] || 'new',
       total: Number(row[3] || 0),
       clientName: String(row[4] || '—'),
       clientPhone: normalizePhone(String(row[5] || '')),
@@ -67,10 +80,43 @@ function readXLSOrders() {
 }
 
 function readJSONOrders() {
-  if (!fs.existsSync(JSON_FILE)) return [];
+  let jsonPath = null;
+  if (fs.existsSync(JSON_FILE_LOCAL)) {
+    jsonPath = JSON_FILE_LOCAL;
+  } else if (fs.existsSync(JSON_FILE)) {
+    jsonPath = JSON_FILE;
+  }
+  if (!jsonPath) return [];
+
   try {
-    return JSON.parse(fs.readFileSync(JSON_FILE, 'utf-8'));
-  } catch {
+    const raw = fs.readFileSync(jsonPath, 'utf-8');
+    const parsed = JSON.parse(raw);
+
+    return (parsed.orders || []).map((order, index) => {
+      const rawStatus = String(order.status || 'Новый');
+      const englishStatus = STATUS_MAP[rawStatus] || 'new';
+
+      return {
+        id: `1c-json-${index}`,
+        number: String(order.number || '—'),
+        date: order.date || null,
+        status: englishStatus,
+        statusLabel: rawStatus,
+        total: Number(order.total || 0),
+        clientName: String(order.clientName || '—'),
+        clientPhone: normalizePhone(String(order.clientPhone || '')),
+        address: String(order.address || '—'),
+        items: (order.items || []).map((item) => ({
+          name: String(item.name || '—'),
+          quantity: Number(item.quantity || item.qty || 1),
+          price: Number(item.price || 0),
+          sum: Number(item.sum || item.total || item.price * (item.quantity || item.qty || 1)),
+        })),
+        source: '1c-json',
+      };
+    });
+  } catch (err) {
+    console.error('JSON read error:', err);
     return [];
   }
 }

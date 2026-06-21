@@ -24,8 +24,8 @@ import { useAdminUsers } from '@/hooks/useAdminUsers';
 const STATUS_OPTIONS = ['new', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
 const STATUS_LABELS = { new: 'Новый', confirmed: 'Подтверждён', processing: 'В обработке', shipped: 'Отправлен', delivered: 'Доставлен', cancelled: 'Отменён' };
 const STATUS_COLORS = { new: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200', confirmed: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200', processing: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200', shipped: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200', delivered: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200', cancelled: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' };
-const SOURCE_LABELS = { site: 'Сайт', '1c-xls': '1С', import: 'Импорт' };
-const SOURCE_COLORS = { site: 'bg-gray-100 text-gray-700', '1c-xls': 'bg-blue-100 text-blue-700', import: 'bg-green-100 text-green-700' };
+const SOURCE_LABELS = { site: 'Сайт', '1c-xls': '1С (XLS)', '1c-json': '1С (JSON)', import: 'Импорт' };
+const SOURCE_COLORS = { site: 'bg-gray-100 text-gray-700', '1c-xls': 'bg-blue-100 text-blue-700', '1c-json': 'bg-cyan-100 text-cyan-700', import: 'bg-green-100 text-green-700' };
 
 const TAB_ITEMS = [
   { value: 'stats', label: 'Статистика', icon: BarChart3 },
@@ -619,7 +619,7 @@ function ImportTab() {
       <Card>
         <CardContent className="p-6 space-y-4">
           <p className="text-sm text-muted-foreground">
-            Загрузите JSON файл с заказами. Формат: массив объектов с полями name, phone, address, items (name, price, qty)
+            {`Загрузите JSON файл с заказами. Поддерживаются форматы сайта (name, phone, address, items: name, price, qty) и 1С (orders: [{ clientName, clientPhone, address, items: name, quantity, price }])`}
           </p>
           <form onSubmit={handleOrdersUpload} className="space-y-4">
             <div className="space-y-2">

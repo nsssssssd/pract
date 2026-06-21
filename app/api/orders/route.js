@@ -8,9 +8,11 @@ import fs from 'fs';
 import path from 'path';
 
 const XLS_FILE_LOCAL = path.join(process.cwd(), '1c', 'orders.xls');
+const JSON_FILE_LOCAL = path.join(process.cwd(), '1c', 'orders.json');
 const EXCHANGE_DIR = process.env.ONE_C_EXCHANGE_DIR || 'C:\\1C\\Exchange';
 const XLS_FILE = path.join(EXCHANGE_DIR, 'orders.xls');
-const JSON_FILE = path.join(process.cwd(), '1c', 'orders.json');
+const JSON_FILE = path.join(EXCHANGE_DIR, 'orders.json');
+const JSON_CACHE_FILE = path.join(process.cwd(), '1c', 'orders.cache.json');
 
 // Маппинг русских статусов в английские
 const STATUS_MAP = {
@@ -58,6 +60,49 @@ function parseItems(itemsString) {
   return items;
 }
 
+function readJSONOrders() {
+  let jsonPath = null;
+  if (fs.existsSync(JSON_FILE_LOCAL)) {
+    jsonPath = JSON_FILE_LOCAL;
+  } else if (fs.existsSync(JSON_FILE)) {
+    jsonPath = JSON_FILE;
+  }
+  if (!jsonPath) return [];
+
+  try {
+    const raw = fs.readFileSync(jsonPath, 'utf-8');
+    const parsed = JSON.parse(raw);
+    const orders = (parsed.orders || []).map((order, index) => {
+      const rawStatus = String(order.status || 'Новый');
+      const englishStatus = STATUS_MAP[rawStatus] || 'new';
+
+      return {
+        id: `1c-json-${index}`,
+        number: String(order.number || '—'),
+        date: order.date || null,
+        status: englishStatus,
+        statusLabel: rawStatus,
+        total: Number(order.total || 0),
+        clientName: String(order.clientName || '—'),
+        clientPhone: normalizePhone(String(order.clientPhone || '')),
+        address: String(order.address || '—'),
+        items: (order.items || []).map((item) => ({
+          name: String(item.name || '—'),
+          quantity: Number(item.quantity || item.qty || 1),
+          price: Number(item.price || 0),
+          sum: Number(item.sum || item.total || item.price * (item.quantity || item.qty || 1)),
+        })),
+        source: '1c-json',
+      };
+    });
+
+    return orders;
+  } catch (err) {
+    console.error('JSON read error:', err);
+    return [];
+  }
+}
+
 function readXLSOrders() {
   let xlsPath = null;
   if (fs.existsSync(XLS_FILE_LOCAL)) {
@@ -92,20 +137,13 @@ function readXLSOrders() {
       };
     });
 
-    // Сохраняем в JSON для удобства
-    try {
-      fs.writeFileSync(JSON_FILE, JSON.stringify(orders, null, 2));
-    } catch (e) {
-      console.error('Failed to write JSON cache:', e);
-    }
-
     return orders;
   } catch (err) {
     console.error('XLS read error:', err);
     // Если XLS не читается, пробуем JSON
-    if (fs.existsSync(JSON_FILE)) {
+    if (fs.existsSync(JSON_CACHE_FILE)) {
       try {
-        return JSON.parse(fs.readFileSync(JSON_FILE, 'utf-8'));
+        return JSON.parse(fs.readFileSync(JSON_CACHE_FILE, 'utf-8'));
       } catch (e) {
         return [];
       }
@@ -149,11 +187,21 @@ export async function GET() {
       source: 'site',
     }));
 
-    // 2. Заказы из XLS
+    // 2. Заказы из JSON
+    const jsonOrders = readJSONOrders();
+
+    // 3. Заказы из XLS
     const xlsOrders = readXLSOrders();
 
-    // Объединяем: сначала сайт, потом 1С
-    const allOrders = [...siteOrders, ...xlsOrders];
+    // Объединяем: сначала сайт, потом JSON, потом XLS
+    const allOrders = [...siteOrders, ...jsonOrders, ...xlsOrders];
+
+    // Сохраняем кеш 1С-заказов для обновления статусов
+    try {
+      fs.writeFileSync(JSON_CACHE_FILE, JSON.stringify([...jsonOrders, ...xlsOrders], null, 2));
+    } catch (e) {
+      console.error('Failed to write JSON cache:', e);
+    }
 
     return NextResponse.json(allOrders);
   } catch (err) {

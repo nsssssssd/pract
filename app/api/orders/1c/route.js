@@ -9,8 +9,10 @@ import path from 'path';
 
 const EXCHANGE_DIR = process.env.ONE_C_EXCHANGE_DIR || 'C:\\1C\\Exchange';
 const XLS_FILE = path.join(EXCHANGE_DIR, 'orders.xls');
+const JSON_FILE = path.join(EXCHANGE_DIR, 'orders.json');
 // Также ищем в папке проекта (для тестирования)
 const XLS_FILE_LOCAL = path.join(process.cwd(), '1c', 'orders.xls');
+const JSON_FILE_LOCAL = path.join(process.cwd(), '1c', 'orders.json');
 
 export async function GET() {
   try {
@@ -53,7 +55,59 @@ export async function GET() {
       }
     }
 
-    // Режим 2: XLS файловый обмен (локальный)
+    // Режим 2: JSON файловый обмен (локальный)
+    // Ищем сначала в папке проекта, потом в ONE_C_EXCHANGE_DIR
+    let jsonPath = null;
+    if (fs.existsSync(JSON_FILE_LOCAL)) {
+      jsonPath = JSON_FILE_LOCAL;
+    } else if (fs.existsSync(JSON_FILE)) {
+      jsonPath = JSON_FILE;
+    }
+
+    if (jsonPath) {
+      try {
+        const raw = fs.readFileSync(jsonPath, 'utf-8');
+        const parsed = JSON.parse(raw);
+        const allOrders = (parsed.orders || []).map((order, index) => ({
+          id: `1c-json-${index}`,
+          number: String(order.number || '—'),
+          date: order.date || null,
+          status: String(order.status || 'Новый'),
+          total: Number(order.total || 0),
+          clientName: String(order.clientName || '—'),
+          clientPhone: normalizePhone(String(order.clientPhone || '')),
+          address: String(order.address || '—'),
+          items: (order.items || []).map((item) => ({
+            name: String(item.name || '—'),
+            quantity: Number(item.quantity || item.qty || 1),
+            price: Number(item.price || 0),
+            sum: Number(item.sum || item.total || item.price * (item.quantity || item.qty || 1)),
+          })),
+          source: '1c-json',
+        }));
+
+        const normalizedPhone = normalizePhone(phone);
+        const filtered = allOrders.filter((order) => {
+          const orderPhone = normalizePhone(order.clientPhone);
+          return orderPhone.includes(normalizedPhone) || normalizedPhone.includes(orderPhone);
+        });
+
+        return NextResponse.json({
+          orders: filtered,
+          source: '1c-json',
+          demo: false,
+          phone: phone.replace(/\d(?=\d{4})/g, '*'),
+        });
+      } catch (err) {
+        console.error('JSON parse error:', err);
+        return NextResponse.json(
+          { error: 'Ошибка чтения JSON файла: ' + err.message },
+          { status: 500 }
+        );
+      }
+    }
+
+    // Режим 3: XLS файловый обмен (локальный)
     // Ищем сначала в папке проекта, потом в ONE_C_EXCHANGE_DIR
     let xlsPath = null;
     if (fs.existsSync(XLS_FILE_LOCAL)) {
@@ -67,7 +121,7 @@ export async function GET() {
         const workbook = XLSX.readFile(xlsPath);
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
-        const rows = xlsx.utils.sheet_to_json(worksheet, { header: 1 });
+        const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
         // Пропускаем заголовок (первая строка)
         const dataRows = rows.slice(1);
@@ -106,7 +160,7 @@ export async function GET() {
       }
     }
 
-    // Режим 3: CommerceML XML (fallback)
+    // Режим 4: CommerceML XML (fallback)
     if (!isCommerceMLConfigured()) {
       return NextResponse.json(
         { error: '1С не настроена. Укажите ONE_C_BASE_URL для HTTP API, положите orders.xls, или настройте CommerceML' },

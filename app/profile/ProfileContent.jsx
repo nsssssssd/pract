@@ -13,10 +13,10 @@ import Loader from '@/components/Loader';
 import { useMyOrders } from '@/hooks/useMyOrders';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const STATUS_LABELS = { new: 'Новый', confirmed: 'Подтверждён', delivered: 'Доставлен', cancelled: 'Отменён' };
-const STATUS_COLORS = { new: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200', confirmed: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200', delivered: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200', cancelled: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' };
-const SOURCE_LABELS = { site: 'Сайт', '1c-xls': '1С' };
-const SOURCE_COLORS = { site: 'bg-gray-100 text-gray-700', '1c-xls': 'bg-blue-100 text-blue-700' };
+const STATUS_LABELS = { new: 'Новый', confirmed: 'Подтверждён', processing: 'В работе', shipped: 'Отправлен', delivered: 'Доставлен', cancelled: 'Отменён' };
+const STATUS_COLORS = { new: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200', confirmed: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200', processing: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200', shipped: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200', delivered: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200', cancelled: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' };
+const SOURCE_LABELS = { site: 'Сайт', '1c-xls': '1С (XLS)', '1c-json': '1С (JSON)' };
+const SOURCE_COLORS = { site: 'bg-gray-100 text-gray-700', '1c-xls': 'bg-blue-100 text-blue-700', '1c-json': 'bg-cyan-100 text-cyan-700' };
 
 function EditProfileForm({ user, onSave, onCancel }) {
   const [form, setForm] = useState({ name: user.name, email: user.email, phone: user.phone || '' });
@@ -142,10 +142,13 @@ export default function ProfileContent({ initialUser }) {
 
   const router = useRouter();
 
-  if (!user) {
-    useEffect(() => {
+  useEffect(() => {
+    if (!user) {
       router.push('/login');
-    }, [router]);
+    }
+  }, [user, router]);
+
+  if (!user) {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
         <div className="text-5xl mb-4">🔒</div>
