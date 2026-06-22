@@ -617,6 +617,7 @@ export default function AdminContent() {
 }
 
 function ImportTab() {
+  const queryClient = useQueryClient();
   const [ordersFile, setOrdersFile] = useState(null);
   const [ordersMode, setOrdersMode] = useState('append');
   const [ordersLoading, setOrdersLoading] = useState(false);
