@@ -16,6 +16,7 @@ import Image from 'next/image';
 import { Loader2, Plus, Pencil, Trash2, Package, Users, DollarSign, Bell, Shield, Upload, RefreshCw, FileSpreadsheet, Trash, FileJson, BarChart3, ShoppingBag, Tag, UserCircle, Import } from 'lucide-react';
 import { toast } from 'sonner';
 import Loader from '@/components/Loader';
+import { useQueryClient } from '@tanstack/react-query';
 import { useProducts } from '@/hooks/useProducts';
 import { useOrders } from '@/hooks/useOrders';
 import { useAdminStats } from '@/hooks/useAdminStats';
@@ -37,6 +38,7 @@ const TAB_ITEMS = [
 
 export default function AdminContent() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [user, setUser] = useState(null);
   const [productForm, setProductForm] = useState({ name: '', description: '', price: '', unit: 'шт', emoji: '🌷', color: '#F4A7B9', image: null, category: 'flower' });
   const [imageFile, setImageFile] = useState(null);
@@ -64,8 +66,8 @@ export default function AdminContent() {
         body: JSON.stringify({ status }),
       });
       if (!res.ok) throw new Error('Ошибка');
-      await refetchOrders();
-      await refetchStats();
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
       toast.success('Статус обновлён');
     } catch { toast.error('Ошибка обновления статуса'); }
   }
@@ -95,8 +97,8 @@ export default function AdminContent() {
     try {
       const res = await fetch(`/api/orders/${id}`, { method: 'DELETE', credentials: 'include' });
       if (!res.ok) throw new Error('Ошибка');
-      await refetchOrders();
-      await refetchStats();
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
       toast.success('Заказ удалён');
     } catch { toast.error('Ошибка удаления заказа'); }
   }
@@ -639,8 +641,8 @@ function ImportTab() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Ошибка импорта');
       setOrdersResult(data);
-      await refetchOrders();
-      await refetchStats();
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
       toast.success(`Импортировано ${data.imported} заказов`);
       setOrdersFile(null);
     } catch (err) {
